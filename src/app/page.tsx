@@ -331,7 +331,8 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col  w-full gap-5 border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-[24px] bg-[#FCFCFC] p-8">
+    <main   style={{ height: 'calc(100vh - 60px)' }}
+    className="flex flex-col w-full gap-5 border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-[24px] bg-[#FCFCFC] p-8 overflow-auto custom-scrollbar">
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="loader"></div>
@@ -365,7 +366,7 @@ export default function Home() {
         </Button>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex items-center">
           <Button
             type="button"
@@ -405,7 +406,7 @@ export default function Home() {
                 showDatePicker === "compare" ? null : "compare"
               );
             }}
-            className="px-4 py-1 bg-[#FFF] text-[#454545] border-2 border-[#F4F4F7] font-semibold rounded-md"
+            className="flex w-full h-auto px-4 py-1 bg-[#FFF] text-[#454545] border-2 border-[#F4F4F7] font-semibold rounded-md"
           >
             <MdOutlineCalendarToday size={15} color="#4A4A4A" />
             <input
@@ -416,10 +417,11 @@ export default function Home() {
               onChange={(e) => handleDateChange(new Date(e.target.value))}
               className="opacity-0 !w-0 z-10"
             />
+            <span className="w-full whitespace-normal text-wrap text-left">
             {compareDate
               ? `Compare to ${compareDate.toDateString()}`
               : "Compare to ..."}
-            
+            </span>
           </Button>
         </div>
       </div>
@@ -488,8 +490,8 @@ export default function Home() {
 
       </div>
 
-      <div className="flex flex-col gap-3 py-2">
-        <div className="flex justify-between items-center">
+      <div className="flex w-full flex-col gap-3 py-2">
+        <div className="flex flex-col sm:flex-row justify-between max-sm:gap-1 sm:items-center">
           <div className="flex">
             <p className="text-[#AAA2BF] pr-2">Showing</p>
             <p className="text-[#AAA2BF] font-semibold">
@@ -513,6 +515,8 @@ export default function Home() {
             />
           </PaginationRoot>
         </div>
+        <div className="w-full overflow-auto custom-scrollbar">
+        <div className="min-w-[600px]">
         <Table.Root
           variant="outline"
           className="!border-none rounded-lg w-full"
@@ -576,6 +580,8 @@ export default function Home() {
             )}
           </Table.Body>
         </Table.Root>
+        </div>
+        </div>
       </div>
     </main>
   );
