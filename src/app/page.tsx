@@ -11,7 +11,7 @@ import { MdOutlineCalendarToday } from "react-icons/md";
 import { createClient } from "./utils/supabase/client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-
+import FeatureCard from "@/components/feature-card";
 interface User {
   id?: string,
   referral_code?: string
@@ -424,8 +424,8 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row w-full gap-4 mt-2">
-        {chartData?.map((data, index) => {
+      <div className="flex flex-col lg:flex-row w-full gap-4 mt-2">
+        {/* {chartData?.map((data, index) => {
           return (
             <div className="flex basis-1 flex-1" key={index}>
               <div className="flex flex-col w-full border-2 border-[#EBEBEB] rounded-lg pl-6 py-4 pr-4 flex-0 overflow-hidden">
@@ -483,7 +483,9 @@ export default function Home() {
               </div>
             </div>
           );
-        })}
+        })} */}
+        <FeatureCard data={chartData}/>
+
       </div>
 
       <div className="flex flex-col gap-3 py-2">
@@ -526,7 +528,7 @@ export default function Home() {
                 User
               </Table.ColumnHeader>
               <Table.ColumnHeader className="text-[#454545] font-semibold">
-                Amount Spend
+                Amount Spent
               </Table.ColumnHeader>
               <Table.ColumnHeader
                 className="text-[#454545] font-semibold"
