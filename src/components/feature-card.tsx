@@ -2,7 +2,6 @@
 
 import { FaArrowDown, FaArrowUp } from "react-icons/fa6";
 import SparklineChart from "./charts/spartLineChart";
-import Modal from "@/components/ui/modal";
 import { useState } from "react";
 import CustomModal from "@/components/ui/modal";
 import { Button } from "./ui/button";
@@ -11,10 +10,10 @@ export interface FeatureCardProps {
   data?: any;
 }
 
-const amount = ['$100', '$500', '$100', 'Max']
+const amount = ["$100", "$500", "$100", "Max"];
 
 export default function FeatureCard({ data }: FeatureCardProps) {
-    const [isModalOpen, setModalOpen] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
 
   const handleWithdrawalClick = () => {
     setModalOpen(true);
@@ -23,13 +22,13 @@ export default function FeatureCard({ data }: FeatureCardProps) {
   const closeModal = () => {
     setModalOpen(false);
   };
-    return(
-        <>
-        {data?.map((data:any, index:any) => {
-            return (
-                <>
-              <div className="flex basis-1 flex-1" key={index}>
-            <div className="flex flex-col w-full border-2 border-[#EBEBEB] rounded-lg pl-6 py-4 pr-4 flex-0 overflow-hidden">
+  return (
+    <>
+      {data?.map((data: any, index: any) => {
+        return (
+          <>
+            <div className="flex basis-1 flex-1" key={index}>
+              <div className="flex flex-col w-full border-2 border-[#EBEBEB] rounded-lg pl-6 py-4 pr-4 flex-0 overflow-hidden">
                 <div className="flex w-full flex-col gap-8">
                   <div className="flex w-full flex-wrap justify-between items-center">
                     <h2
@@ -41,8 +40,9 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                     </h2>
                     {data.name === "Wallet" && (
                       <div
-                      onClick={handleWithdrawalClick} 
-                       className="flex border bg-[#F4F4F7] text-[#3D3C3C] font-semibold rounded-md p-2 cursor-pointer">
+                        onClick={handleWithdrawalClick}
+                        className="flex border bg-[#F4F4F7] text-[#3D3C3C] font-semibold rounded-md p-2 cursor-pointer"
+                      >
                         Withdrawal
                       </div>
                     )}
@@ -84,32 +84,43 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                   </div>
                 </div>
               </div>
-        </div>
-        {isModalOpen && (
-        <CustomModal onClose={closeModal}>
-          <div className="">
-            <h2 className="text-lg font-semibold">Withdrawal</h2>
-            <div className="flex flex-col items-center gap-3 mt-2">
-            <p className="text-3xl font-bold">$ 1393.73</p>
-            <div  className="flex gap-3 ">
-            {amount.map((amt:any, index)=>{
-                return(
-                <p key={index} className="text-sm font bold bg-slate-200 rounded-full px-4 py-1">{amt}</p>
-            )})}
             </div>
-            <div className="w-full">
-            <p>To</p>
-            <div className="border rounded p-2"><p className="text-sm">Chase Bank **** **** **** 3842</p></div>
-            </div>
-             <Button className="w-full bg-[#4f11c9] text-white text-sm font-bold rounded-md">
-                          Pay out $ 1393.73
-                        </Button>
-            </div>
-          </div>
-        </CustomModal>
-      )}
-        </>
-    );
-})}
-</>
-    )}
+            {isModalOpen && (
+              <CustomModal onClose={closeModal}>
+                <div className="">
+                  <h2 className="text-lg font-semibold">Withdrawal</h2>
+                  <div className="flex flex-col items-center gap-3 mt-2">
+                    <p className="text-3xl font-bold">$ 1393.73</p>
+                    <div className="flex gap-3 ">
+                      {amount.map((amt: any, index) => {
+                        return (
+                          <p
+                            key={index}
+                            className="text-sm font bold bg-slate-200 rounded-full px-4 py-1"
+                          >
+                            {amt}
+                          </p>
+                        );
+                      })}
+                    </div>
+                    <div className="w-full">
+                      <p>To</p>
+                      <div className="border rounded p-2">
+                        <p className="text-sm">
+                          Chase Bank **** **** **** 3842
+                        </p>
+                      </div>
+                    </div>
+                    <Button className="w-full bg-[#4f11c9] text-white text-sm font-bold rounded-md">
+                      Pay out $ 1393.73
+                    </Button>
+                  </div>
+                </div>
+              </CustomModal>
+            )}
+          </>
+        );
+      })}
+    </>
+  );
+}

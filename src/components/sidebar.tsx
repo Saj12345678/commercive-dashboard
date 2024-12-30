@@ -98,14 +98,14 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
     <>
       {/* Sidebar for larger screens */}
       <div
-        className={`hidden md:flex flex flex-col ${
+        className={`hidden md:flex flex-col ${
           isCollapsed ? "w-24" : "w-[360px]"
-        } transition-all duration-500 bg-white h-full px-4 pb-6`}
+        } transition-all duration-500 bg-white h-full pb-6`}
       >
         <div
           className={`flex flex-col ${
             isCollapsed ? "gap-5" : "gap-8"
-          } justify-between h-full`}
+          } justify-between h-full p-3`}
         >
           <div
             className={`flex flex-col ${
@@ -251,9 +251,9 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
 
           {/* Sidebar Container */}
           <div
-            className={`flex w-[256px] bg-white h-full z-50 flex-col ${
+            className={`flex w-[300px] bg-white h-full z-50 flex-col ${
               isCollapsed ? "gap-5" : "gap-8"
-            } justify-between`}
+            } justify-between p-3`}
           >
             {/* Top Section */}
             <div
@@ -263,9 +263,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             >
               {/* User Section */}
               <div
-                className={`w-full flex justify-between border-4 border-[#F4F4F7] rounded-md py-2 px-4 ${
-                  isCollapsed && "!px-1"
-                } bg-white`}
+                className={`w-full flex justify-between border-4 border-[#F4F4F7] rounded-md py-2 px-4 bg-white`}
               >
                 <div
                   className={`flex w-full`}
