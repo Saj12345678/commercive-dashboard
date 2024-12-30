@@ -8,6 +8,7 @@ import Sidebar from "@/components/sidebar";
 import { usePathname, useSelectedLayoutSegment } from "next/navigation";
 import { Flip, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,12 @@ export default function RootLayout({
 }>) {
   const pathName = usePathname();
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -40,11 +47,11 @@ export default function RootLayout({
           <div className="flex flex-col h-[100dvh] w-full">
             {!pathName?.includes("/login") &&
               !pathName?.includes("/signUp") &&
-              !pathName?.includes("/error") && <Header />}
+              !pathName?.includes("/error") && <Header toggleSidebar={toggleSidebar}/>}
             <div className="flex h-full w-full">
               {!pathName?.includes("/login") &&
                 !pathName?.includes("/signUp") &&
-                !pathName?.includes("/error") && <Sidebar />}
+                !pathName?.includes("/error") && <Sidebar isOpen={isSidebarOpen} handleToggleSidebar={toggleSidebar}/>}
               {children}
             </div>
           </div>
