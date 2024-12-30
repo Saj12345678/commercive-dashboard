@@ -209,12 +209,6 @@ export default function Home() {
 
         const totalEarningsChart = groupAndSumByDate(pendingRecords);
         const pendingEarningsChart = groupAndSumByDate(paidRecords);
-        console.log({
-          totalEarningsChart,
-          formattedStartDate,
-          formattedEndDate,
-          pendingEarningsChart,
-        });
         const totalEarning = getTotalsBetweenDates({
           chartData: totalEarningsChart,
           formattedStartDate,
@@ -251,7 +245,6 @@ export default function Home() {
             return item;
           });
         });
-        console.log("Fetched orders:", orderData);
       }
     } catch (error) {
       console.error("Error in fetchOrders:", error);
@@ -314,9 +307,7 @@ export default function Home() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-
-      console.log(user, "fvd");
-
+      
       if (!user?.id) {
         router.push("/login");
       }
@@ -346,7 +337,6 @@ export default function Home() {
         .single();
 
       if (error || !data?.referral_code) {
-        console.log(error);
         toast.error("Unable to fetch referral code.");
         return;
       }
@@ -559,6 +549,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+                
+
     </main>
   );
 }
