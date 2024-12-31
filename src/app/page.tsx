@@ -13,6 +13,7 @@ import { createClient } from "./utils/supabase/client";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import FeatureCard from "@/components/feature-card";
+import CustomModal from "@/components/ui/modal";
 interface User {
   id?: string;
   referral_code?: string;
@@ -35,6 +36,7 @@ export default function Home() {
   >(null);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [referralLink, setReferralLink] = useState('');
   const [chartData, setChartData] = useState([
     {
       name: "Total Referrals",
@@ -73,6 +75,43 @@ export default function Home() {
   const [tableData, setTableData] = useState([
     { image: "", name: "", email: "", amount: "", commission: "" },
   ]);
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const handleAffiliateClick = async () => {
+    setLoading(true);
+
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        toast.error("Unable to fetch user information.");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("user")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error || !data?.referral_code) {
+        toast.error("Unable to fetch referral code.");
+        return;
+      }
+
+      setReferralLink(`${process.env.NEXT_PUBLIC_CLIENT_URL}/signUp?referral=${data.referral_code}`);
+      setModalOpen(true);
+  }finally {
+    setLoading(false);
+  }
+}
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
 
   // Function to calculate total earnings
   const calculateEarnings = (orders: any, weekOffset = 0, status = "paid") => {
@@ -318,45 +357,8 @@ export default function Home() {
     fetchUser();
   }, []);
 
-  const handleAffiliateClick = async () => {
-    setLoading(true);
-
-    try {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        toast.error("Unable to fetch user information.");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("user")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error || !data?.referral_code) {
-        toast.error("Unable to fetch referral code.");
-        return;
-      }
-
-      const referralLink = `${process.env.NEXT_PUBLIC_CLIENT_URL}/signUp?referral=${data.referral_code}`;
-
-      await navigator.clipboard.writeText(referralLink);
-
-      toast.success("Affiliate link copied to clipboard!");
-    } catch (err) {
-      toast.error("Something went wrong.");
-      console.error("Affiliate link error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
+    <>
     <main
       style={{ height: "calc(100vh - 60px)" }}
       className="flex flex-col w-full gap-5 border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-[24px] bg-[#FCFCFC] p-8 overflow-auto custom-scrollbar"
@@ -553,7 +555,14 @@ export default function Home() {
           </div>
         </div>
       </div>
-
+      {isModalOpen && (
+              <CustomModal onClose={closeModal}>
+                <div className="flex border border-[#F4F4F7] rounded p-2 mt-2">
+                  {referralLink}
+                </div>
+              </CustomModal>
+            )}
     </main>
+    </>
   );
 }
