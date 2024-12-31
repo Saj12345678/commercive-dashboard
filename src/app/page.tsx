@@ -78,7 +78,6 @@ export default function Home() {
 
   const handleAffiliateClick = async () => {
     setLoading(true);
-
     try {
       const {
         data: { user },
