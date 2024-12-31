@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import { Flip, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
+import LabelBottomNavigation from "@/components/bottom-navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,11 +40,13 @@ export default function RootLayout({
       >
         <Provider>
           <div className="flex flex-col h-[100dvh] w-full">
+            <div className="flex sticky top-0 z-50">
             {!pathName?.includes("/login") &&
               !pathName?.includes("/signUp") &&
               !pathName?.includes("/error") && (
                 <Header toggleSidebar={toggleSidebar} />
               )}
+              </div>
             <div className="flex h-full w-full">
               {!pathName?.includes("/login") &&
                 !pathName?.includes("/signUp") &&
@@ -54,6 +57,13 @@ export default function RootLayout({
                   />
                 )}
               {children}
+            </div>
+            <div className="flex md:hidden sticky bottom-0 z-50">
+            {!pathName?.includes("/login") &&
+                !pathName?.includes("/signUp") &&
+                !pathName?.includes("/error") && (
+                  <LabelBottomNavigation route={pathName} />
+                )}
             </div>
           </div>
           <ToastContainer position="top-right" transition={Flip} />

@@ -8,7 +8,8 @@ import {
   MenuTrigger,
 } from "./ui/menu";
 import Image from "next/image";
-import { RxHamburgerMenu } from "react-icons/rx";
+import LogoIcon from "./images/full-logo";
+import Logo from "./images/logo";
 
 export interface HeaderProps {
   toggleSidebar?: any;
@@ -19,11 +20,11 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
     <div className="w-full flex justify-between py-4 px-6 h-[60px] bg-white">
       <div className="flex">
         <button className="md:hidden mr-4 flex" onClick={toggleSidebar}>
-          <RxHamburgerMenu size={24} />
+          <Logo width={24} height={35} />
         </button>
-        <h1 className="hidden md:flex text-xl text-[#4F11C9] font-bold">
-          Commercive
-        </h1>
+        <div className="hidden md:flex items-center justify-center">
+          <LogoIcon width={150} height={35} />
+        </div>
       </div>
       <MenuRoot>
         <MenuTrigger asChild>

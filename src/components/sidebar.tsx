@@ -106,7 +106,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
         <div
           className={`flex flex-col ${
             isCollapsed ? "gap-5" : "gap-8"
-          } justify-between h-full p-3`}
+          } justify-between h-full px-3 pb-3`}
         >
           <div
             className={`flex flex-col ${
@@ -240,7 +240,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
       </div>
       {/* for mobile screen */}
       {isOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
+        <div className="md:hidden fixed inset-0 z-[60] flex">
           {/* Background Overlay */}
           <div
             className="fixed inset-0 bg-black opacity-40"
