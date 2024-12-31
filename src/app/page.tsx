@@ -362,7 +362,7 @@ export default function Home() {
       className="flex flex-col w-full gap-5 border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
     >
       {loading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="loader"></div>
         </div>
       )}
