@@ -22,7 +22,6 @@ interface User {
 export default function Home() {
   const supabase = createClient();
   const router = useRouter();
-
   const today = new Date();
   const currentDay = today.getDay(); 
   const currentWeekMonday = new Date(today);
@@ -79,7 +78,6 @@ export default function Home() {
 
   const handleAffiliateClick = async () => {
     setLoading(true);
-
     try {
       const {
         data: { user },
