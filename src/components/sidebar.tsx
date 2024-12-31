@@ -8,6 +8,11 @@ import { Button } from "./ui/button";
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
 import { createClient } from "@/app/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
+import Union from "./images/union";
+import HouseIcon from "./images/home";
+import InventoryIcon from "./images/inventory";
+import ShipmentIcon from "./images/shipment";
+import SettingIcon from "./images/setting";
 export interface SidebarProps {
   isOpen?: any;
   handleToggleSidebar?: any;
@@ -17,26 +22,22 @@ const data = [
   {
     title: "Home",
     href: "/home",
-    icon: <Image src="/svgs/Home.svg" width={20} height={20} alt="home" />,
+    icon: <HouseIcon width={20} height={20} color={'#000000'} />,
   },
   {
     title: "Inventory",
     href: "/inventory",
-    icon: (
-      <Image src="/svgs/Inventory.svg" width={20} height={20} alt="inventory" />
-    ),
+    icon: <InventoryIcon width={20} height={20} color={'#000000'} />
   },
   {
     title: "Shipments",
     href: "/shipment",
-    icon: (
-      <Image src="/svgs/Shipments.svg" width={20} height={20} alt="shipments" />
-    ),
+    icon: <ShipmentIcon width={20} height={20} color={'#000000'} />,
   },
   {
     title: "Commercive Partners",
     href: "/",
-    icon: <Image src="/svgs/Union.svg" width={20} height={20} alt="union" />,
+    icon: <Union width={20} height={20} color={'#000000'} />,
   },
 ];
 
@@ -186,11 +187,13 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     } ${isCollapsed && "justify-center"}`}
                   >
                     <span
-                      className={`${
-                        pathName === link.href ? "text-[#4F11C9]" : "text-black"
-                      } ${isCollapsed && "justify-center"}`}
+                      className={`${isCollapsed && "justify-center"}`}
                     >
-                      {link.icon}
+                      {
+                        React.cloneElement(link.icon, {
+                          color: pathName === link.href ? "#4F11C9" : "#000000",
+                        })
+                      }
                     </span>
                     {!isCollapsed && (
                       <span
@@ -213,12 +216,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   : "text-black bg-[#FFF] hover:bg-purple-100"
               } items-center w-full gap-3 p-3`}
             >
-              <Image
-                src="/svgs/Setting.svg"
-                width={20}
-                height={20}
-                alt="setting"
-              />
+              <SettingIcon width={20} height={20} color={pathName === "setting" ? '#4F11C9' : '#000000'} />
               {!isCollapsed && (
                 <p className="text-black text-sm tracking-wider">Settings</p>
               )}
@@ -328,14 +326,14 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                       } `}
                     >
                       <span
-                        className={`${
-                          pathName === link.href
-                            ? "text-[#4F11C9]"
-                            : "text-black"
-                        } `}
-                      >
-                        {link.icon}
-                      </span>
+                      className={`${isCollapsed && "justify-center"}`}
+                    >
+                      {
+                        React.cloneElement(link.icon, {
+                          color: pathName === link.href ? "#4F11C9" : "#000000",
+                        })
+                      }
+                    </span>
                       <span
                         className={`flex text-sm font-medium overflow-hidden`}
                       >
@@ -356,12 +354,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     : "text-black bg-[#FFF] hover:bg-purple-100"
                 } items-center w-full gap-3 p-3`}
               >
-                <Image
-                  src="/svgs/Setting.svg"
-                  width={20}
-                  height={20}
-                  alt="setting"
-                />
+                <SettingIcon width={20} height={20} color={pathName === "setting" ? '#4F11C9' : '#000000'} />
                 <p className="text-black text-sm tracking-wider">Settings</p>
               </div>
             </div>

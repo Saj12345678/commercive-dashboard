@@ -23,8 +23,10 @@ export default function Home() {
   const router = useRouter();
 
   const today = new Date();
-  const oneWeekAgo = new Date();
-  oneWeekAgo.setDate(today.getDate() - 7);
+  const currentDay = today.getDay(); 
+  const currentWeekMonday = new Date(today);
+  currentWeekMonday.setDate(today.getDate() - (currentDay === 0 ? 6 : currentDay - 1));
+  const oneWeekAgo = new Date(currentWeekMonday);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(today);
   const [compareDate, setCompareDate] = useState<Date | null>(oneWeekAgo);
@@ -154,7 +156,7 @@ export default function Home() {
         .from("order")
         .select("*")
         .gte("created_at", formattedStartDate)
-        .lte("created_at", formattedEndDate);
+        .lt("created_at", formattedEndDate);
 
       const { data: referral, error: referralsError } = await supabase
         .from("referrals")
@@ -364,7 +366,7 @@ export default function Home() {
           <div className="loader"></div>
         </div>
       )}
-      <div className="flex flex-col md:flex-row w-full justify-between">
+      <div className="flex flex-col md:flex-row w-full justify-between gap-2">
         <div className="flex flex-col gap-1">
           <div className="flex gap-2 items-center justify-center">
             <Image src="/svgs/Union.svg" width={20} height={20} alt="union" />
@@ -403,7 +405,7 @@ export default function Home() {
               dateInput?.showPicker();
               setShowDatePicker(showDatePicker === "today" ? null : "today");
             }}
-            className="relative px-4 py-1 bg-[#FFF] text-[#454545] border-2 border-[#F4F4F7] font-semibold rounded-md flex items-center gap-2"
+            className="flex h-auto px-4 py-1 bg-[#FFF] text-[#454545] border-2 border-[#F4F4F7] font-semibold rounded-md"
           >
             <input
               id="datePicker"
@@ -414,9 +416,11 @@ export default function Home() {
               className="opacity-0 !max-w-0 z-10"
             />
             <MdOutlineCalendarToday size={15} color="#4A4A4A" />
+            <span className="w-full whitespace-normal text-wrap text-left">
             {selectedDate && isToday(selectedDate)
               ? "Today"
               : selectedDate?.toDateString() || "Today"}
+            </span>
           </Button>
         </div>
 
@@ -435,6 +439,11 @@ export default function Home() {
             className="flex w-full h-auto px-4 py-1 bg-[#FFF] text-[#454545] border-2 border-[#F4F4F7] font-semibold rounded-md"
           >
             <MdOutlineCalendarToday size={15} color="#4A4A4A" />
+            <span className="w-full whitespace-normal text-wrap text-left">
+              {compareDate
+                ? `Compare to ${compareDate.toDateString()}`
+                : "Compare to ..."}
+            </span>
             <input
               id="datePicker1"
               type="date"
@@ -443,11 +452,6 @@ export default function Home() {
               onChange={(e) => handleDateChange(new Date(e.target.value))}
               className="opacity-0 !w-0 z-10"
             />
-            <span className="w-full whitespace-normal text-wrap text-left">
-              {compareDate
-                ? `Compare to ${compareDate.toDateString()}`
-                : "Compare to ..."}
-            </span>
           </Button>
         </div>
       </div>
@@ -485,7 +489,7 @@ export default function Home() {
           <div className="min-w-[600px]">
             <Table.Root
               variant="outline"
-              className="!border-none rounded-lg w-full"
+              className="w-full !rounded shadow-none"
             >
               <Table.ColumnGroup>
                 <Table.Column htmlWidth="30%" />
@@ -513,7 +517,7 @@ export default function Home() {
                   filteredData.map((item, index) => (
                     <Table.Row
                       key={index}
-                      className="border-b border-2 border-[#E2E2E5]"
+                      className="border-b border border-[#F4F4F7]"
                     >
                       <Table.Cell className="flex gap-4">
                         <div className="bg-[#F4F4F7] w-12 h-12 rounded-md m-1">
@@ -535,7 +539,7 @@ export default function Home() {
                     </Table.Row>
                   ))
                 ) : (
-                  <Table.Row>
+                  <Table.Row className="border border-[#F4F4F7]">
                     <Table.Cell
                       colSpan={3}
                       className="text-center py-4 text-[#A8A8A9]"
@@ -549,8 +553,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-
-                
 
     </main>
   );
