@@ -4,8 +4,9 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
 import { createClient } from '../utils/supabase/server';
+import { ActionResponse } from '@/components/type-identifiers';
 
-export async function login(formData: FormData) {
+export const login = async (prevState: any, formData: FormData): Promise<ActionResponse<void>> => {
   const supabase = await createClient()
 
   // type-casting here for convenience
@@ -16,16 +17,26 @@ export async function login(formData: FormData) {
   // Check if the email and password are present
   if (!email || !password) {
     console.error("Email or password is missing");
-    return redirect('/error'); 
+    return {
+      success: false,
+      errors: 'Email or password is missing'
+    };
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data: { user }, error } = await supabase.auth.signInWithPassword({
     email,
     password
   });
 
   if (error) {
-    redirect(`/error?msg=${error.code}&code=${error.status}`)
+    return {
+      success: false,
+      errors: error ? error.message : 'Error logging in'
+    };
+  }
+
+  if(user){
+    return { success: true, message: 'Login Successfully' };
   }
 
   revalidatePath('/', 'layout')

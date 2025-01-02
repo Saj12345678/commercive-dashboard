@@ -1,5 +1,5 @@
 // components/ui/modal.tsx
-import React, { ReactNode, useEffect, useRef } from "react";
+import React, { ReactNode } from "react";
 import { IoMdClose } from "react-icons/io";
 
 interface CustomModalProps {

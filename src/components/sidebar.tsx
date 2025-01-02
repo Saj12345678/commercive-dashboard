@@ -1,13 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Avatar } from "./ui/avatar";
-import { Button } from "./ui/button";
-import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "./ui/menu";
+import { Avatar, Button } from "@mui/material";
 import { createClient } from "@/app/utils/supabase/client";
-import { User } from "@supabase/supabase-js";
 import Union from "./images/union";
 import HouseIcon from "./images/home";
 import InventoryIcon from "./images/inventory";
@@ -18,26 +14,29 @@ export interface SidebarProps {
   handleToggleSidebar?: any;
 }
 
+import { Menu, MenuItem, IconButton } from "@mui/material";
+import { ArrowDropDownIcon } from "@mui/x-date-pickers";
+
 const data = [
   {
     title: "Home",
     href: "/home",
-    icon: <HouseIcon width={20} height={20} color={'#000000'} />,
+    icon: <HouseIcon width={20} height={20} color={"#000000"} />,
   },
   {
     title: "Inventory",
     href: "/inventory",
-    icon: <InventoryIcon width={20} height={20} color={'#000000'} />
+    icon: <InventoryIcon width={20} height={20} color={"#000000"} />,
   },
   {
     title: "Shipments",
     href: "/shipment",
-    icon: <ShipmentIcon width={20} height={20} color={'#000000'} />,
+    icon: <ShipmentIcon width={20} height={20} color={"#000000"} />,
   },
   {
     title: "Commercive Partners",
-    href: "/",
-    icon: <Union width={20} height={20} color={'#000000'} />,
+    href: "/commercive-partners",
+    icon: <Union width={20} height={20} color={"#000000"} />,
   },
 ];
 
@@ -47,8 +46,20 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userData, setUserData] = useState<string>();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+
     setIsCollapsed(!isCollapsed);
   };
 
@@ -120,41 +131,34 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             >
               <div className={`flex w-full ${isCollapsed && "hidden"}`}>
                 <div className="flex w-full gap-2">
-                  <div className="flex cursor-pointer" onClick={toggleSidebar}>
-                    <Avatar
-                      src="https://bit.ly/broken-link"
-                      colorPalette="purple"
-                      width={12}
-                      height={12}
-                    />
-                  </div>
+                  <Avatar
+                    alt="User Avatar"
+                    src="https://bit.ly/broken-link"
+                    sx={{
+                      width: 40,
+                      height: 40, 
+                      backgroundColor: "purple",
+                    }}
+                  />
                   <div className="flex flex-col">
                     <h2>{userData}</h2>
                     <p className="text-[#B1B0B0]">Connected</p>
                   </div>
                 </div>
                 <div className="flex">
-                  <MenuRoot>
-                    <MenuTrigger asChild>
-                      <div className="flex gap-2 items-center cursor-pointer">
-                        <Image
-                          src="/svgs/DownArrow.svg"
-                          width={14}
-                          height={14}
-                          alt="down-arrow"
-                        />
-                      </div>
-                    </MenuTrigger>
-                    <MenuContent>
-                      <MenuItem
-                        value="new-txt-a"
-                        className="cursor-pointer"
-                        onClick={handleLogout}
-                      >
-                        Logout
-                      </MenuItem>
-                    </MenuContent>
-                  </MenuRoot>
+                  <IconButton
+                    onClick={handleClick}
+                    className="flex gap-2 items-center cursor-pointer"
+                  >
+                    <ArrowDropDownIcon />
+                  </IconButton>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                  >
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </Menu>
                 </div>
               </div>
               <div
@@ -164,11 +168,15 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 onClick={toggleSidebar}
               >
                 <Avatar
-                  src="https://bit.ly/broken-link"
-                  colorPalette="purple"
-                  width={12}
-                  height={12}
-                />
+                        alt="User Avatar"
+                        src="https://bit.ly/broken-link"
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          backgroundColor: "purple",
+                        }}
+                      />
+                
               </div>
             </div>
             <div
@@ -186,14 +194,10 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                         : "text-black bg-[#FFF] hover:bg-purple-100"
                     } ${isCollapsed && "justify-center"}`}
                   >
-                    <span
-                      className={`${isCollapsed && "justify-center"}`}
-                    >
-                      {
-                        React.cloneElement(link.icon, {
-                          color: pathName === link.href ? "#4F11C9" : "#000000",
-                        })
-                      }
+                    <span className={`${isCollapsed && "justify-center"}`}>
+                      {React.cloneElement(link.icon, {
+                        color: pathName === link.href ? "#4F11C9" : "#000000",
+                      })}
                     </span>
                     {!isCollapsed && (
                       <span
@@ -216,7 +220,11 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   : "text-black bg-[#FFF] hover:bg-purple-100"
               } items-center w-full gap-3 p-3`}
             >
-              <SettingIcon width={20} height={20} color={pathName === "setting" ? '#4F11C9' : '#000000'} />
+              <SettingIcon
+                width={20}
+                height={20}
+                color={pathName === "setting" ? "#4F11C9" : "#000000"}
+              />
               {!isCollapsed && (
                 <p className="text-black text-sm tracking-wider">Settings</p>
               )}
@@ -232,7 +240,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               Refer new members to commercive and unlock up to 1% commision on
               all orders placed through us
             </p>
-            <Button className="w-[140px] bg-white text-black font-bold rounded-md mt-3">
+            <Button className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3">
               + Invite People
             </Button>
           </div>
@@ -272,10 +280,13 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   <div className="flex w-full gap-2">
                     <div className="flex">
                       <Avatar
+                        alt="User Avatar"
                         src="https://bit.ly/broken-link"
-                        colorPalette="purple"
-                        width={12}
-                        height={12}
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          backgroundColor: "purple",
+                        }}
                       />
                     </div>
                     <div className="flex flex-col">
@@ -284,27 +295,19 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     </div>
                   </div>
                   <div className="flex">
-                    <MenuRoot>
-                      <MenuTrigger asChild>
-                        <div className="flex gap-2 items-center cursor-pointer">
-                          <Image
-                            src="/svgs/DownArrow.svg"
-                            width={14}
-                            height={14}
-                            alt="down-arrow"
-                          />
-                        </div>
-                      </MenuTrigger>
-                      <MenuContent>
-                        <MenuItem
-                          value="new-txt-a"
-                          className="cursor-pointer"
-                          onClick={handleLogout}
-                        >
-                          Logout
-                        </MenuItem>
-                      </MenuContent>
-                    </MenuRoot>
+                  <IconButton
+                    onClick={handleClick}
+                    className="flex gap-2 items-center cursor-pointer"
+                  >
+                    <ArrowDropDownIcon />
+                  </IconButton>
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                  >
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </Menu>
                   </div>
                 </div>
               </div>
@@ -325,15 +328,11 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                           : "text-black bg-[#FFF] hover:bg-purple-100"
                       } `}
                     >
-                      <span
-                      className={`${isCollapsed && "justify-center"}`}
-                    >
-                      {
-                        React.cloneElement(link.icon, {
+                      <span className={`${isCollapsed && "justify-center"}`}>
+                        {React.cloneElement(link.icon, {
                           color: pathName === link.href ? "#4F11C9" : "#000000",
-                        })
-                      }
-                    </span>
+                        })}
+                      </span>
                       <span
                         className={`flex text-sm font-medium overflow-hidden`}
                       >
@@ -354,7 +353,11 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     : "text-black bg-[#FFF] hover:bg-purple-100"
                 } items-center w-full gap-3 p-3`}
               >
-                <SettingIcon width={20} height={20} color={pathName === "setting" ? '#4F11C9' : '#000000'} />
+                <SettingIcon
+                  width={20}
+                  height={20}
+                  color={pathName === "setting" ? "#4F11C9" : "#000000"}
+                />
                 <p className="text-black text-sm tracking-wider">Settings</p>
               </div>
             </div>
@@ -368,7 +371,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 Refer new members to commercive and unlock up to 1% commission
                 on all orders placed through us
               </p>
-              <Button className="w-[140px] bg-white text-black font-bold rounded-md mt-3">
+              <Button className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3">
                 + Invite People
               </Button>
             </div>

@@ -1,63 +1,101 @@
 "use client"
 
-import { Button, Box, Flex, Heading, Input, VStack, Text } from "@chakra-ui/react";
-import { Field } from "@/components/ui/field"
-import { login } from "./actions";
+import CustomButton from "@/components/ui/custom-button";
 import { useRouter } from "next/navigation";
+import { useFormState } from "react-dom";
+import { login } from "./actions";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+import { ActionResponse } from "@/components/type-identifiers";
 
 export default function LoginPage() {
-
   const router = useRouter();
+  const [state, formAction] = useFormState<ActionResponse<void>, FormData>(
+    login,
+    null
+  );
+
+  useEffect(() => {
+    if (!state) {
+      return;
+    }
   
+    if (!state.success && state.errors) {
+      const errors = Array.isArray(state.errors)
+        ? state.errors
+        : [state.errors]; 
+  
+      errors.forEach((error) => {
+        toast.error(error, {
+          toastId: error,
+        });
+      });
+    }
+  
+    if (state.success) {
+      toast.success("Logged in successfully!", {
+        toastId: "login-success",
+      });
+      router.push('/')
+    }
+  }, [state]);
+
   return (
-    <Flex
-      width="full"
-      height="100vh"
-      alignItems="center"
-      justifyContent="center"
-      bgGradient="linear(to-r, blue.200, blue.500)"
-    >
-      <Box
-        bg="white"
-        p={8}
-        borderRadius="md"
-        boxShadow="lg"
-        width="100%"
-        maxWidth="400px"
-      >
-        <Heading textAlign="center" mb={6} color="blue.600">
+    <div className="flex items-center justify-center w-full h-screen">
+      <div className="bg-white p-8 rounded-md shadow-lg w-full max-w-md">
+        <h1 className="text-2xl font-bold text-center mb-6 text-blue-600">
           Welcome Back
-        </Heading>
-        <Text textAlign="center" mb={6} color="gray.600">
+        </h1>
+        <p className="text-center mb-6 text-gray-600">
           Please login to continue
-        </Text>
-        <form>
-          <VStack gap={4}>
-            <Field label = "Email" color="gray.600">
-              <Input id="email" name="email" type="email" placeholder="Enter your email" required className="border border-gray p-2" />
-            </Field>
-
-            <Field label="Password" color="gray.600">
-              <Input id="password" name="password" type="password" placeholder="Enter your password" required className="border border-gray p-2" />
-            </Field>
-
-            <Button
-              type="submit"
-              backgroundColor="#4F11C9"
-              color="white"
-              width="full"
-              formAction={login}
-            >
-              Log in
-            </Button>
-          </VStack>
+        </p>
+        <form action={formAction}>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-gray-600 mb-2">
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                required
+                className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-gray-600 mb-2">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Enter your password"
+                required
+                className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <CustomButton
+                type="submit"
+                label={'Log in'}
+                className="w-full whitespace-nowrap px-6 text-xl lg:h-full"
+              />
+          </div>
         </form>
-        <Text mt={4} textAlign="center" color="gray.500">
-          Don’t have an account? <Text as="span" color="blue.600" cursor="pointer" onClick={() => {
-              router.push("/signUp"); 
-            }}>Sign up</Text>
-        </Text>
-      </Box>
-    </Flex>
+        <p className="mt-4 text-center text-gray-500">
+          Don’t have an account?{' '}
+          <span
+            className="text-blue-600 cursor-pointer hover:underline"
+            onClick={() => {
+              router.push("/signUp");
+            }}
+          >
+            Sign up
+          </span>
+        </p>
+      </div>
+    </div>
   );
 }

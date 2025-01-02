@@ -3,8 +3,9 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '../utils/supabase/server';
+import { ActionResponse } from '@/components/type-identifiers';
 
-export async function signup(formData: FormData) {
+export const signup = async (prevState: any, formData: FormData): Promise<ActionResponse<void>> => {
   const supabase = await createClient();
 
   const email = formData.get('email') as string;
@@ -13,21 +14,24 @@ export async function signup(formData: FormData) {
 
   if (!email || !password) {
     console.error("Email or password is missing");
-    return redirect(`/error?msg=${'Missing_email_or_password'}&code=${400}`);
+    return {
+      success: false,
+      errors: 'Email or password is missing'
+    };
+
   }
 
-    const { data: existingUser, error: userCheckError } = await supabase
+    const { data: existingUser } = await supabase
       .from('user')
       .select('id')
       .eq('email', email)
       .single();
 
-    if (userCheckError && userCheckError.code !== 'PGRST116') {
-      return redirect(`/error?msg=${userCheckError.code}&code=${userCheckError.code}`);
-    }
-
     if (existingUser) {
-      return redirect(`/error?msg=${'User_already_exists'}&code=${409}`);
+      return {
+        success: false,
+        errors: 'User_already_exists'
+      };
     }
 
     const { data: user, error } = await supabase.auth.signUp({
@@ -43,7 +47,10 @@ export async function signup(formData: FormData) {
 
     if (error) {
       console.error('Error during sign-up:', error.message);
-      return redirect(`/error?msg=${error.message}&code=${error.status}`);
+      return {
+        success: false,
+        errors: error ? error.message : 'Error logging in'
+      };
     }
 
     if (referral && user?.user?.id) {
@@ -56,8 +63,16 @@ export async function signup(formData: FormData) {
   
       if (referralError) {
         console.error('Error adding referral:', referralError);
-        return redirect(`/error?msg=${'referral_creation_failed'}&code=${500}`);
+        return {
+          success: false,
+          errors: 'referral_creation_failed'
+        };
       }
+
+      if(user){
+        return { success: true, message: 'SignUp Successfully' };
+      }
+
     }
 
     revalidatePath('/', 'layout');

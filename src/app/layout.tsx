@@ -1,6 +1,5 @@
 "use client";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Provider } from "@/components/ui/provider";
 import "./globals.css";
 import Header from "@/components/header";
 import Sidebar from "@/components/sidebar";
@@ -38,7 +37,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Provider>
           <div className="flex flex-col h-[100dvh] w-full">
             <div className="flex sticky top-0 z-50">
             {!pathName?.includes("/login") &&
@@ -67,7 +65,6 @@ export default function RootLayout({
             </div>
           </div>
           <ToastContainer position="top-right" transition={Flip} />
-        </Provider>
       </body>
     </html>
   );

@@ -4,7 +4,7 @@ import { FaArrowDown, FaArrowUp } from "react-icons/fa6";
 import SparklineChart from "./charts/spartLineChart";
 import { useState } from "react";
 import CustomModal from "@/components/ui/modal";
-import { Button } from "./ui/button";
+import { Button } from "@mui/material";
 
 export interface FeatureCardProps {
   data?: any;

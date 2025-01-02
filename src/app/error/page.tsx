@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
-import { Box, Button, Flex, Heading, Text, VStack } from "@chakra-ui/react";
-import { Suspense } from "react";
+import { Box, Button, CircularProgress, Typography, Grid, Paper } from "@mui/material";
+import React from "react";
 
 function ErrorContent() {
   const searchParams = useSearchParams();
@@ -26,43 +26,64 @@ function ErrorContent() {
   };
 
   return (
-    <Flex
-      width="full"
-      height="100vh"
+    <Grid
+      container
+      direction="column"
       alignItems="center"
       justifyContent="center"
-      bgGradient="linear(to-r, red.200, red.500)"
+      style={{
+        width: "100%",
+        height: "100vh",
+        background: "linear-gradient(to right, #ffcccb, #f44336)",
+      }}
     >
-      <Box
-        bg="white"
-        p={8}
-        borderRadius="md"
-        boxShadow="lg"
-        textAlign="center"
-        width="100%"
-        maxWidth="400px"
+      <Paper
+        elevation={3}
+        style={{
+          padding: "16px",
+          borderRadius: "8px",
+          textAlign: "center",
+          maxWidth: "400px",
+          width: "100%",
+        }}
       >
-        <VStack>
-          <Heading color="red.600" fontSize="2xl">
+        <Box>
+          <Typography variant="h4" color="error" gutterBottom>
             Oops! Something Went Wrong
-          </Heading>
-          <Text color="gray.600">
+          </Typography>
+          <Typography variant="body1" color="textSecondary" gutterBottom>
             {searchParams.get("msg") ||
               "An unexpected error occurred. Please try again."}
-          </Text>
-          <Button colorScheme="red" onClick={handleRetry}>
+          </Typography>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleRetry}
+            style={{ marginTop: "16px" }}
+          >
             Go to Home
           </Button>
-        </VStack>
-      </Box>
-    </Flex>
+        </Box>
+      </Paper>
+    </Grid>
   );
 }
 
 export default function ErrorPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <React.Suspense
+      fallback={
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={{ height: "100vh", width: "100%" }}
+        >
+          <CircularProgress />
+        </Box>
+      }
+    >
       <ErrorContent />
-    </Suspense>
+    </React.Suspense>
   );
 }
