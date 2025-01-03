@@ -301,10 +301,10 @@ export default function Home() {
     );
   };
 
-  const handleDateChange = (date: Date) => {
-    if (showDatePicker === "today") {
+  const handleDateChange = (date: Date, type: string) => {
+    if (type === "today") {
       setSelectedDate(date);
-    } else if (showDatePicker === "compare") {
+    } else if (type === "compare") {
       if (selectedDate && date > selectedDate) {
         toast.warning("Comparison date cannot be after the selected date.");
         return;
@@ -394,8 +394,8 @@ export default function Home() {
         </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex items-center">
+      <div className="flex flex-row gap-3 !text-xs !md:text-base items-stretch">
+        <div className="relative flex items-center h-full">
           <Button
             type="button"
             onClick={() => {
@@ -403,19 +403,19 @@ export default function Home() {
                 "datePicker"
               ) as HTMLInputElement;
               dateInput?.showPicker();
-              setShowDatePicker(showDatePicker === "today" ? null : "today");
+              // setShowDatePicker(showDatePicker === "today" ? null : "today");
             }}
-            className="flex h-auto px-4 py-1 bg-[#FFF] text-[#454545] border-2 border-[#F4F4F7] font-semibold rounded-md"
+            className="flex h-full px-2 md:px-4 py-1 bg-[#FFF] text-[#454545] border-2 border-[#F4F4F7] font-semibold rounded-md"
           >
             <input
               id="datePicker"
               type="date"
               max={today.toISOString().split("T")[0]}
               defaultValue={today.toISOString().split("T")[0]}
-              onChange={(e) => handleDateChange(new Date(e.target.value))}
+              onChange={(e) => handleDateChange(new Date(e.target.value), "today")}
               className="opacity-0 !max-w-0 z-10"
             />
-            <MdOutlineCalendarToday size={15} color="#4A4A4A" />
+            <MdOutlineCalendarToday size={15} className="w-[12px] md:w-[15px] h-[12px] md:h-[15px]" color="#4A4A4A" />
             <span className="w-full whitespace-normal text-wrap text-left">
             {selectedDate && isToday(selectedDate)
               ? "Today"
@@ -424,7 +424,7 @@ export default function Home() {
           </Button>
         </div>
 
-        <div className="relative flex items-center">
+        <div className="relative flex items-center h-full">
           <Button
             type="button"
             onClick={() => {
@@ -432,16 +432,20 @@ export default function Home() {
                 "datePicker1"
               ) as HTMLInputElement;
               dateInput1?.showPicker();
-              setShowDatePicker(
-                showDatePicker === "compare" ? null : "compare"
-              );
+              // setShowDatePicker(
+              //   showDatePicker === "compare" ? null : "compare"
+              // );
             }}
-            className="flex w-full h-auto px-4 py-1 bg-[#FFF] text-[#454545] border-2 border-[#F4F4F7] font-semibold rounded-md"
+            className="flex w-full h-full px-2 md:px-4 py-1 bg-[#FFF] text-[#454545] border-2 border-[#F4F4F7] font-semibold rounded-md"
           >
-            <MdOutlineCalendarToday size={15} color="#4A4A4A" />
+            <MdOutlineCalendarToday size={15} className="w-[12px] md:w-[15px] h-[12px] md:h-[15px]" color="#4A4A4A" />
             <span className="w-full whitespace-normal text-wrap text-left">
               {compareDate
-                ? `Compare to ${compareDate.toDateString()}`
+                ? `Compare to ${compareDate.toLocaleDateString("en-US", {
+                  "month": "short",
+                  "day": "2-digit",
+                  "year": "numeric",
+                })}`
                 : "Compare to ..."}
             </span>
             <input
@@ -449,14 +453,14 @@ export default function Home() {
               type="date"
               max={today.toISOString().split("T")[0]}
               defaultValue={oneWeekAgo.toISOString().split("T")[0]}
-              onChange={(e) => handleDateChange(new Date(e.target.value))}
-              className="opacity-0 !w-0 z-10"
+              onChange={(e) => handleDateChange(new Date(e.target.value), "compare")}
+              className="absolute bottom-0 left-1/2 opacity-0 !w-0 z-[-10]"
             />
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row w-full gap-4 mt-2">
+      <div className="flex flex-row overflow-auto whitespace-nowrap custom-scrollbar">
         <FeatureCard data={chartData} />
       </div>
 

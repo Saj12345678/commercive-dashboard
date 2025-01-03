@@ -20,7 +20,7 @@ export default function LabelBottomNavigation(props: any) {
 
   return (
     <BottomNavigation
-      sx={{ width: 500, background: '#E5DCFB' }}
+      sx={{ width: 500, background: '#ffffff', borderTop:'1px solid gray' }}
       value={props.route} 
       onChange={handleChange}
       className="bg-[#E5DCFB]"
