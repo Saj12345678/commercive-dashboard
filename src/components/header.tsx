@@ -29,7 +29,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
       <MenuRoot>
         <MenuTrigger asChild>
           <div className="flex gap-2 items-center cursor-pointer">
-            <Avatar src="https://bit.ly/broken-link" colorPalette="purple" />
+            <Avatar src="https://bit.ly/broken-link" background={'#E9D5FF'} size={'sm'}/>
             <Image
               src="/svgs/DownArrow.svg"
               width={14}
