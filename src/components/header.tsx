@@ -21,7 +21,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   };
 
   return (
-    <div className="w-full flex justify-between py-4 px-6 h-[60px] bg-white">
+    <div className="w-full flex justify-between py-4 px-6 h-[70px] bg-white">
       <div className="flex">
         <button className="md:hidden mr-4 flex" onClick={toggleSidebar}>
           <Logo width={24} height={35} />
@@ -37,19 +37,19 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
         >
           <Avatar
             alt="User Avatar"
-            src="https://bit.ly/broken-link"
             sx={{
               width: 40,
               height: 40,
-              backgroundColor: "purple",
+              backgroundColor: "#D7C9F7",
+              color: "#4F12CA",
             }}
           />
-           <Image
-              src="/svgs/DownArrow.svg"
-              width={14}
-              height={14}
-              alt="down-arrow"
-            />
+          <Image
+            src="/svgs/DownArrow.svg"
+            width={14}
+            height={14}
+            alt="down-arrow"
+          />
         </div>
         {/* <Menu
           anchorEl={anchorEl}

@@ -1,11 +1,6 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-// import {
-//   PaginationNextTrigger,
-//   PaginationPrevTrigger,
-//   PaginationRoot,
-// } from "@/components/ui/pagination";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -22,15 +17,11 @@ import {
   Paper,
   Typography,
   Button,
+  Stack,
 } from "@mui/material";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import "../home/home.css";
-
-interface User {
-  id?: string;
-  referral_code?: string;
-}
 
 export default function CommercivePartners() {
   const supabase = createClient();
@@ -406,28 +397,29 @@ export default function CommercivePartners() {
             sx={{
               color: "white",
               paddingX: 4,
-              paddingY: 1,
-              borderRadius: "md",
+              paddingY: 0.5,
+              borderRadius: "6px",
+              fontSize: "16px",
               fontWeight: "bold",
-              backgroundColor: "#4F11C9",
+              backgroundColor: "#4F12CA",
               boxShadow: "none",
               textTransform: "capitalize",
-              border: "2px solid #EBEBEB",
+              border: "1px solid #4F12CA",
               "&:hover": {
-                backgroundColor: "#4F11C9",
+                backgroundColor: "#4F12CA",
               },
             }}
             onClick={handleAffiliateClick}
-            disabled={loading}
           >
             {loading ? "Generating..." : "Affiliate Link"}
           </Button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-0 sm:gap-3">
+        <div className="flex flex-col md:flex-row">
+
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <div className="flex items-center gap-2">
-              {/* Today Date Picker */}
               <Button
                 className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
                 variant="outlined"
@@ -440,7 +432,7 @@ export default function CommercivePartners() {
                   gap: "0.5rem",
                   padding: "0.5rem 1rem",
                   border: "3px solid #EBEBEB !important",
-                  color:"#454545"
+                  color: "#454545",
                 }}
               >
                 <MdOutlineCalendarToday size={18} />
@@ -457,10 +449,9 @@ export default function CommercivePartners() {
                 onChange={(date: any) => handleDateChange(date)}
                 maxDate={today}
                 onClose={() => setShowDatePicker(null)}
-                //   renderInput={() => null} // No visible input field
               />
-
-              {/* Compare Date Picker */}
+            </div>
+            <div className="flex items-center gap-2">
               <Button
                 variant="outlined"
                 className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
@@ -471,7 +462,7 @@ export default function CommercivePartners() {
                   gap: "0.5rem",
                   padding: "0.5rem 1rem",
                   border: "3px solid #EBEBEB !important",
-                  color:"#454545"
+                  color: "#454545",
                 }}
               >
                 <MdOutlineCalendarToday size={18} />
@@ -488,10 +479,10 @@ export default function CommercivePartners() {
                 onChange={(date: any) => handleDateChange(date)}
                 maxDate={today}
                 onClose={() => setShowDatePicker(null)}
-                //   renderInput={() => null} // No visible input field
               />
             </div>
           </LocalizationProvider>
+          </div>
         </div>
 
         <div className="flex flex-col lg:flex-row w-full gap-4 mt-2">
@@ -509,20 +500,41 @@ export default function CommercivePartners() {
               </p>
             </div>
 
-            {/* <PaginationRoot
-              count={totalPages}
-              pageSize={itemsPerPage}
-              className="flex gap-3"
+            <Stack
+              direction="row"
+              spacing={2}
+              alignItems="center"
+              justifyContent="end"
             >
-              <PaginationPrevTrigger
+              <Button
+                variant="contained"
                 onClick={prevPage}
                 disabled={currentPage === 1}
-              />
-              <PaginationNextTrigger
+                sx={{
+                  cursor: "pointer",
+                  background: "#F4F4F7",
+                  color: "black",
+                  fontWeight: "bold",
+                  boxShadow: "none",
+                }}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="contained"
                 onClick={nextPage}
                 disabled={currentPage >= totalPages || totalItems === 0}
-              />
-            </PaginationRoot> */}
+                sx={{
+                  cursor: "pointer",
+                  background: "#F4F4F7",
+                  color: "black",
+                  fontWeight: "bold",
+                  boxShadow: "none",
+                }}
+              >
+                Next
+              </Button>
+            </Stack>
           </div>
           <div className="w-full overflow-auto custom-scrollbar">
             <div style={{ minWidth: 600 }}>
@@ -541,7 +553,12 @@ export default function CommercivePartners() {
                           fontWeight: "600",
                         }}
                       >
-                        <Typography variant="body1">User</Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ color: "black", fontWeight: "bold" }}
+                        >
+                          User
+                        </Typography>
                       </TableCell>
                       <TableCell
                         style={{
@@ -550,7 +567,12 @@ export default function CommercivePartners() {
                           fontWeight: "600",
                         }}
                       >
-                        <Typography variant="body1">Amount Spent</Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ color: "black", fontWeight: "bold" }}
+                        >
+                          Amount Spent
+                        </Typography>
                       </TableCell>
                       <TableCell
                         style={{
@@ -560,7 +582,12 @@ export default function CommercivePartners() {
                           textAlign: "end",
                         }}
                       >
-                        <Typography variant="body1">Commission</Typography>
+                        <Typography
+                          variant="body1"
+                          sx={{ color: "black", fontWeight: "bold" }}
+                        >
+                          Commission
+                        </Typography>
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -569,7 +596,7 @@ export default function CommercivePartners() {
                       filteredData.map((item, index) => (
                         <TableRow
                           key={index}
-                          style={{ borderBottom: "1px solid #F4F4F7" }}
+                          style={{ border: "1px solid #F4F4F7" }}
                         >
                           <TableCell>
                             <div style={{ display: "flex", gap: "16px" }}>

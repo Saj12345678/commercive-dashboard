@@ -13,6 +13,15 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import "./home.css";
 import Summary from "@/components/Summary";
 
+interface InventoryData {
+  image: string;
+  color: string;
+  name: string;
+  stockMeter: number;
+  stockStatus: string;
+  backorders: number;
+}
+
 export default function Home() {
   const supabase = createClient();
   const router = useRouter();
@@ -32,11 +41,11 @@ export default function Home() {
   const [chartData, setChartData] = useState([
     {
       name: "Unfulfilled Orders",
-      amount: "247",
-      percentage: "15%",
+      amount: "0",
+      percentage: "0%",
       color: "#4F11C9",
       bgColor: "#E5DCFB",
-      series: [0, 0, 1, 0, 0],
+      series: [0, 0, 0, 0, 0],
     },
     {
       name: "Orders Needing Resolution",
@@ -63,6 +72,7 @@ export default function Home() {
       series: [25, 30, 22, 40, 55],
     },
   ]);
+  const [inventoryData, setInventoryData] = useState<InventoryData[]>([]);
 
   // Function to calculate total earnings
   const calculateEarnings = (orders: any, weekOffset = 0, status = "paid") => {
@@ -132,14 +142,14 @@ export default function Home() {
         .gte("created_at", formattedStartDate)
         .lt("created_at", formattedEndDate);
 
-      const { data: referral, error: referralsError } = await supabase
-        .from("referrals")
+      const { data: inventoryData, error: inventoryError } = await supabase
+        .from("inventory")
         .select("*")
         .gte("created_at", formattedStartDate)
         .lte("created_at", formattedEndDate);
 
-      if (orderError || referralsError) {
-        console.error("Error fetching orders:", orderError, referralsError);
+      if (orderError || inventoryError) {
+        console.error("Error fetching orders:", orderError, inventoryError);
         setLoading(false);
       } else {
         const totalEarnings = calculateEarnings(orderData, 0, "paid");
@@ -181,15 +191,31 @@ export default function Home() {
                 series: pendingEarning,
               };
             }
-            if (item.name === "Unfulfilled Orders") {
-              return {
-                ...item,
-                amount: referral?.length,
-              };
-            }
             return item;
           });
         });
+
+        const transformedData = inventoryData.map((item) => {
+          const inventoryQuantities = item.inventory_level[0]?.node?.quantities || [];
+          const available = inventoryQuantities.find((q: any) => q.name === 'available')?.quantity || 0;
+          const committed = inventoryQuantities.find((q: any) => q.name === 'committed')?.quantity || 0;
+    
+          let stockStatus = 'Enough Stock';
+          if (available === 0) stockStatus = 'No Stock';
+          else if (available < 50) stockStatus = 'Low Stock';
+    
+          return {
+            image: '', 
+            color: '#' + Math.floor(Math.random() * 16777215).toString(16), 
+            name: `Product ${item.sku}`, 
+            stockMeter: available + committed, 
+            stockStatus,
+            backorders: committed,
+          };
+        });
+    
+        setInventoryData(transformedData);
+
       }
     } catch (error) {
       console.error("Error in fetchOrders:", error);
@@ -289,7 +315,7 @@ export default function Home() {
     <>
       <main
         style={{ height: "calc(100vh - 60px)" }}
-        className="flex flex-col w-full gap-5 border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
+        className="flex flex-col w-full gap-4 border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
         {loading && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -297,15 +323,13 @@ export default function Home() {
           </div>
         )}
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
-          <div className="flex flex-col gap-1">
-            <div className="flex gap-1 items-center justify-center">
+          <div className="flex flex-col sm:flex-row gap-1">
               <h1 className="flex w-full text-[#454545] text-2xl font-bold">
                 Hello, Matthew!
               </h1>
               <p className="text-[#af9ae4] text-nowrap text-2xl">
                 Here’s an update for your store
               </p>
-            </div>
           </div>
           <Button
             variant="outlined"
@@ -323,11 +347,10 @@ export default function Home() {
           </Button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row justify-between">
+          <div className="flex flex-col md:flex-row">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <div className="flex items-center gap-2">
-                {/* Today Date Picker */}
                 <Button
                   className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
                   variant="outlined"
@@ -356,10 +379,10 @@ export default function Home() {
                   onChange={(date: any) => handleDateChange(date)}
                   maxDate={today}
                   onClose={() => setShowDatePicker(null)}
-                  //   renderInput={() => null} // No visible input field
                 />
+                </div>
+              <div className="flex items-center gap-2">
 
-                {/* Compare Date Picker */}
                 <Button
                   variant="outlined"
                   className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
@@ -387,7 +410,6 @@ export default function Home() {
                   onChange={(date: any) => handleDateChange(date)}
                   maxDate={today}
                   onClose={() => setShowDatePicker(null)}
-                  //   renderInput={() => null} // No visible input field
                 />
               </div>
             </LocalizationProvider>
@@ -414,8 +436,8 @@ export default function Home() {
           <FeatureCard data={chartData} />
         </div>
 
-        <div className="flex gap-2">
-          <Inventory data={Data} />
+        <div className="flex flex-col md:flex-row gap-4">
+          <Inventory data={inventoryData} />
           <Summary />
         </div>
       </main>

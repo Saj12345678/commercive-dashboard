@@ -1,7 +1,6 @@
-// components/OrderStatistics.js
-import { Box, Typography, Chip, IconButton, Paper } from "@mui/material";
-import { ArrowForward } from "@mui/icons-material";
+import { Box, Typography, Chip, Paper, Button } from "@mui/material";
 import React from "react";
+import { GoArrowUpRight } from "react-icons/go";
 
 const dummyData = [
   {
@@ -45,15 +44,19 @@ const dummyData = [
 export default function Summary() {
   return (
     <Paper elevation={3} style={{ padding: "16px", width: "100%" }}>
-      <div className="p-4 bg-white rounded-lg shadow-lg">
+      <div className="bg-white">
         <Box className="flex justify-between items-center mb-4">
           <Typography variant="h6" className="text-gray-700 font-semibold">
             Order Statistics
           </Typography>
-          <IconButton size="small" className="text-purple-500">
-            View Full Summary
-            <ArrowForward fontSize="small" />
-          </IconButton>
+          <Button
+          variant="outlined"
+          color="secondary"
+          endIcon={<GoArrowUpRight size={24} />}
+          className="!rounded-full"
+        >
+          View all Inventory
+        </Button>
         </Box>
         <Box className="grid grid-cols-5 gap-4 text-center">
           {["SUN 19", "MON 20", "TUE 21", "WED 22", "THU 23"].map(

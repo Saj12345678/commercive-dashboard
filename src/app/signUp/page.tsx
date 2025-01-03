@@ -1,10 +1,9 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useActionState, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CustomButton from "@/components/ui/custom-button";
 import { signup } from "./actions";
-import { useFormState } from "react-dom";
 import { toast } from "react-toastify";
 import { ActionResponse } from "@/components/type-identifiers";
 
@@ -12,7 +11,7 @@ function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [referralCode, setReferralCode] = useState<string | null>(null);
-  const [state, formAction] = useFormState<ActionResponse<void>, FormData>(
+  const [state, formAction] = useActionState<ActionResponse<void>, FormData>(
     signup,
       null
     );

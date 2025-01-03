@@ -2,18 +2,14 @@
 
 import CustomButton from "@/components/ui/custom-button";
 import { useRouter } from "next/navigation";
-import { useFormState } from "react-dom";
 import { login } from "./actions";
-import { useEffect } from "react";
+import { useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { ActionResponse } from "@/components/type-identifiers";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [state, formAction] = useFormState<ActionResponse<void>, FormData>(
-    login,
-    null
-  );
+  const [state, formAction] = useActionState<ActionResponse<void>, FormData>(login, null);
 
   useEffect(() => {
     if (!state) {

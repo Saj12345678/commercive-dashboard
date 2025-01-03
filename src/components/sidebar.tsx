@@ -9,13 +9,13 @@ import HouseIcon from "./images/home";
 import InventoryIcon from "./images/inventory";
 import ShipmentIcon from "./images/shipment";
 import SettingIcon from "./images/setting";
+import { Menu, MenuItem } from "@mui/material";
+import Image from "next/image";
+
 export interface SidebarProps {
   isOpen?: any;
   handleToggleSidebar?: any;
 }
-
-import { Menu, MenuItem, IconButton } from "@mui/material";
-import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 
 const data = [
   {
@@ -130,14 +130,14 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               }`}
             >
               <div className={`flex w-full ${isCollapsed && "hidden"}`}>
-                <div className="flex w-full gap-2">
+                <div className="flex w-full gap-2 items-center">
                   <Avatar
                     alt="User Avatar"
-                    src="https://bit.ly/broken-link"
                     sx={{
                       width: 40,
-                      height: 40, 
-                      backgroundColor: "purple",
+                      height: 40,
+                      backgroundColor: "#D7C9F7",
+                      color: "#4F12CA",
                     }}
                   />
                   <div className="flex flex-col">
@@ -146,12 +146,17 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   </div>
                 </div>
                 <div className="flex">
-                  <IconButton
+                  <div
                     onClick={handleClick}
                     className="flex gap-2 items-center cursor-pointer"
                   >
-                    <ArrowDropDownIcon />
-                  </IconButton>
+                    <Image
+                      src="/svgs/DownArrow.svg"
+                      width={14}
+                      height={14}
+                      alt="down-arrow"
+                    />
+                  </div>
                   <Menu
                     anchorEl={anchorEl}
                     open={Boolean(anchorEl)}
@@ -164,19 +169,18 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               <div
                 className={`${
                   !isCollapsed && "hidden"
-                } flex w-full cursor-pointer`}
+                } flex w-full cursor-pointer justify-center`}
                 onClick={toggleSidebar}
               >
                 <Avatar
-                        alt="User Avatar"
-                        src="https://bit.ly/broken-link"
-                        sx={{
-                          width: 12,
-                          height: 12,
-                          backgroundColor: "purple",
-                        }}
-                      />
-                
+                  alt="User Avatar"
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    backgroundColor: "#D7C9F7",
+                    color: "#4F12CA",
+                  }}
+                />
               </div>
             </div>
             <div
@@ -269,7 +273,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             >
               {/* User Section */}
               <div
-                className={`w-full flex justify-between border-4 border-[#F4F4F7] rounded-md py-2 px-4 bg-white`}
+                className={`w-full flex justify-between border-4 border-[#F4F4F7] rounded-md p-2 bg-white`}
               >
                 <div
                   className={`flex w-full`}
@@ -278,14 +282,14 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   }}
                 >
                   <div className="flex w-full gap-2">
-                    <div className="flex">
+                    <div className="flex items-center">
                       <Avatar
                         alt="User Avatar"
-                        src="https://bit.ly/broken-link"
                         sx={{
-                          width: 12,
-                          height: 12,
-                          backgroundColor: "purple",
+                          width: 40,
+                          height: 40,
+                          backgroundColor: "#D7C9F7",
+                          color: "#4F12CA",
                         }}
                       />
                     </div>
@@ -295,19 +299,24 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     </div>
                   </div>
                   <div className="flex">
-                  <IconButton
-                    onClick={handleClick}
-                    className="flex gap-2 items-center cursor-pointer"
-                  >
-                    <ArrowDropDownIcon />
-                  </IconButton>
-                  <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                  >
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                  </Menu>
+                    <div
+                      onClick={handleClick}
+                      className="flex gap-2 items-center cursor-pointer"
+                    >
+                      <Image
+                        src="/svgs/DownArrow.svg"
+                        width={14}
+                        height={14}
+                        alt="down-arrow"
+                      />
+                    </div>
+                    <Menu
+                      anchorEl={anchorEl}
+                      open={Boolean(anchorEl)}
+                      onClose={handleClose}
+                    >
+                      <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                    </Menu>
                   </div>
                 </div>
               </div>

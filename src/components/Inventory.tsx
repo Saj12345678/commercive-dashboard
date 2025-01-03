@@ -10,7 +10,6 @@ import {
   Paper,
   Typography,
   LinearProgress,
-  IconButton,
   Box,
 } from "@mui/material";
 import { GoArrowUpRight } from "react-icons/go";
@@ -18,6 +17,7 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import { LuThumbsUp } from "react-icons/lu";
 import { MdKeyboardDoubleArrowDown } from "react-icons/md";
 import TotalInventory from "./images/total-inventory";
+import { PiCodesandboxLogoFill } from "react-icons/pi";
 
 type InventoryItem = {
   image: string;
@@ -33,7 +33,7 @@ type InventoryProps = {
 };
 
 export default function Inventory({ data }: InventoryProps) {
-  const [selectedTab, setSelectedTab] = useState("All Stock");
+  const [selectedTab, setSelectedTab] = useState("All");
 
   const getStockStatusClass = (status: string) => {
     switch (status) {
@@ -72,29 +72,30 @@ export default function Inventory({ data }: InventoryProps) {
       case "Low Stock":
         return <MdKeyboardDoubleArrowDown size={20} />;
       default:
-        return <IoCloseCircleOutline size={20} />;
+        return <PiCodesandboxLogoFill size={20} />;
     }
   };
 
   // Filter data based on the selected tab
   const filteredData =
-    selectedTab === "All Stock"
+    selectedTab === "All"
       ? data
       : data.filter((item) => item.stockStatus === selectedTab);
 
   return (
-    <Paper elevation={3} style={{ padding: "16px" , width: "100%"}}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <Paper elevation={2} className="w-full px-4 py-6 sm:px-6 sm:py-8">
+      <div className="w-full flex flex-col gap-2 sm:flex-row justify-start sm:justify-between" >
         <Typography
           variant="h5"
           fontWeight="bold"
           className="flex items-center gap-3"
+          sx={{ 
+            fontSize: {
+              xs: '1rem', 
+              sm: '1.2rem', 
+              md: '1.5rem',   
+            },
+          }}
         >
           <TotalInventory width={24} height={24} color={"#4F11C9"} />
           Total Inventory
@@ -109,10 +110,10 @@ export default function Inventory({ data }: InventoryProps) {
         </Button>
       </div>
       <div className="flex flex-col sm:flex-row sm:items-center w-full gap-5 pt-4 pb-8">
-        <p className="text-[36px] font-bold ">247</p>
+        <p className="text-[36px] font-bold ">{filteredData.length}</p>
         <div className="flex w-full flex-wrap gap-2 sm:gap-4">
           {[
-            { label: "All Stock", color: "gray" },
+            { label: "All", color: "gray" },
             { label: "Enough Stock", color: "green" },
             { label: "Low Stock", color: "orange" },
             { label: "No Stock", color: "red" },
@@ -120,7 +121,7 @@ export default function Inventory({ data }: InventoryProps) {
             <button
               type="button"
               key={tab.label}
-              className={`flex items-center gap-2 w-max px-3 h-10 rounded-md text-${
+              className={`flex items-center gap-2 w-max px-4 py-1 rounded-md text-${
                 tab.color
               }-700 bg-${tab.color}-100 ${
                 selectedTab === tab.label
@@ -136,13 +137,13 @@ export default function Inventory({ data }: InventoryProps) {
       </div>
       <TableContainer component={Paper}>
         <Table>
-          <TableHead style={{ backgroundColor: "#f4f4f7" }}>
+          <TableHead style={{ backgroundColor: "#f4f4f7", fontWeight: "bold", color: "black" }}>
             <TableRow>
-              <TableCell>Photo</TableCell>
-              <TableCell>Name/SKU</TableCell>
-              <TableCell>Stock Meter</TableCell>
-              <TableCell>Stock Status</TableCell>
-              <TableCell>Backorders</TableCell>
+              <TableCell sx={{fontWeight: "bold", color: "black"}}>Photo</TableCell>
+              <TableCell sx={{fontWeight: "bold", color: "black"}}>Name/SKU</TableCell>
+              <TableCell sx={{fontWeight: "bold", color: "black"}}>Stock Meter</TableCell>
+              <TableCell sx={{fontWeight: "bold", color: "black"}}>Stock Status</TableCell>
+              <TableCell sx={{fontWeight: "bold", color: "black"}}>Backorders</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -170,11 +171,10 @@ export default function Inventory({ data }: InventoryProps) {
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Box display="flex" alignItems="center" gap={2}>
+                    <Box display="flex" width={100} alignItems="center" gap={1}>
                       <Typography
                         variant="body2"
                         align="center"
-                        sx={{ minWidth: "50px" }}
                       >
                         {item.stockMeter}
                       </Typography>
@@ -192,7 +192,7 @@ export default function Inventory({ data }: InventoryProps) {
                   </TableCell>
                   <TableCell>
                     <p
-                      className={`flex items-center gap-2 w-max p-2 rounded-md ${getStockStatusClass(
+                      className={`flex items-center gap-2 w-max py-2 px-4 rounded-md ${getStockStatusClass(
                         item.stockStatus
                       )}`}
                     >
