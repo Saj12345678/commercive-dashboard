@@ -33,6 +33,7 @@ export default function Home() {
   const [showDatePicker, setShowDatePicker] = useState<
     "today" | "compare" | null
   >(null);
+  
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [referralLink, setReferralLink] = useState('');
