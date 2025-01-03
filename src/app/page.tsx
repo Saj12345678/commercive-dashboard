@@ -8,6 +8,7 @@ import {
   PaginationPrevTrigger,
   PaginationRoot,
 } from "@/components/ui/pagination";
+
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { createClient } from "./utils/supabase/client";
 import { toast } from "react-toastify";
@@ -33,7 +34,7 @@ export default function Home() {
   const [showDatePicker, setShowDatePicker] = useState<
     "today" | "compare" | null
   >(null);
-  
+
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [referralLink, setReferralLink] = useState('');
