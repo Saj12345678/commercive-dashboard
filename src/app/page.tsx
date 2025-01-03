@@ -75,7 +75,6 @@ export default function Home() {
     { image: "", name: "", email: "", amount: "", commission: "" },
   ]);
   const [isModalOpen, setModalOpen] = useState(false);
-
   const handleAffiliateClick = async () => {
     setLoading(true);
     try {
