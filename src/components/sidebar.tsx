@@ -13,6 +13,7 @@ import HouseIcon from "./images/home";
 import InventoryIcon from "./images/inventory";
 import ShipmentIcon from "./images/shipment";
 import SettingIcon from "./images/setting";
+import LogoIcon from "./images/full-logo";
 export interface SidebarProps {
   isOpen?: any;
   handleToggleSidebar?: any;
@@ -363,7 +364,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             <div
               className={`w-full flex flex-col bg-[#9474E4] border border-[#F4F4F7] rounded-[24px] py-8 px-4 gap-4 }`}
             >
-              <h2 className="text-white font-bold text-[24px]">Commercive</h2>
+              <div><LogoIcon width={"70%"} height={35} color={'#ffffff'} /></div>
               <p className="text-white text-sm">
                 Refer new members to commercive and unlock up to 1% commission
                 on all orders placed through us
