@@ -24,7 +24,6 @@ interface InventoryData {
 
 export default function Home() {
   const supabase = createClient();
-  const router = useRouter();
   const today = new Date();
   const currentDay = today.getDay();
   const currentWeekMonday = new Date(today);
@@ -264,20 +263,6 @@ export default function Home() {
       handleFetchData();
     }
   }, [selectedDate, compareDate]);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user?.id) {
-        router.push("/login");
-      }
-    };
-
-    fetchUser();
-  }, []);
 
   const Data = [
     {

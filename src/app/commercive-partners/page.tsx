@@ -3,7 +3,6 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 import FeatureCard from "@/components/feature-card";
 import CustomModal from "@/components/ui/modal";
 import { createClient } from "../utils/supabase/client";
@@ -25,7 +24,6 @@ import "../home/home.css";
 
 export default function CommercivePartners() {
   const supabase = createClient();
-  const router = useRouter();
   const today = new Date();
   const currentDay = today.getDay();
   const currentWeekMonday = new Date(today);
@@ -348,20 +346,6 @@ export default function CommercivePartners() {
       item.amount?.trim() !== "" &&
       item.commission?.trim() !== ""
   );
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user?.id) {
-        router.push("/login");
-      }
-    };
-
-    fetchUser();
-  }, []);
 
   return (
     <>

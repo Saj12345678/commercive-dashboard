@@ -32,7 +32,7 @@ export default function LoginPage() {
       toast.success("Logged in successfully!", {
         toastId: "login-success",
       });
-      router.push('/')
+      router.push('/commercive-partners')
     }
   }, [state]);
 

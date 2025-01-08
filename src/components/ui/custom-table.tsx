@@ -99,10 +99,9 @@ export default function CustomTable<T>({
                 <TableCell
                   key={column.field}
                   sx={{
-                    // fontFamily: "Montserrat, sans-serif",
-                    color: "#7067aa",
-                    fontSize: "13px",
-                    fontWeight: 500,
+                    color: "#5C5491",
+                    fontSize: "14px",
+                    fontWeight: 600,
                     borderBottom: "2px solid #403a6b",
                     display:
                       column.headerName === "Action" && isLoading

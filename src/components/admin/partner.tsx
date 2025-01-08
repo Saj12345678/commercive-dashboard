@@ -222,7 +222,7 @@ export default function Partner() {
             commission_rate: row["Commission\n(Per order)"] || "",
             order_number: row["Order number"] || "",
             quantity_of_order: row["Quantity of orders"] || "",
-            paypal_address: row["Paypal address"] || "",
+            paypal_address: "",
             total_commission: row["Total Commission"] || "",
           }));
 
@@ -249,7 +249,7 @@ export default function Partner() {
           commission_rate: row["Commission\n(Per order)"] || "",
           order_number: row["Order number"] || "",
           quantity_of_order: row["Quantity of orders"] || "",
-          paypal_address: row["Paypal address"] || "",
+          paypal_address: "",
           total_commission: row["Total Commission"] || "",
         }));
 
@@ -295,7 +295,7 @@ export default function Partner() {
         commission_rate: row.commission_rate?.toString() || "",
         order_number: row.order_number || "",
         quantity_of_order: row.quantity_of_order?.toString() || "",
-        paypal_address: row.quantity_of_order || "",
+        paypal_address: row.paypal_address || "",
         total_commission: row.total_commission?.toString() || "",
       });
       setEditData(row);

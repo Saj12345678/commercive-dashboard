@@ -72,8 +72,6 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [userData, setUserData] = useState<string>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  console.log(pathName, "vdfv")
-
   const sidebarData = pathName?.includes("/admin") ? adminData : data
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
