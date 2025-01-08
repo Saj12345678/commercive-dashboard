@@ -109,7 +109,6 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                       </p>
                     </div>
                   </div>
-                  
                   <Button sx={{ width: '100%', background: '#4f11c9', color: '#ffffff', border: 'medium', fontWeight: 'bold'}}>
                     Pay out $ 1393.73
                   </Button>
