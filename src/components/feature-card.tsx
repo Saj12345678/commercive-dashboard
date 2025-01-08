@@ -27,7 +27,7 @@ export default function FeatureCard({ data }: FeatureCardProps) {
     <>
       {data?.map((data: any, index: any) => (
         <div className="flex basis-1 flex-1" key={index}>
-          <div className="flex flex-col w-full border-2 border-[#EBEBEB] rounded-lg pl-6 py-4 pr-4 flex-0 overflow-hidden">
+          <div className="flex flex-col w-full bg-[#ffffff] border-2 border-[#EBEBEB] rounded-lg mr-6 pl-6 py-4 pr-4 flex-0 overflow-hidden">
             <div className="flex w-full flex-col gap-8">
               <div className="flex w-full flex-wrap justify-between items-center">
                 <h2
