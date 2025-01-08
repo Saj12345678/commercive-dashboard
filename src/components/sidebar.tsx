@@ -11,6 +11,7 @@ import ShipmentIcon from "./images/shipment";
 import SettingIcon from "./images/setting";
 import { Menu, MenuItem } from "@mui/material";
 import Image from "next/image";
+import Logo from "./images/logo";
 
 export interface SidebarProps {
   isOpen?: any;
@@ -40,6 +41,29 @@ const data = [
   },
 ];
 
+const adminData = [
+  {
+    title: "Home",
+    href: "",
+    icon: <HouseIcon width={20} height={20} color={"#000000"} />,
+  },
+  {
+    title: "Inventory",
+    href: "",
+    icon: <InventoryIcon width={20} height={20} color={"#000000"} />,
+  },
+  {
+    title: "Partners",
+    href: "",
+    icon: <ShipmentIcon width={20} height={20} color={"#000000"} />,
+  },
+  {
+    title: "Roles&Permissions",
+    href: "",
+    icon: <Union width={20} height={20} color={"#000000"} />,
+  },
+];
+
 export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const supabase = createClient();
   const pathName = usePathname();
@@ -47,6 +71,8 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userData, setUserData] = useState<string>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const sidebarData = pathName?.includes("/admin") ? adminData : data
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -112,7 +138,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
       <div
         className={`hidden md:flex flex-col ${
           isCollapsed ? "w-24" : "w-[360px]"
-        } transition-all duration-500 bg-white h-full pb-6`}
+        } transition-all duration-500 ${pathName?.includes("/admin") ? 'bg-[#1b1838]':'bg-white'} h-full pb-6`}
       >
         <div
           className={`flex flex-col ${
@@ -124,7 +150,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               isCollapsed ? "gap-5" : "gap-8"
             } h-full`}
           >
-            <div
+            {!pathName?.includes("/admin") && <div
               className={`w-full flex justify-between border-4 border-[#F4F4F7] rounded-md py-2 px-4 ${
                 isCollapsed && "!px-1"
               }`}
@@ -182,25 +208,36 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   }}
                 />
               </div>
-            </div>
+            </div>}
             <div
               className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar`}
             >
-              {data.map((link, index) => (
+              {sidebarData.map((link, index) => (
                 <div key={index}>
                   <Link
                     href={link.href}
                     key={index}
                     prefetch={false}
-                    className={`flex items-center rounded-md gap-3 p-3 ${
-                      pathName === link.href
-                        ? "text-black bg-[#F9F9FF]"
-                        : "text-black bg-[#FFF] hover:bg-purple-100"
-                    } ${isCollapsed && "justify-center"}`}
+                    className={`flex items-center rounded-md gap-3 p-3 
+                       ${pathName?.includes("/admin") 
+                           ? pathName === link.href 
+                             ? "text-white bg-[#231e45]" 
+                             : "text-white bg-[#1b1838] hover:bg-[#231e45]" 
+                           : pathName === link.href 
+                             ? "text-black bg-[#F9F9FF]" 
+                             : "text-black bg-[#FFF] hover:bg-purple-100"
+                         } 
+                      ${isCollapsed && "justify-center"}`}
                   >
                     <span className={`${isCollapsed && "justify-center"}`}>
                       {React.cloneElement(link.icon, {
-                        color: pathName === link.href ? "#4F11C9" : "#000000",
+                        color: pathName?.includes("/admin")
+                        ? pathName === link.href
+                          ? "white"
+                          : "white"
+                        : pathName === link.href
+                          ? "#4F11C9"
+                          : "#000000",
                       })}
                     </span>
                     {!isCollapsed && (
@@ -216,7 +253,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             </div>
           </div>
 
-          <div className="flex flex-col w-full gap-2 cursor-pointer">
+        {!pathName?.includes("/admin") &&  <div className="flex flex-col w-full gap-2 cursor-pointer">
             <div
               className={`flex ${isCollapsed && "justify-center"} ${
                 pathName === "setting"
@@ -233,8 +270,8 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 <p className="text-black text-sm tracking-wider">Settings</p>
               )}
             </div>
-          </div>
-          <div
+          </div>}
+          {!pathName?.includes("/admin") &&  <div
             className={`w-full flex flex-col bg-[#9474E4] border border-[#F4F4F7] rounded-[24px] py-8 px-4 gap-4 ${
               isCollapsed && "hidden"
             }`}
@@ -247,7 +284,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             <Button className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3">
               + Invite People
             </Button>
-          </div>
+          </div> }
         </div>
       </div>
       {/* for mobile screen */}
@@ -272,7 +309,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               } h-full`}
             >
               {/* User Section */}
-              <div
+              {!pathName?.includes("/admin") && <div
                 className={`w-full flex justify-between border-4 border-[#F4F4F7] rounded-md p-2 bg-white`}
               >
                 <div
@@ -319,13 +356,13 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     </Menu>
                   </div>
                 </div>
-              </div>
+              </div>}
 
               {/* Links Section */}
               <div
                 className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar bg-white`}
               >
-                {data.map((link, index) => (
+                {sidebarData.map((link, index) => (
                   <div key={index}>
                     <Link
                       href={link.href}
@@ -354,7 +391,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             </div>
 
             {/* Bottom Section */}
-            <div className="flex flex-col w-full gap-2 cursor-pointer bg-white">
+            {!pathName?.includes("/admin") &&  <div className="flex flex-col w-full gap-2 cursor-pointer bg-white">
               <div
                 className={`flex ${
                   pathName === "setting"
@@ -369,10 +406,10 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 />
                 <p className="text-black text-sm tracking-wider">Settings</p>
               </div>
-            </div>
+            </div>}
 
             {/* Footer Section */}
-            <div
+            {!pathName?.includes("/admin") && <div
               className={`w-full flex flex-col bg-[#9474E4] border border-[#F4F4F7] rounded-[24px] py-8 px-4 gap-4 }`}
             >
               <h2 className="text-white font-bold text-[24px]">Commercive</h2>
@@ -383,7 +420,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               <Button className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3">
                 + Invite People
               </Button>
-            </div>
+            </div>}
           </div>
         </div>
       )}

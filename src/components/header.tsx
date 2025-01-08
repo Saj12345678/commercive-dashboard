@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from "react";
 import LogoIcon from "./images/full-logo";
 import Logo from "./images/logo";
@@ -21,10 +22,10 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   };
 
   return (
-    <div className="w-full flex justify-between py-4 px-6 h-[70px] bg-white">
+    <div className={`w-full flex justify-between py-4 px-6 h-[70px] bg-white`}>
       <div className="flex">
         <button className="md:hidden mr-4 flex" onClick={toggleSidebar}>
-          <Logo width={24} height={35} />
+          <Logo width={24} height={35}/>
         </button>
         <div className="hidden md:flex items-center justify-center">
           <LogoIcon width={150} height={35} />

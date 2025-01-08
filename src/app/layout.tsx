@@ -41,11 +41,12 @@ export default function RootLayout({
             <div className="flex sticky top-0 z-50">
             {!pathName?.includes("/login") &&
               !pathName?.includes("/signUp") &&
-              !pathName?.includes("/error") && (
+              !pathName?.includes("/error") &&
+              !pathName?.includes("/admin") && (
                 <Header toggleSidebar={toggleSidebar} />
               )}
               </div>
-            <div className="flex h-full w-full">
+            <div className={`flex h-full w-full ${pathName?.includes("/admin") && 'bg-[#1b1838]'} `}>
               {!pathName?.includes("/login") &&
                 !pathName?.includes("/signUp") &&
                 !pathName?.includes("/error") && (
