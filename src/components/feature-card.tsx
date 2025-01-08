@@ -9,7 +9,6 @@ import { Button } from "@mui/material";
 export interface FeatureCardProps {
   data?: any;
 }
-
 const amount = ["$100", "$500", "$100", "Max"];
 
 export default function FeatureCard({ data }: FeatureCardProps) {

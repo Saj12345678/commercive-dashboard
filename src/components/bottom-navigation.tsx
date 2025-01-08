@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import * as React from "react";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
@@ -13,7 +13,7 @@ export default function LabelBottomNavigation(props: any) {
   const pathName = usePathname();
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-    router.push(newValue); 
+    router.push(newValue);
   };
 
   const getIconColor = (route: string) =>
@@ -22,16 +22,16 @@ export default function LabelBottomNavigation(props: any) {
   const getIconBgColor = (route: string) =>
     props.route === route ? "#E5DCFB" : "#FFFFFF";
 
-  const data = [{value:"/home",  icon: <HouseIcon width={20} height={20} color={getIconColor("/home")} />},
-    {value:"/inventory",  icon:  <InventoryIcon width={20} height={20} color={getIconColor("/inventory")}/>},
-    {value:"/shipment",  icon:  <ShipmentIcon width={20} height={20} color={getIconColor("/shipment")}/>},
-    {value:"/commercive-partners",  icon:  <UnionIcon width={20} height={20} color={getIconColor("/commercive-partners")} />},
+  const data = [{ value: "/home", icon: <HouseIcon width={20} height={20} color={getIconColor("/home")} /> },
+  { value: "/inventory", icon: <InventoryIcon width={20} height={20} color={getIconColor("/inventory")} /> },
+  { value: "/shipment", icon: <ShipmentIcon width={20} height={20} color={getIconColor("/shipment")} /> },
+  { value: "/commercive-partners", icon: <UnionIcon width={20} height={20} color={getIconColor("/commercive-partners")} /> },
   ]
 
-  const adminData = [{value:"/admin/home",  icon: <HouseIcon width={20} height={20} color={getIconColor("/admin/home")} />},
-    {value:"/admin/inventory",  icon:  <InventoryIcon width={20} height={20} color={getIconColor("/admin/inventory")}/>},
-    {value:"/admin/partners",  icon:  <UnionIcon width={20} height={20} color={getIconColor("/admin/partners")}/>},
-    {value:"/admin/roles",  icon:  <ShipmentIcon width={20} height={20} color={getIconColor("/admin/roles")} />},
+  const adminData = [{ value: "/admin/home", icon: <HouseIcon width={20} height={20} color={getIconColor("/admin/home")} /> },
+  { value: "/admin/inventory", icon: <InventoryIcon width={20} height={20} color={getIconColor("/admin/inventory")} /> },
+  { value: "/admin/partners", icon: <UnionIcon width={20} height={20} color={getIconColor("/admin/partners")} /> },
+  { value: "/admin/roles", icon: <ShipmentIcon width={20} height={20} color={getIconColor("/admin/roles")} /> },
   ]
 
   const linkData = pathName?.includes("/admin") ? adminData : data
@@ -39,28 +39,28 @@ export default function LabelBottomNavigation(props: any) {
   return (
     <BottomNavigation
       sx={{ width: 500, background: '#ffffff', borderTop: "2px solid #ebebeb", paddingX: '18px' }}
-      value={props.route} 
+      value={props.route}
       onChange={handleChange}
       className="bg-[#E5DCFB]"
     >
-      {linkData.map((item, index)=>{
-        return(
+      {linkData.map((item, index) => {
+        return (
           <div key={index}>
-          <BottomNavigationAction
-        value={item.value}
-        icon={
-          <div
-            style={{
-              backgroundColor: `${getIconBgColor(item.value)}`,
-              borderRadius: "50%",
-              padding: "10px",
-            }}
-          >
-            {item.icon}
-          </div>
-        }
-      />
-      </div>)
+            <BottomNavigationAction
+              value={item.value}
+              icon={
+                <div
+                  style={{
+                    backgroundColor: `${getIconBgColor(item.value)}`,
+                    borderRadius: "50%",
+                    padding: "10px",
+                  }}
+                >
+                  {item.icon}
+                </div>
+              }
+            />
+          </div>)
       })}
       {/* <BottomNavigationAction
         value="/inventory"
