@@ -44,7 +44,7 @@ export default function Partner() {
     commission_rate: "",
     order_number: "",
     quantity_of_order: "",
-    paypal_address:"",
+    paypal_address: "",
     total_commission: "",
   };
   const [formData, setFormData] = useState(initialFormData);
@@ -55,7 +55,7 @@ export default function Partner() {
     commission_rate: "",
     order_number: "",
     quantity_of_order: "",
-    paypal_address:"",
+    paypal_address: "",
     total_commission: "",
   };
   const [errors, setErrors] = useState(initialError);
@@ -79,14 +79,14 @@ export default function Partner() {
   };
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
- 
+
 
   // Custom validation
   const validateForm = () => {
     const newErrors: any = {};
 
     if (!formData.user.trim()) newErrors.user = "User name is required."
-    
+
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
     } else if (!emailRegex.test(formData.email)) {
@@ -137,9 +137,9 @@ export default function Partner() {
               paypal_address: formData.paypal_address,
               total_commission: Number(formData.total_commission),
             })
-            .eq("id", id)); 
+            .eq("id", id));
         } else {
-           
+
           ({ data, error } = await supabase.from("referrals").insert([
             {
               user_name: formData.user,
@@ -158,7 +158,7 @@ export default function Partner() {
           toast("Failed to save data. Please try again.");
         } else {
           toast(id ? "Data updated successfully:" : "Data added successfully:");
-        fetchReferralsData(page)
+          fetchReferralsData(page)
         }
         setEditData({})
       } catch (error) {
@@ -216,7 +216,7 @@ export default function Partner() {
 
           const sanitizedData = filteredData.map((row: any) => ({
             customer_number: row["Customer number"] || "",
-            email: "",
+            email: row["Email"] || "",
             order_time: row["Time"] || "",
             store_name: row["Store name"] || "",
             commission_rate: row["Commission\n(Per order)"] || "",
@@ -243,7 +243,7 @@ export default function Partner() {
         });
         const sanitizedData = parsedData.map((row: any) => ({
           customer_number: row["Customer number"] || "",
-          email: "",
+          email: row["Email"] || "",
           order_time: row["Time"] || "",
           store_name: row["Store name"] || "",
           commission_rate: row["Commission\n(Per order)"] || "",
@@ -376,7 +376,7 @@ export default function Partner() {
     setIsLoading(true);
     try {
       const start = (currentPage - 1) * limit;
-      const { data, count, error }:any = await supabase
+      const { data, count, error }: any = await supabase
         .from("referrals")
         .select("*", { count: "exact" }) // Fetch data with exact count
         .range(start, start + limit - 1);
@@ -566,42 +566,42 @@ export default function Partner() {
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex flex-col relative w-full">
-                  <InputField
-                    name="paypal_address"
-                    placeholder="Enter Paypal Address"
-                    type="text"
-                    className="mt-[8px]"
-                    label={`Paypal address`}
-                    value={formData.paypal_address}
-                    onChange={(e: any) =>
-                      handleOnChange(e, { paypal_address: e.target.value })
-                    }
-                  />
-                  {errors?.paypal_address && (
-                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                      {errors?.paypal_address}
-                    </p>
-                  )}
-                </div>
-                <div className="flex flex-col relative w-full">
-                  <InputField
-                    name="commission"
-                    placeholder="Enter commission"
-                    type="text"
-                    className="mt-[8px]"
-                    label={`Commission`}
-                    value={formData.total_commission}
-                    onChange={(e: any) =>
-                      handleOnChange(e, { total_commission: e.target.value })
-                    }
-                  />
-                  {errors?.total_commission && (
-                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                      {errors?.total_commission}
-                    </p>
-                  )}
-                </div>
+                  <div className="flex flex-col relative w-full">
+                    <InputField
+                      name="paypal_address"
+                      placeholder="Enter Paypal Address"
+                      type="text"
+                      className="mt-[8px]"
+                      label={`Paypal address`}
+                      value={formData.paypal_address}
+                      onChange={(e: any) =>
+                        handleOnChange(e, { paypal_address: e.target.value })
+                      }
+                    />
+                    {errors?.paypal_address && (
+                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                        {errors?.paypal_address}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col relative w-full">
+                    <InputField
+                      name="commission"
+                      placeholder="Enter commission"
+                      type="text"
+                      className="mt-[8px]"
+                      label={`Commission`}
+                      value={formData.total_commission}
+                      onChange={(e: any) =>
+                        handleOnChange(e, { total_commission: e.target.value })
+                      }
+                    />
+                    {errors?.total_commission && (
+                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                        {errors?.total_commission}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex justify-end w-full">
@@ -619,7 +619,7 @@ export default function Partner() {
         )}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <p className="text-[#5e568f]">Showing {(page - 1) * limit + 1}-
-          {Math.min(page * limit, totalRecords)} of {totalRecords}</p>
+            {Math.min(page * limit, totalRecords)} of {totalRecords}</p>
           <div className="flex items-center gap-3">
             <CustomButton
               label={"Previous"}
@@ -636,7 +636,7 @@ export default function Partner() {
           </div>
         </div>
       </div>
-      <CustomTable tableConfig={tableConfig} isLoading={isLoading} limit={limit}/>
+      <CustomTable tableConfig={tableConfig} isLoading={isLoading} limit={limit} />
     </div>
   );
 }
