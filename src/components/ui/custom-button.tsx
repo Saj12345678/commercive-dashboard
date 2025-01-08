@@ -71,7 +71,7 @@ const CustomButton = ({
     <button
       disabled={formPending || disabled}
       type={type}
-      className={`flex cursor-pointer items-center justify-center gap-1 rounded-[8px] bg-[#4F11C9] px-4 py-2 font-semibold text-[#F4F4F4] ${disabled && 'cursor-not-allowed'} ${className}`}
+      className={`flex items-center justify-center gap-1 rounded-[8px] bg-[#4F11C9] px-4 py-2 font-semibold text-[#F4F4F4] ${disabled ? 'cursor-not-allowed' : "cursor-pointer"} ${className}`}
       onClick={handleButtonClick}
     >
       {getButton()}

@@ -10,6 +10,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import { FiPlus } from "react-icons/fi";
 import CustomModal from "../ui/modal";
 import InputField from "../ui/custom-inputfild";
+import { toast } from "react-toastify";
 
 const defaultHeaders = [
   "user_name",
@@ -27,17 +28,14 @@ const defaultHeaders = [
 
 export default function Partner() {
   const supabase = createClient();
-  const [totalPages, setTotalPages] = useState(1);
   const [referralsData, setReferralsData] = useState([]);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [editData, setEditData] = useState<any>({});
   let limit = 5;
 
-  console.log(referralsData,'hhjj');
-  
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
   const initialFormData = {
     user: "",
@@ -46,6 +44,7 @@ export default function Partner() {
     commission_rate: "",
     order_number: "",
     quantity_of_order: "",
+    paypal_address:"",
     total_commission: "",
   };
   const [formData, setFormData] = useState(initialFormData);
@@ -56,6 +55,7 @@ export default function Partner() {
     commission_rate: "",
     order_number: "",
     quantity_of_order: "",
+    paypal_address:"",
     total_commission: "",
   };
   const [errors, setErrors] = useState(initialError);
@@ -72,18 +72,27 @@ export default function Partner() {
     setErrors((prev) => ({
       ...prev,
       ...Object.keys(updatedField).reduce((acc, key) => {
-        acc[key as keyof typeof formData] = ""; // Clear the error for the updated field
+        acc[key as keyof typeof formData] = "";
         return acc;
       }, {} as typeof errors),
     }));
   };
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+ 
+
   // Custom validation
   const validateForm = () => {
     const newErrors: any = {};
 
-    if (!formData.user.trim()) newErrors.user = "User name is required.";
-    if (!formData.email.trim()) newErrors.email = "Email is required.";
+    if (!formData.user.trim()) newErrors.user = "User name is required."
+    
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required.";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+
     if (!formData.store_name.trim())
       newErrors.store_name = "Store name is required.";
     if (!formData.commission_rate.trim()) {
@@ -98,8 +107,8 @@ export default function Partner() {
     } else if (isNaN(Number(formData.quantity_of_order))) {
       newErrors.quantity_of_order = "Order QTY must be a number.";
     }
-    if (!formData.total_commission.trim()) {
-      newErrors.commission = "Commission is required.";
+    if (!formData.paypal_address.trim()) {
+      newErrors.paypal_address = "Commission is required.";
     } else if (isNaN(Number(formData.total_commission))) {
       newErrors.commission = "Commission must be a number.";
     }
@@ -108,46 +117,58 @@ export default function Partner() {
     return Object.keys(newErrors).length === 0;
   };
 
-const handleSave = async () => {
+  const handleSave = async (id: any) => {
     if (validateForm()) {
       setLoading(true);
-      setErrorMsg(null);
-      setSuccessMsg(null);
-  
       try {
-        // Insert form data into Supabase
-        const { data, error } = await supabase.from("referrals").insert([
-          {
-            user_name: formData.user,
-            email: formData.email,
-            store_name: formData.store_name,
-            commission_rate: Number(formData.commission_rate),
-            order_number: formData.order_number,
-            quantity_of_order: Number(formData.quantity_of_order),
-            total_commission: Number(formData.total_commission),
-          },
-        ]);
-  
-        if (error) {
-          console.error("Error inserting data:", error.message);
-          setErrorMsg("Failed to add data. Please try again.");
+        let data, error;
+
+        if (id) {
+          // Update existing data
+          ({ data, error } = await supabase
+            .from("referrals")
+            .update({
+              user_name: formData.user,
+              email: formData.email,
+              store_name: formData.store_name,
+              commission_rate: Number(formData.commission_rate),
+              order_number: formData.order_number,
+              quantity_of_order: Number(formData.quantity_of_order),
+              paypal_address: formData.paypal_address,
+              total_commission: Number(formData.total_commission),
+            })
+            .eq("id", id)); 
         } else {
-          console.log("Data added successfully:", data);
-          setSuccessMsg("Data added successfully!");
+           
+          ({ data, error } = await supabase.from("referrals").insert([
+            {
+              user_name: formData.user,
+              email: formData.email,
+              store_name: formData.store_name,
+              commission_rate: Number(formData.commission_rate),
+              order_number: formData.order_number,
+              quantity_of_order: Number(formData.quantity_of_order),
+              paypal_address: formData.paypal_address,
+              total_commission: Number(formData.total_commission),
+            },
+          ]));
         }
+
+        if (error) {
+          toast("Failed to save data. Please try again.");
+        } else {
+          toast(id ? "Data updated successfully:" : "Data added successfully:");
+        fetchReferralsData(page)
+        }
+        setEditData({})
       } catch (error) {
         console.error("Unexpected error:", error);
-        setErrorMsg("An unexpected error occurred. Please try again.");
-      } finally {
-        setLoading(false);
       }
-  
-      // Reset form and close modal
+      setLoading(false);
       setFormData(initialFormData);
       setAddNewModalOpen(false);
     }
   };
-  
 
   const handleAddNewOpenModal = () => {
     setAddNewModalOpen(true);
@@ -162,30 +183,25 @@ const handleSave = async () => {
   };
 
   const uploadToSupabase = async (data: any[]) => {
-    console.log(data, "lllouy");
-
-    setIsLoading(true);
     try {
       const { data: insertedData, error } = await supabase
         .from("referrals")
         .insert(data);
-      console.log(insertedData, "lllkkkk");
-
       if (error) {
-        console.error(error.message);
-        setErrorMsg("Failed to upload data to Supabase.");
+        toast("Failed to upload data to Supabase.");
       } else {
-        setSuccessMsg(`Successfully uploaded rows to Supabase.`);
+        toast(`Successfully uploaded rows to Supabase.`);
+        fetchReferralsData(page)
       }
     } catch (error) {
-      console.error(error);
-      setErrorMsg("An unexpected error occurred.");
+      toast("An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleFileUpload = (file: File) => {
+    setIsLoading(true);
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
     if (fileExtension === "csv") {
       Papa.parse(file, {
@@ -197,7 +213,20 @@ const handleSave = async () => {
           const filteredData = data.filter((row: any) =>
             Object.values(row).some((value) => value !== null)
           );
-          uploadToSupabase(filteredData);
+
+          const sanitizedData = filteredData.map((row: any) => ({
+            customer_number: row["Customer number"] || "",
+            email: "",
+            order_time: row["Time"] || "",
+            store_name: row["Store name"] || "",
+            commission_rate: row["Commission\n(Per order)"] || "",
+            order_number: row["Order number"] || "",
+            quantity_of_order: row["Quantity of orders"] || "",
+            paypal_address: row["Paypal address"] || "",
+            total_commission: row["Total Commission"] || "",
+          }));
+
+          uploadToSupabase(sanitizedData);
         },
       });
     } else if (fileExtension === "xls" || fileExtension === "xlsx") {
@@ -212,97 +241,176 @@ const handleSave = async () => {
           blankrows: false,
           defval: "",
         });
-        uploadToSupabase(parsedData);
+        const sanitizedData = parsedData.map((row: any) => ({
+          customer_number: row["Customer number"] || "",
+          email: "",
+          order_time: row["Time"] || "",
+          store_name: row["Store name"] || "",
+          commission_rate: row["Commission\n(Per order)"] || "",
+          order_number: row["Order number"] || "",
+          quantity_of_order: row["Quantity of orders"] || "",
+          paypal_address: row["Paypal address"] || "",
+          total_commission: row["Total Commission"] || "",
+        }));
+
+        uploadToSupabase(sanitizedData);
       };
       reader.readAsArrayBuffer(file);
     } else {
-      setErrorMsg("Please select a valid CSV, XLS, or XLSX file.");
+      toast("Please select a valid CSV, XLS, or XLSX file.");
     }
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    console.log(file, "uuuu");
-
     if (file) {
-      console.log("iup");
-
-      setErrorMsg(null);
       handleFileUpload(file); // Your file upload logic
     } else {
-      setErrorMsg("Please select a valid file.");
+      toast("Please select a valid file.");
     }
   };
+
+  const deleteRow = async (id: any) => {
+    try {
+      const { error } = await supabase.from("referrals").delete().eq("id", id);
+      if (error) {
+        toast("Failed to delete the row.");
+      } else {
+        // Update state after deletion
+        setReferralsData((prev) => prev.filter((row: any) => row.id !== id));
+        toast("Row deleted successfully.");
+        fetchReferralsData(page)
+      }
+    } catch (error) {
+      toast("An unexpected error occurred.");
+    }
+  };
+
+  const handleActionMenu = (value: string, row: any) => {
+    if (value === "edit") {
+      setFormData({
+        user: row.user_name || "",
+        email: row.email || "",
+        store_name: row.store_name || "",
+        commission_rate: row.commission_rate?.toString() || "",
+        order_number: row.order_number || "",
+        quantity_of_order: row.quantity_of_order?.toString() || "",
+        paypal_address: row.quantity_of_order || "",
+        total_commission: row.total_commission?.toString() || "",
+      });
+      setEditData(row);
+      setAddNewModalOpen(true);
+    }
+
+    if (value === "delete") {
+      deleteRow(row.id);
+    }
+  };
+
   const tableConfig = {
     handlePagination: handlePagination,
     notFoundData: "No Data found",
+    actionPresent: true,
+    actionList: ["edit", "delete"],
+    onActionClick: handleActionMenu,
     columns: [
       {
-        field: "user",
+        field: "user_name",
         headerName: "User",
         customRender: (row: any) => {
-          return row?.user ? `${row?.userFName} ${row?.userLName}` : "-";
+
+          return (
+            <div className="flex gap-2">
+              <div className="border rounded h-9 w-9"></div>
+              <div>
+                <p>{row?.user_name}</p>
+                <p className="text-[#7067aa]">{row?.email}</p>
+              </div>
+            </div>
+          );
         },
       },
       {
-        field: "time-created",
+        field: "created_at",
         headerName: "Time Created",
+        customRender: (row: any) => {
+          const formatDate = (dateString: string) => {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1; // Months are zero-based
+            const day = date.getDate();
+            return `${year}/${month}/${day}`;
+          };
+
+          return <div>{formatDate(row.created_at)}</div>;
+        },
       },
       {
-        field: "store-name",
+        field: "store_name",
         headerName: "Store Name",
       },
       {
-        field: "commission-rate",
+        field: "commission_rate",
         headerName: "Commission Rate",
       },
       {
-        field: "order-number",
+        field: "order_number",
         headerName: "Order Number",
       },
       {
-        field: "order-qut",
+        field: "quantity_of_order",
         headerName: "Order QTY",
       },
       {
-        field: "commission",
+        field: "total_commission",
         headerName: "Commission",
+        customRender: (row: any) => {
+          return <p className="text-[#4aaa40]">{row?.total_commission}</p>;
+        },
       },
     ],
-    rows: [],
-    pagination: {
-      totalResults: 0,
-      totalPages: totalPages,
-      currentPage: page,
-    },
+    rows: referralsData || [],
   };
 
-  useEffect(() => {
-    const fetchReferrals = async () => {
-      setLoading(true);
-      setErrorMsg(null);
+  const fetchReferralsData = async (currentPage: number) => {
+    setIsLoading(true);
+    try {
+      const start = (currentPage - 1) * limit;
+      const { data, count, error }:any = await supabase
+        .from("referrals")
+        .select("*", { count: "exact" }) // Fetch data with exact count
+        .range(start, start + limit - 1);
 
-      try {
-        const { data, error }:any = await supabase
-          .from("referrals")
-          .select("*"); // Adjust columns if needed
-
-        if (error) {
-          console.error("Error fetching referrals:", error.message);
-          setErrorMsg("Failed to fetch referrals.");
-        } else {
-          setReferralsData(data || []);
-        }
-      } catch (error) {
-        console.error("Unexpected error:", error);
-        setErrorMsg("An unexpected error occurred.");
-      } finally {
-        setLoading(false);
+      if (error) {
+        console.error("Error fetching referrals data:", error);
+      } else {
+        setReferralsData(data || []);
+        setTotalRecords(count || 0); // Update total records
       }
-    };
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchReferrals();
-  }, [supabase]);
+  // Handle "Next" and "Previous" actions
+  const handleNext = () => {
+    if (page < Math.ceil(totalRecords / limit)) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (page > 1) {
+      setPage((prevPage) => prevPage - 1);
+    }
+  };
+
+  // Fetch data whenever the page changes
+  useEffect(() => {
+    fetchReferralsData(page);
+  }, [page]);
 
   return (
     <div className="flex flex-col w-full gap-5">
@@ -457,6 +565,25 @@ const handleSave = async () => {
                     )}
                   </div>
                 </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col relative w-full">
+                  <InputField
+                    name="paypal_address"
+                    placeholder="Enter Paypal Address"
+                    type="text"
+                    className="mt-[8px]"
+                    label={`Paypal address`}
+                    value={formData.paypal_address}
+                    onChange={(e: any) =>
+                      handleOnChange(e, { paypal_address: e.target.value })
+                    }
+                  />
+                  {errors?.paypal_address && (
+                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                      {errors?.paypal_address}
+                    </p>
+                  )}
+                </div>
                 <div className="flex flex-col relative w-full">
                   <InputField
                     name="commission"
@@ -475,11 +602,14 @@ const handleSave = async () => {
                     </p>
                   )}
                 </div>
+                </div>
               </div>
               <div className="flex justify-end w-full">
                 <CustomButton
                   label={"Save"}
-                  callback={handleSave}
+                  callback={() => {
+                    handleSave(editData.id ? editData.id : undefined);
+                  }}
                   className="bg-[#342d5f] text-[#5e568f]"
                   interactingAPI={loading}
                 />
@@ -488,20 +618,25 @@ const handleSave = async () => {
           </CustomModal>
         )}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <p className="text-[#5e568f]">Showing 1-5 of 0</p>
+          <p className="text-[#5e568f]">Showing {(page - 1) * limit + 1}-
+          {Math.min(page * limit, totalRecords)} of {totalRecords}</p>
           <div className="flex items-center gap-3">
             <CustomButton
               label={"Previous"}
               className="bg-[#342d5f] text-[#5e568f]"
+              callback={handlePrevious}
+              disabled={page === 1}
             />
             <CustomButton
               label={"Next"}
               className="bg-[#342d5f] text-[#5e568f]"
+              callback={handleNext}
+              disabled={page >= Math.ceil(totalRecords / limit)}
             />
           </div>
         </div>
       </div>
-      <CustomTable tableConfig={tableConfig} isLoading={loading} />
+      <CustomTable tableConfig={tableConfig} isLoading={isLoading} limit={limit}/>
     </div>
   );
 }

@@ -59,7 +59,7 @@ export default function RootLayout({
             </div>
             <div className="flex md:hidden sticky bottom-0 z-50">
             {!pathName?.includes("/login") &&
-                !pathName?.includes("/signUp") &&
+                !pathName?.includes("/signUp") &&   
                 !pathName?.includes("/error") && (
                   <LabelBottomNavigation route={pathName} />
                 )}

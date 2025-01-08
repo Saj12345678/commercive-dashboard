@@ -17,6 +17,8 @@ import {
 import { MdOutlineEdit, MdOutlineMoreVert } from "react-icons/md";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { GrView } from "react-icons/gr";
+import Image from "next/image";
+import Loader from "../loader";
 
 interface ColumnConfig<T> {
   field: keyof T;
@@ -30,18 +32,20 @@ interface CustomTableProps<T> {
   tableConfig?: any;
   isLoading?: boolean;
   fixRow?: boolean;
-  pagination?: any
+  pagination?: any;
+  limit?: any;
 }
 
 export default function CustomTable<T>({
   tableConfig,
   isLoading,
-  pagination
+  pagination,
+  limit,
 }: CustomTableProps<T>) {
   const { columns, rows, handlePagination, fixRow, handleRowLimit } =
     tableConfig;
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(limit ? limit : 5);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const [menuKey, setMenuKey] = React.useState(null);
@@ -80,12 +84,12 @@ export default function CustomTable<T>({
   return (
     <Paper sx={{ width: "100%", overflow: "hidden", background: "none" }}>
       <TableContainer
-        sx={{ 
-            // maxHeight: 440,
-            border: '2px solid #403a6b',
-            borderRadius: '8px'
-         }}
-        className="custom-scrollbar"
+        sx={{
+          // maxHeight: 440,
+          border: "2px solid #403a6b",
+          borderRadius: "8px",
+        }}
+        className="w-full overflow-x-auto custom-scrollbar"
         component={Paper}
       >
         <Table>
@@ -99,10 +103,14 @@ export default function CustomTable<T>({
                     color: "#7067aa",
                     fontSize: "13px",
                     fontWeight: 500,
-                    borderBottom: '2px solid #403a6b',
+                    borderBottom: "2px solid #403a6b",
+                    display:
+                      column.headerName === "Action" && isLoading
+                        ? "none"
+                        : "table-cell",
                   }}
                 >
-                  {column.headerName}
+                  {column.headerName === "Action" ? "" : column.headerName}
                 </TableCell>
               ))}
             </TableRow>
@@ -113,10 +121,15 @@ export default function CustomTable<T>({
                 <TableCell
                   colSpan={tableConfig.columns.length}
                   align="center"
-                  sx={{ height: "200px", position: "relative", borderBottom: '2px solid #403a6b',
-                   }}
+                  sx={{
+                    height: "200px",
+                    position: "relative",
+                    background: "#342d5f",
+                    borderBottom: "2px solid #403a6b",
+                    color: "#7067aa",
+                  }}
                 >
-                  {/* <Loader show={true} sx={{ position: "absolute" }} /> */}
+                  <Loader show={true} sx={{ position: "absolute" }} />
                 </TableCell>
               </TableRow>
             ) : tableConfig?.rows?.length === 0 ? (
@@ -129,7 +142,7 @@ export default function CustomTable<T>({
                     fontWeight: 400,
                     height: "200px",
                     color: "#7067aa",
-                    border: '#403a6b'
+                    border: "#403a6b",
                   }}
                 >
                   {tableConfig.notFoundData}
@@ -152,68 +165,41 @@ export default function CustomTable<T>({
                         <TableCell
                           key={cellKey}
                           sx={{
-                            // fontFamily: "Montserrat, sans-serif",
+                            minWidth: "100px",
                             fontSize: "14px",
                             color: "#7067aa",
+                            borderBottom: "2px solid #403a6b",
+                            textAlign: "center", // Optional for alignment
+                            background: "#342d5f",
+                            display: column.field === "action" && isLoading
+                              ? "none"
+                              : "table-cell",
                           }}
                         >
                           <IconButton
-                            id="basic-button"
-                            aria-controls={open ? "basic-menu" : undefined}
-                            aria-haspopup="true"
-                            aria-expanded={open ? "true" : undefined}
-                            onClick={(event) => {
-                              handleClick(event, cellKey);
+                            onClick={() => {
+                              tableConfig.onActionClick("edit", row);
                             }}
                           >
-                            <MdOutlineMoreVert size={18} />
+                            <Image
+                              src="/icons/edit.png"
+                              alt="edit"
+                              width={18}
+                              height={18}
+                            />
                           </IconButton>
-                          <Menu
-                            id="basic-menu"
-                            anchorEl={anchorEl}
-                            open={open && menuKey === cellKey}
-                            onClose={handleClose}
-                            MenuListProps={{
-                              "aria-labelledby": "basic-button",
+                          <IconButton
+                            onClick={() => {
+                              tableConfig.onActionClick("delete", row);
                             }}
                           >
-                            {tableConfig?.actionList?.includes("edit") && (
-                              <MenuItem
-                                onClick={() => {
-                                  handleClose("edit", row);
-                                }}
-                              >
-                                <ListItemIcon>
-                                  <MdOutlineEdit size={18} />
-                                </ListItemIcon>
-                                Edit
-                              </MenuItem>
-                            )}
-                            {tableConfig?.actionList?.includes("view") && (
-                              <MenuItem
-                                onClick={() => {
-                                  handleClose("view", row);
-                                }}
-                              >
-                                <ListItemIcon>
-                                  <GrView size={18} />
-                                </ListItemIcon>
-                                View
-                              </MenuItem>
-                            )}
-                            {tableConfig?.actionList?.includes("delete") && (
-                              <MenuItem
-                                onClick={() => {
-                                  handleClose("delete", row);
-                                }}
-                              >
-                                <ListItemIcon>
-                                  <RiDeleteBinLine size={18} />
-                                </ListItemIcon>
-                                Delete
-                              </MenuItem>
-                            )}
-                          </Menu>
+                            <Image
+                              src="/icons/delete.png"
+                              alt="delete"
+                              width={18}
+                              height={18}
+                            />
+                          </IconButton>
                         </TableCell>
                       );
                     } else if (column.customRender) {
@@ -221,8 +207,10 @@ export default function CustomTable<T>({
                         <TableCell
                           key={cellKey}
                           sx={{
-                            fontFamily: "Montserrat, sans-serif",
+                            // fontFamily: "Montserrat, sans-serif",
                             fontSize: "14px",
+                            borderBottom: "2px solid #403a6b",
+                            color: "#ffffff",
                           }}
                         >
                           {column.customRender(row)}
@@ -233,8 +221,10 @@ export default function CustomTable<T>({
                         <TableCell
                           key={cellKey}
                           sx={{
-                            fontFamily: "Montserrat, sans-serif",
+                            // fontFamily: "Montserrat, sans-serif",
                             fontSize: "14px",
+                            borderBottom: "2px solid #403a6b",
+                            color: "#ffffff",
                           }}
                         >
                           {row[column.field] ? row[column.field] : "-"}
@@ -248,14 +238,16 @@ export default function CustomTable<T>({
           </TableBody>
         </Table>
       </TableContainer>
-     {pagination && <TablePagination
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPageOptions={[]} // Hides the rows per page selector
-      />}
+      {pagination && (
+        <TablePagination
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPageOptions={[]} // Hides the rows per page selector
+        />
+      )}
     </Paper>
   );
 }

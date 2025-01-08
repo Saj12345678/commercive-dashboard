@@ -55,12 +55,12 @@ const adminData = [
   {
     title: "Partners",
     href: "/admin/partners",
-    icon: <ShipmentIcon width={20} height={20} color={"#000000"} />,
+    icon: <Union width={20} height={20} color={"#000000"} />,
   },
   {
     title: "Roles & Permissions",
     href: "/admin/roles",
-    icon: <Union width={20} height={20} color={"#000000"} />,
+    icon: <ShipmentIcon width={20} height={20} color={"#000000"} />
   },
 ];
 
