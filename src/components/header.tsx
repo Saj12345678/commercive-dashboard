@@ -28,7 +28,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
           <Logo width={24} height={35}/>
         </button>
         <div className="hidden md:flex items-center justify-center">
-          <LogoIcon width={150} height={35} />
+          <LogoIcon width={150} height={35} color={"#4F11C9"} />
         </div>
       </div>
       <div>

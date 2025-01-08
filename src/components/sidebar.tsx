@@ -11,7 +11,7 @@ import ShipmentIcon from "./images/shipment";
 import SettingIcon from "./images/setting";
 import { Menu, MenuItem } from "@mui/material";
 import Image from "next/image";
-import Logo from "./images/logo";
+import LogoIcon from "./images/full-logo";
 
 export interface SidebarProps {
   isOpen?: any;
@@ -44,22 +44,22 @@ const data = [
 const adminData = [
   {
     title: "Home",
-    href: "",
+    href: "/admin/home",
     icon: <HouseIcon width={20} height={20} color={"#000000"} />,
   },
   {
     title: "Inventory",
-    href: "",
+    href: "/admin/inventory",
     icon: <InventoryIcon width={20} height={20} color={"#000000"} />,
   },
   {
     title: "Partners",
-    href: "",
+    href: "/admin/partners",
     icon: <ShipmentIcon width={20} height={20} color={"#000000"} />,
   },
   {
-    title: "Roles&Permissions",
-    href: "",
+    title: "Roles & Permissions",
+    href: "/admin/roles",
     icon: <Union width={20} height={20} color={"#000000"} />,
   },
 ];
@@ -71,6 +71,8 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userData, setUserData] = useState<string>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  console.log(pathName, "vdfv")
 
   const sidebarData = pathName?.includes("/admin") ? adminData : data
 
@@ -209,10 +211,16 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 />
               </div>
             </div>}
+            {pathName?.includes("/admin") && (
+              <div className="p-3">
+                <LogoIcon width={150} height={35} color={'#ffffff'} />
+              </div>
+            )}
             <div
               className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar`}
             >
-              {sidebarData.map((link, index) => (
+              {sidebarData.map((link, index) => {
+                return (
                 <div key={index}>
                   <Link
                     href={link.href}
@@ -249,7 +257,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     )}
                   </Link>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
 

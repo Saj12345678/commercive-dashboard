@@ -46,7 +46,7 @@ export default function RootLayout({
                 <Header toggleSidebar={toggleSidebar} />
               )}
               </div>
-            <div className={`flex h-full w-full ${pathName?.includes("/admin") && 'bg-[#1b1838]'} `}>
+            <div className={`flex h-full w-full ${pathName?.includes("/admin") && 'bg-[#1b1838] p-4'} `}>
               {!pathName?.includes("/login") &&
                 !pathName?.includes("/signUp") &&
                 !pathName?.includes("/error") && (
