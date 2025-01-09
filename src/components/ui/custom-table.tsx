@@ -95,7 +95,7 @@ export default function CustomTable<T>({
         <Table>
           <TableHead>
             <TableRow sx={{ background: "#342d5f" }}>
-              {updatedColumns.map((column: any) => (
+              {/* {updatedColumns.map((column: any) => (
                 <TableCell
                   key={column.field}
                   sx={{
@@ -111,7 +111,27 @@ export default function CustomTable<T>({
                 >
                   {column.headerName === "Action" ? "" : column.headerName}
                 </TableCell>
-              ))}
+              ))} */}
+               {updatedColumns.map((column: any) => {
+                  const shouldHideActionColumn =
+                    column.headerName === "Action" && (isLoading || rows.length === 0);
+           
+                  return (
+                    !shouldHideActionColumn && (
+                      <TableCell
+                        key={column.field}
+                        sx={{
+                          color: "#7067aa",
+                          fontSize: "13px",
+                          fontWeight: 500,
+                         borderBottom: "2px solid #403a6b",
+                       }}
+                     >
+                       {column.headerName === "Action" ? "" : column.headerName}
+                     </TableCell>
+                   )
+                 );
+               })}
             </TableRow>
           </TableHead>
           <TableBody>

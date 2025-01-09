@@ -17,10 +17,10 @@ export default function LabelBottomNavigation(props: any) {
   };
 
   const getIconColor = (route: string) =>
-    props.route === route ? "#4f11c9" : "#000000";
+    props.route === route ? "#4f11c9" : "#ffffff";
 
   const getIconBgColor = (route: string) =>
-    props.route === route ? "#E5DCFB" : "#FFFFFF";
+    props.route === route ? "#E5DCFB" : "#1b1838";
 
   const data = [{ value: "/home", icon: <HouseIcon width={20} height={20} color={getIconColor("/home")} /> },
   { value: "/inventory", icon: <InventoryIcon width={20} height={20} color={getIconColor("/inventory")} /> },
@@ -38,14 +38,14 @@ export default function LabelBottomNavigation(props: any) {
 
   return (
     <BottomNavigation
-      sx={{ width: 500, background: '#ffffff', borderTop: "2px solid #ebebeb", paddingX: '18px' }}
+      sx={{ width: {xs:'100%'}, background: '#1b1838', borderTop: "2px solid #ebebeb", paddingX: '18px' }}
       value={props.route}
       onChange={handleChange}
       className="bg-[#E5DCFB]"
     >
       {linkData.map((item, index) => {
         return (
-          <div key={index}>
+          <div key={index} className="flex items-center">
             <BottomNavigationAction
               value={item.value}
               icon={
@@ -62,52 +62,6 @@ export default function LabelBottomNavigation(props: any) {
             />
           </div>)
       })}
-      {/* <BottomNavigationAction
-        value="/inventory"
-        icon={
-          <div
-            style={{
-              backgroundColor: `${getIconBgColor("/inventory")}`,
-              borderRadius: "50%",
-              padding: "10px",
-            }}
-          >
-            <InventoryIcon
-              width={20}
-              height={20}
-              color={getIconColor("/inventory")}
-            />
-          </div>
-        }
-      />
-      <BottomNavigationAction
-        value="/shipment"
-        icon={
-          <div
-            style={{
-              backgroundColor: `${getIconBgColor("/shipment")}`,
-              borderRadius: "50%",
-              padding: "10px",
-            }}
-          >
-           
-          </div>
-        }
-      />
-      <BottomNavigationAction
-        value="/commercive-partners"
-        icon={
-          <div
-            style={{
-              backgroundColor: `${getIconBgColor("/commercive-partners")}`,
-              borderRadius: "50%",
-              padding: "10px",
-            }}
-          >
-            <UnionIcon width={20} height={20} color={getIconColor("/commercive-partners")} />
-          </div>
-        }
-      /> */}
     </BottomNavigation>
   );
 }

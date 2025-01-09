@@ -40,7 +40,8 @@ export default function Partner() {
   const initialFormData = {
     user: "",
     email: "",
-    store_name: "",
+    // store_name: "",
+    referred_store_name: "",
     commission_rate: "",
     order_number: "",
     quantity_of_order: "",
@@ -51,7 +52,8 @@ export default function Partner() {
   const initialError = {
     user: "",
     email: "",
-    store_name: "",
+    // store_name: "",
+    referred_store_name: "",
     commission_rate: "",
     order_number: "",
     quantity_of_order: "",
@@ -93,8 +95,10 @@ export default function Partner() {
       newErrors.email = "Please enter a valid email address.";
     }
 
-    if (!formData.store_name.trim())
-      newErrors.store_name = "Store name is required.";
+    // if (!formData.store_name.trim())
+    //   newErrors.store_name = "Store name is required.";
+    if (!formData.referred_store_name.trim())
+      newErrors.referred_store_name = "Referred store name is required.";
     if (!formData.commission_rate.trim()) {
       newErrors.commission_rate = "Commission rate is required.";
     } else if (isNaN(Number(formData.commission_rate))) {
@@ -130,7 +134,8 @@ export default function Partner() {
             .update({
               user_name: formData.user,
               email: formData.email,
-              store_name: formData.store_name,
+              // store_name: formData.store_name,
+              referred_store_name: formData.referred_store_name,
               commission_rate: Number(formData.commission_rate),
               order_number: formData.order_number,
               quantity_of_order: Number(formData.quantity_of_order),
@@ -144,7 +149,8 @@ export default function Partner() {
             {
               user_name: formData.user,
               email: formData.email,
-              store_name: formData.store_name,
+              // store_name: formData.store_name,
+              referred_store_name: formData.referred_store_name,
               commission_rate: Number(formData.commission_rate),
               order_number: formData.order_number,
               quantity_of_order: Number(formData.quantity_of_order),
@@ -218,7 +224,8 @@ export default function Partner() {
             customer_number: row["Customer number"] || "",
             email: row["Email"] || "",
             order_time: row["Time"] || "",
-            store_name: row["Store name"] || "",
+            referred_store_name: row["Referred store name"] || "",
+            // store_name: row["Store name"] || "",
             commission_rate: row["Commission\n(Per order)"] || "",
             order_number: row["Order number"] || "",
             quantity_of_order: row["Quantity of orders"] || "",
@@ -245,7 +252,8 @@ export default function Partner() {
           customer_number: row["Customer number"] || "",
           email: row["Email"] || "",
           order_time: row["Time"] || "",
-          store_name: row["Store name"] || "",
+          // store_name: row["Store name"] || "",
+          referred_store_name: row["Referred store name"] || "",
           commission_rate: row["Commission\n(Per order)"] || "",
           order_number: row["Order number"] || "",
           quantity_of_order: row["Quantity of orders"] || "",
@@ -291,7 +299,8 @@ export default function Partner() {
       setFormData({
         user: row.user_name || "",
         email: row.email || "",
-        store_name: row.store_name || "",
+        // store_name: row.store_name || "",
+        referred_store_name: row.referred_store_name || "",
         commission_rate: row.commission_rate?.toString() || "",
         order_number: row.order_number || "",
         quantity_of_order: row.quantity_of_order?.toString() || "",
@@ -546,7 +555,7 @@ export default function Partner() {
                       </p>
                     )}
                   </div>
-                  <div className="flex flex-col relative w-full">
+                  {/* <div className="flex flex-col relative w-full">
                     <InputField
                       name="store_name"
                       placeholder="Enter store name"
@@ -561,6 +570,24 @@ export default function Partner() {
                     {errors?.store_name && (
                       <p className="text-red-500 absolute text-sm -bottom-[20px] message">
                         {errors?.store_name}
+                      </p>
+                    )}
+                  </div> */}
+                   <div className="flex flex-col relative w-full">
+                    <InputField
+                      name="referred_store_name"
+                      placeholder="Enter referred store name"
+                      type="text"
+                      className="mt-[8px]"
+                      label={`Referred store name`}
+                      value={formData.referred_store_name}
+                      onChange={(e: any) =>
+                        handleOnChange(e, { referred_store_name: e.target.value })
+                      }
+                    />
+                    {errors?.referred_store_name && (
+                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                        {errors?.referred_store_name}
                       </p>
                     )}
                   </div>
