@@ -78,7 +78,7 @@ export default function RootLayout({
             {!pathName?.includes("/login") &&
                 !pathName?.includes("/signUp") &&   
                 !pathName?.includes("/error") && (
-                  <LabelBottomNavigation route={pathName} />
+                  <LabelBottomNavigation />
                 )}
             </div>
           </div>
