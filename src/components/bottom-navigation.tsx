@@ -8,60 +8,144 @@ import ShipmentIcon from "./images/shipment";
 import UnionIcon from "./images/union";
 import { usePathname, useRouter } from "next/navigation";
 
-export default function LabelBottomNavigation(props: any) {
+export default function LabelBottomNavigation() {
   const router = useRouter();
   const pathName = usePathname();
 
+  // Determine which route is active
+  const currentRoute = React.useMemo(() => pathName, [pathName]);
+
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+    // Navigate to the new route
     router.push(newValue);
   };
 
   const getIconColor = (route: string) =>
-    props.route === route ? "#4f11c9" : "#ffffff";
+    currentRoute === route
+      ? "#4f11c9"
+      : pathName?.includes("/admin")
+      ? "#ffffff"
+      : "#000000";
 
   const getIconBgColor = (route: string) =>
-    props.route === route ? "#E5DCFB" : "#1b1838";
+    currentRoute === route
+      ? "#E5DCFB"
+      : pathName?.includes("/admin")
+      ? "#1b1838"
+      : "#ffffff";
 
-  const data = [{ value: "/home", icon: <HouseIcon width={20} height={20} color={getIconColor("/home")} /> },
-  { value: "/inventory", icon: <InventoryIcon width={20} height={20} color={getIconColor("/inventory")} /> },
-  { value: "/shipment", icon: <ShipmentIcon width={20} height={20} color={getIconColor("/shipment")} /> },
-  { value: "/commercive-partners", icon: <UnionIcon width={20} height={20} color={getIconColor("/commercive-partners")} /> },
-  ]
+  const data = [
+    {
+      value: "/home",
+      icon: <HouseIcon width={20} height={20} color={getIconColor("/home")} />,
+    },
+    {
+      value: "/inventory",
+      icon: (
+        <InventoryIcon
+          width={20}
+          height={20}
+          color={getIconColor("/inventory")}
+        />
+      ),
+    },
+    {
+      value: "/shipment",
+      icon: (
+        <ShipmentIcon
+          width={20}
+          height={20}
+          color={getIconColor("/shipment")}
+        />
+      ),
+    },
+    {
+      value: "/commercive-partners",
+      icon: (
+        <UnionIcon
+          width={20}
+          height={20}
+          color={getIconColor("/commercive-partners")}
+        />
+      ),
+    },
+  ];
 
-  const adminData = [{ value: "/admin/home", icon: <HouseIcon width={20} height={20} color={getIconColor("/admin/home")} /> },
-  { value: "/admin/inventory", icon: <InventoryIcon width={20} height={20} color={getIconColor("/admin/inventory")} /> },
-  { value: "/admin/partners", icon: <UnionIcon width={20} height={20} color={getIconColor("/admin/partners")} /> },
-  { value: "/admin/roles", icon: <ShipmentIcon width={20} height={20} color={getIconColor("/admin/roles")} /> },
-  ]
+  const adminData = [
+    {
+      value: "/admin/home",
+      icon: (
+        <HouseIcon
+          width={20}
+          height={20}
+          color={getIconColor("/admin/home")}
+        />
+      ),
+    },
+    {
+      value: "/admin/inventory",
+      icon: (
+        <InventoryIcon
+          width={20}
+          height={20}
+          color={getIconColor("/admin/inventory")}
+        />
+      ),
+    },
+    {
+      value: "/admin/partners",
+      icon: (
+        <UnionIcon
+          width={20}
+          height={20}
+          color={getIconColor("/admin/partners")}
+        />
+      ),
+    },
+    {
+      value: "/admin/roles",
+      icon: (
+        <ShipmentIcon
+          width={20}
+          height={20}
+          color={getIconColor("/admin/roles")}
+        />
+      ),
+    },
+  ];
 
-  const linkData = pathName?.includes("/admin") ? adminData : data
+  const linkData = pathName?.includes("/admin") ? adminData : data;
 
   return (
     <BottomNavigation
-      sx={{ width: {xs:'100%'}, background: '#1b1838', borderTop: "2px solid #ebebeb", paddingX: '18px' }}
-      value={props.route}
+      sx={{
+        width: "100%",
+        background: pathName?.includes("/admin")
+          ? "#1b1838"
+          : "#ffffff",
+        borderTop: "2px solid #ebebeb",
+        paddingX: "18px",
+      }}
+      value={currentRoute}
       onChange={handleChange}
-      className="bg-[#E5DCFB]"
     >
-      {linkData.map((item, index) => {
-        return (
-          <div key={index} className="flex items-center">
-            <BottomNavigationAction
-              value={item.value}
-              icon={
-                <div
-                  style={{
-                    backgroundColor: `${getIconBgColor(item.value)}`,
-                    borderRadius: "50%",
-                    padding: "10px",
-                  }}
-                >
-                  {item.icon}
-                </div>
-              }
-            />
-          </div>)
-      })}
+      {linkData.map((item, index) => (
+        <BottomNavigationAction
+          key={index}
+          value={item.value}
+          icon={
+            <div
+              style={{
+                backgroundColor: getIconBgColor(item.value),
+                borderRadius: "50%",
+                padding: "10px",
+              }}
+            >
+              {item.icon}
+            </div>
+          }
+        />
+      ))}
     </BottomNavigation>
   );
 }
