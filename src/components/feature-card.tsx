@@ -1,5 +1,4 @@
 "use client";
-
 import { FaArrowDown, FaArrowUp } from "react-icons/fa6";
 import SparklineChart from "./charts/spartLineChart";
 import { useState } from "react";
