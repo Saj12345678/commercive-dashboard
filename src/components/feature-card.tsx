@@ -40,7 +40,7 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                     onClick={handleWithdrawalClick}
                     className="flex border bg-[#F4F4F7] text-[#3D3C3C] font-semibold rounded-md p-2 cursor-pointer"
                   >
-                    Withdrawal
+                    Withdraw
                   </div>
                 )}
               </div>
