@@ -51,22 +51,24 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                       {index === 0 ? data.amount : "$" + data.amount}
                     </p>
                     <div
-                      className="rounded-full w-[26px] h-[26px] flex justify-center items-center"
-                      style={{ backgroundColor: data.bgColor }}
+                      className={`rounded-full w-[26px] h-[26px] flex justify-center items-center ${
+                        parseFloat(data.percentage) === 0 ? "hidden" : "" // Hide the entire div if percentage is 0
+                      }`}
+                      style={{
+                        backgroundColor:
+                          parseFloat(data.percentage) === 0
+                            ? "transparent"
+                            : data.bgColor,
+                      }}
                     >
-                      {(index === 3 || parseFloat(data.percentage) < 0) ? (
-                        <FaArrowDown
-                          color={data.color}
-                          fontWeight="bold"
-                        />
-                      ) : (
+                      {index === 3 || parseFloat(data.percentage) < 0 ? (
+                        <FaArrowDown color={data.color} fontWeight="bold" />
+                      ) : parseFloat(data.percentage) > 0 ? (
                         <FaArrowUp color={data.color} fontWeight="bold" />
-                      )}
+                      ) : null}{" "}
+                      
                     </div>
-                    <p
-                      className="font-semibold"
-                      style={{ color: data.color }}
-                    >
+                    <p className="font-semibold" style={{ color: data.color }}>
                       {data.percentage}
                     </p>
                   </div>
@@ -103,12 +105,18 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                   <div className="w-full">
                     <p>To</p>
                     <div className="border rounded p-2">
-                      <p className="text-sm">
-                        Chase Bank **** **** **** 3842
-                      </p>
+                      <p className="text-sm">Chase Bank **** **** **** 3842</p>
                     </div>
                   </div>
-                  <Button sx={{ width: '100%', background: '#4f11c9', color: '#ffffff', border: 'medium', fontWeight: 'bold'}}>
+                  <Button
+                    sx={{
+                      width: "100%",
+                      background: "#4f11c9",
+                      color: "#ffffff",
+                      border: "medium",
+                      fontWeight: "bold",
+                    }}
+                  >
                     Pay out $ 1393.73
                   </Button>
                 </div>

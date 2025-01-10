@@ -246,7 +246,7 @@ export default function CommercivePartners() {
   const calculatePercentageChange = (currentWeek: number, pastWeek: number): string => {
     // Handle cases where the past week's earnings are zero to avoid division by zero
     if (pastWeek === 0) {
-        return currentWeek > 0 ? "100%" : "No change";
+        return currentWeek > 0 ? "100%" : "0%";
     }
 
     const change = ((currentWeek - pastWeek) / pastWeek) * 100;
@@ -300,6 +300,13 @@ export default function CommercivePartners() {
         .select("*")
         .gte("created_at", formattedStartDateCurrent)
         .lte("created_at", formattedEndDateCurrent);
+
+        const { data: pastWeekReferral, error: pastWeekReferralsError } = await supabase
+        .from("referrals")
+        .select("*")
+        .gte("created_at", formattedStartDatePast)
+        .lte("created_at", formattedEndDatePast);
+
 
       if (orderError || referralsError) {
         console.error("Error fetching orders:", orderError, referralsError);
@@ -384,9 +391,20 @@ export default function CommercivePartners() {
               };
             }
             if (item.name === "Total Referrals") {
+              const currentWeekCount = referral?.length || 0; // Handle null/undefined
+              const pastWeekCount = pastWeekReferral?.length || 0; // Handle null/undefined
+
+              const percentage =
+                pastWeekCount === 0
+                  ? currentWeekCount > 0
+                    ? '100%' // If past week is 0 and current week has data
+                    : '0%' // If both past week and current week have no data
+                  : ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
+
               return {
                 ...item,
-                amount: referral?.length,
+                amount: currentWeekCount,
+                percentage,
               };
             }
             return item;
