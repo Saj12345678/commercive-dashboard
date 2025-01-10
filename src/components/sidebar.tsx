@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Avatar, Button } from "@mui/material";
+import { Avatar, Button, Tooltip } from "@mui/material";
 import { createClient } from "@/app/utils/supabase/client";
 import Union from "./images/union";
 import HouseIcon from "./images/home";
@@ -12,6 +12,12 @@ import SettingIcon from "./images/setting";
 import { Menu, MenuItem } from "@mui/material";
 import Image from "next/image";
 import LogoIcon from "./images/full-logo";
+import { toast } from "react-toastify";
+import CustomModal from "./ui/modal";
+import { MdOutlineClose } from "react-icons/md";
+import InputField from "./ui/custom-inputfild";
+import CustomButton from "./ui/custom-button";
+import { BsCopy } from "react-icons/bs";
 
 export interface SidebarProps {
   isOpen?: any;
@@ -71,6 +77,16 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userData, setUserData] = useState<string>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [loading, setLoading] = useState(false);
+  const [referralLink, setReferralLink] = useState("");
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [tooltipInfoMessage, setTooltipInfoMessage] = useState("");
+  const [isInfoTooltipOpen, setInfoIsTooltipOpen] = useState(false);
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+  const [tooltipMessage, setTooltipMessage] = useState("");
+
+  console.log(isModalOpen, "fddb")
+
 
   const sidebarData = pathName?.includes("/admin") ? adminData : data
 
@@ -119,6 +135,90 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
       .join(" ");
   };
 
+  const handleAffiliateClick = async () => {
+      setLoading(true);
+      try {
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+  
+        if (userError || !user) {
+          toast.error("Unable to fetch user information.");
+          return;
+        }
+  
+        const { data, error } = await supabase
+          .from("user")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+  
+        if (error || !data?.referral_code) {
+          toast.error("Unable to fetch referral code.");
+          return;
+        }
+  
+        setReferralLink(
+          `${process.env.NEXT_PUBLIC_CLIENT_URL}/signUp?referral=${data.referral_code}`
+        );
+        setModalOpen(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const closeModal = () => {
+      setModalOpen(false);
+    };
+  
+    const handleReferralLinkChange = (event: any) => {
+      setReferralLink(event.target.value);
+    };
+  
+    const handleReferralLinkCopy = () => {
+      if (referralLink) {
+        navigator.clipboard
+          .writeText(referralLink)
+          .then(() => {
+            setTooltipMessage("Copied!");
+            setIsTooltipOpen(true);
+            setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+          })
+          .catch(() => {
+            setTooltipMessage("Failed to copy.");
+            setIsTooltipOpen(true);
+            setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+          });
+      } else {
+        setTooltipMessage("No referral link to copy.");
+        setIsTooltipOpen(true);
+        setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+      }
+    };
+    const handleLinkInfoCopy = () => {
+      const textToCopy = `Hey! I just started using this fantastic Order Tracking App that keeps me updated on all my deliveries. It’s super convenient and saves me so much time! If you sign up with my link, we both get exclusive discounts on our next orders. Check it out!
+      ${referralLink}`;
+      if (textToCopy) {
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            setTooltipInfoMessage("Copied!");
+            setInfoIsTooltipOpen(true);
+            setTimeout(() => setInfoIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+          })
+          .catch(() => {
+            setTooltipInfoMessage("Failed to copy.");
+            setInfoIsTooltipOpen(true);
+            setTimeout(() => setInfoIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+          });
+      } else {
+        setTooltipInfoMessage("No referral link to copy.");
+        setInfoIsTooltipOpen(true);
+        setTimeout(() => setInfoIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+      }
+    };
+
   useEffect(() => {
     const getUserDetails = async () => {
       const {
@@ -135,6 +235,11 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   return (
     <>
       {/* Sidebar for larger screens */}
+      {loading && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="loader"></div>
+          </div>
+        )}
       <div
         className={`hidden md:flex flex-col ${
           isCollapsed ? "w-24" : "w-[360px]"
@@ -287,7 +392,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               Refer new members to commercive and unlock up to 1% commision on
               all orders placed through us
             </p>
-            <Button className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3">
+            <Button className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3" onClick={handleAffiliateClick}>
               + Invite People
             </Button>
           </div> }
@@ -423,13 +528,83 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 Refer new members to commercive and unlock up to 1% commission
                 on all orders placed through us
               </p>
-              <Button className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3">
+              <Button className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3" onClick={handleAffiliateClick}>
                 + Invite People
               </Button>
             </div>}
+            
           </div>
         </div>
       )}
+      {isModalOpen && (
+          <CustomModal maxWidth={"w-max"}>
+            <div className="flex flex-col rounded p-2 gap-4">
+              <div className="flex justify-between">
+                <p className="text-xl font-semibold">Share</p>
+                <MdOutlineClose size={24} onClick={closeModal} />
+              </div>
+              <p className="text-sm">
+                Copy the link and send it to your friends, they can access and
+                use the PoewrUp.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <InputField
+                  name="referralLink"
+                  placeholder=""
+                  type="text"
+                  className="!h-10 !text-[#929292] text-sm"
+                  label={""}
+                  value={referralLink}
+                  onChange={handleReferralLinkChange}
+                  bgColor={"#F5F5F5"}
+                  boxBorder={"border-transparent"}
+                  readOnly
+                />
+                <Tooltip
+                  title={tooltipMessage}
+                  open={isTooltipOpen}
+                  arrow
+                  disableFocusListener
+                  disableHoverListener
+                  disableTouchListener
+                >
+                  <div>
+                    <CustomButton
+                      label="Copy"
+                      className="w-max"
+                      callback={handleReferralLinkCopy}
+                    />
+                  </div>
+                </Tooltip>
+              </div>
+              <div className="flex flex-col bg-[#F5F5F5] border px-4 py-6 rounded-lg gap-3">
+                <div className="flex justify-between items-center">
+                <p className="font-bold">Text Preview</p>
+                <Tooltip
+                  title={tooltipInfoMessage}
+                  open={isInfoTooltipOpen}
+                  arrow
+                  disableFocusListener
+                  disableHoverListener
+                  disableTouchListener
+                >
+                  <div>
+                    <CustomButton
+                      label="Copy"
+                      className="w-max !bg-transparent !text-[#4F11C9]"
+                      callback={handleLinkInfoCopy}
+                      prefixIcon={<BsCopy size={14} color="#4F11C9" />}
+                    />
+                  </div>
+                </Tooltip>
+                </div>
+               <p className="max-w-[500px] text-sm">Hey! I just started using this fantastic Order Tracking App that keeps me updated on all my deliveries. It’s super convenient and saves me so much time! If you sign up with my link, we both get exclusive discounts on our next orders. Check it out!
+                <br/>{referralLink}
+               </p>
+                </div>
+            </div>
+          </CustomModal>
+        )}
     </>
   );
 }
