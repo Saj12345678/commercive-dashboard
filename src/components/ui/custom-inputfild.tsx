@@ -19,7 +19,7 @@ interface InputFieldProps {
   min?: number;
   max?: number;
   step?: string;
-  boxBorder?: boolean;
+  boxBorder?: string;
 }
 
 const InputField = (props: InputFieldProps) => {
@@ -48,7 +48,7 @@ const InputField = (props: InputFieldProps) => {
   const passwordEyeClick = () => {
     setViewPassword((pre) => !pre);
   };
-  const borderColor = boxBorder ? "border-[#FF772E]" : "border-[#D4D7DD]";
+  const borderColor = boxBorder ? boxBorder : "border-[#D4D7DD]";
   return (
     <div className="flex flex-col w-full">
       <label className="font-medium text-[16px] leading-[24px] text-[#3E4654]">
@@ -68,7 +68,7 @@ const InputField = (props: InputFieldProps) => {
           }
           placeholder={placeholder}
           onChange={(event) => onChange(event, name)}
-          className={`h-[48px] w-full rounded-[8px] border ${borderColor} pl-3 pr-3 focus:outline-none
+          className={`h-[40px] w-full rounded-[8px] border ${borderColor} pl-3 pr-3 focus:outline-none
         bg-[${bgColor}]`}
           readOnly={readOnly}
         />

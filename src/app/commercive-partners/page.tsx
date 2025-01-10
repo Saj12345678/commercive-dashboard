@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { MdOutlineCalendarToday } from "react-icons/md";
+import { MdOutlineCalendarToday, MdOutlineClose } from "react-icons/md";
 import { toast } from "react-toastify";
 import FeatureCard from "@/components/feature-card";
 import CustomModal from "@/components/ui/modal";
@@ -17,10 +17,14 @@ import {
   Typography,
   Button,
   Stack,
+  Tooltip,
 } from "@mui/material";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import "../home/home.css";
+import CustomButton from "@/components/ui/custom-button";
+import InputField from "@/components/ui/custom-inputfild";
+import { BsCopy } from "react-icons/bs";
 
 export default function CommercivePartners() {
   const supabase = createClient();
@@ -40,6 +44,10 @@ export default function CommercivePartners() {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [referralLink, setReferralLink] = useState("");
+  const [tooltipMessage, setTooltipMessage] = useState("");
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+  const [tooltipInfoMessage, setTooltipInfoMessage] = useState("");
+  const [isInfoTooltipOpen, setInfoIsTooltipOpen] = useState(false);
   const [chartData, setChartData] = useState([
     {
       name: "Total Referrals",
@@ -115,6 +123,54 @@ export default function CommercivePartners() {
 
   const closeModal = () => {
     setModalOpen(false);
+  };
+
+  const handleReferralLinkChange = (event: any) => {
+    setReferralLink(event.target.value);
+  };
+
+  const handleReferralLinkCopy = () => {
+    if (referralLink) {
+      navigator.clipboard
+        .writeText(referralLink)
+        .then(() => {
+          setTooltipMessage("Copied!");
+          setIsTooltipOpen(true);
+          setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+        })
+        .catch(() => {
+          setTooltipMessage("Failed to copy.");
+          setIsTooltipOpen(true);
+          setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+        });
+    } else {
+      setTooltipMessage("No referral link to copy.");
+      setIsTooltipOpen(true);
+      setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+    }
+  };
+  const handleLinkInfoCopy = () => {
+    const textToCopy = `Hey! I found this great AI assistant called Monica. It's a real time-saver - summarizes multiple PDFs & YouTube
+    videos instantly, helps with emails... if you sign up with my link we both get free Claude 3.5 and GPT-40 credits worth trying!
+    ${referralLink}`;
+    if (textToCopy) {
+      navigator.clipboard
+        .writeText(textToCopy)
+        .then(() => {
+          setTooltipInfoMessage("Copied!");
+          setInfoIsTooltipOpen(true);
+          setTimeout(() => setInfoIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+        })
+        .catch(() => {
+          setTooltipInfoMessage("Failed to copy.");
+          setInfoIsTooltipOpen(true);
+          setTimeout(() => setInfoIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+        });
+    } else {
+      setTooltipInfoMessage("No referral link to copy.");
+      setInfoIsTooltipOpen(true);
+      setTimeout(() => setInfoIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+    }
   };
 
   // Function to calculate total earnings
@@ -244,7 +300,8 @@ export default function CommercivePartners() {
         );
 
         setTableData(updatedTableData);
-
+        console.log(orderData,);
+        
         const pendingRecords = orderData.filter(
           (data) => data.financial_status === "pending"
         );
@@ -264,6 +321,8 @@ export default function CommercivePartners() {
           formattedStartDate,
           formattedEndDate,
         });
+
+        console.log(totalEarnings,totalEarning, pendingEarnings, pendingEarning);
 
         setChartData((prevData: any) => {
           return prevData.map((item: any) => {
@@ -400,72 +459,71 @@ export default function CommercivePartners() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-0 sm:gap-3">
-        <div className="flex flex-col md:flex-row">
+          <div className="flex flex-col md:flex-row">
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <div className="flex items-center gap-2">
+                <Button
+                  className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
+                  variant="outlined"
+                  onClick={() => {
+                    setShowDatePicker("today");
+                  }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    padding: "0.5rem 1rem",
+                    border: "3px solid #EBEBEB !important",
+                    color: "#454545",
+                  }}
+                >
+                  <MdOutlineCalendarToday size={18} />
+                  <span>
+                    {selectedDate && isToday(selectedDate)
+                      ? "Today"
+                      : selectedDate?.toDateString() || "Today"}
+                  </span>
+                </Button>
 
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <div className="flex items-center gap-2">
-              <Button
-                className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
-                variant="outlined"
-                onClick={() => {
-                  setShowDatePicker("today");
-                }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "0.5rem 1rem",
-                  border: "3px solid #EBEBEB !important",
-                  color: "#454545",
-                }}
-              >
-                <MdOutlineCalendarToday size={18} />
-                <span>
-                  {selectedDate && isToday(selectedDate)
-                    ? "Today"
-                    : selectedDate?.toDateString() || "Today"}
-                </span>
-              </Button>
+                <DatePicker
+                  open={showDatePicker === "today"}
+                  value={selectedDate}
+                  onChange={(date: any) => handleDateChange(date)}
+                  maxDate={today}
+                  onClose={() => setShowDatePicker(null)}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outlined"
+                  className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
+                  onClick={() => setShowDatePicker("compare")}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    padding: "0.5rem 1rem",
+                    border: "3px solid #EBEBEB !important",
+                    color: "#454545",
+                  }}
+                >
+                  <MdOutlineCalendarToday size={18} />
+                  <span>
+                    {compareDate
+                      ? `Compare to ${compareDate.toDateString()}`
+                      : "Compare to ..."}
+                  </span>
+                </Button>
 
-              <DatePicker
-                open={showDatePicker === "today"}
-                value={selectedDate}
-                onChange={(date: any) => handleDateChange(date)}
-                maxDate={today}
-                onClose={() => setShowDatePicker(null)}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outlined"
-                className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
-                onClick={() => setShowDatePicker("compare")}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "0.5rem 1rem",
-                  border: "3px solid #EBEBEB !important",
-                  color: "#454545",
-                }}
-              >
-                <MdOutlineCalendarToday size={18} />
-                <span>
-                  {compareDate
-                    ? `Compare to ${compareDate.toDateString()}`
-                    : "Compare to ..."}
-                </span>
-              </Button>
-
-              <DatePicker
-                open={showDatePicker === "compare"}
-                value={compareDate}
-                onChange={(date: any) => handleDateChange(date)}
-                maxDate={today}
-                onClose={() => setShowDatePicker(null)}
-              />
-            </div>
-          </LocalizationProvider>
+                <DatePicker
+                  open={showDatePicker === "compare"}
+                  value={compareDate}
+                  onChange={(date: any) => handleDateChange(date)}
+                  maxDate={today}
+                  onClose={() => setShowDatePicker(null)}
+                />
+              </div>
+            </LocalizationProvider>
           </div>
         </div>
 
@@ -650,9 +708,72 @@ export default function CommercivePartners() {
           </div>
         </div>
         {isModalOpen && (
-          <CustomModal onClose={closeModal}>
-            <div className="flex border border-[#F4F4F7] rounded p-2 mt-2">
-              {referralLink}
+          <CustomModal maxWidth={"w-max"}>
+            <div className="flex flex-col rounded p-2 gap-4">
+              <div className="flex justify-between">
+                <p className="text-xl font-semibold">Share</p>
+                <MdOutlineClose size={24} onClick={closeModal} />
+              </div>
+              <p className="text-sm">
+                Copy the link and send it to your friends, they can access and
+                use the PoewrUp.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <InputField
+                  name="referralLink"
+                  placeholder=""
+                  type="text"
+                  className="!h-10 !text-[#929292] text-sm"
+                  label={""}
+                  value={referralLink}
+                  onChange={handleReferralLinkChange}
+                  bgColor={"#F5F5F5"}
+                  boxBorder={"border-transparent"}
+                  readOnly
+                />
+                <Tooltip
+                  title={tooltipMessage}
+                  open={isTooltipOpen}
+                  arrow
+                  disableFocusListener
+                  disableHoverListener
+                  disableTouchListener
+                >
+                  <div>
+                    <CustomButton
+                      label="Copy"
+                      className="w-max"
+                      callback={handleReferralLinkCopy}
+                    />
+                  </div>
+                </Tooltip>
+              </div>
+              <div className="flex flex-col bg-[#F5F5F5] border px-4 py-6 rounded-lg gap-3">
+                <div className="flex justify-between items-center">
+                <p className="font-bold">Text Preview</p>
+                <Tooltip
+                  title={tooltipInfoMessage}
+                  open={isInfoTooltipOpen}
+                  arrow
+                  disableFocusListener
+                  disableHoverListener
+                  disableTouchListener
+                >
+                  <div>
+                    <CustomButton
+                      label="Copy"
+                      className="w-max !bg-transparent !text-[#4F11C9]"
+                      callback={handleLinkInfoCopy}
+                      prefixIcon={<BsCopy size={14} color="#4F11C9" />}
+                    />
+                  </div>
+                </Tooltip>
+                </div>
+               <p className="max-w-[500px] text-sm">Hey! I found this great AI assistant called Monica. It's a real time-saver - summarizes multiple PDFs & You tube
+                videos instantly, helps with emails... if you sign up with my link we both get free claude 3.5 and GPT-40 credits worth trying!
+                <br/>{referralLink}
+               </p>
+                </div>
             </div>
           </CustomModal>
         )}

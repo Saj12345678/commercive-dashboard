@@ -7,8 +7,11 @@ import InventoryIcon from "./images/inventory";
 import ShipmentIcon from "./images/shipment";
 import UnionIcon from "./images/union";
 import { usePathname, useRouter } from "next/navigation";
+interface LabelBottomNavigationProps {
+  route?: string;
+}
 
-export default function LabelBottomNavigation() {
+export default function LabelBottomNavigation({route}:LabelBottomNavigationProps) {
   const router = useRouter();
   const pathName = usePathname();
 
