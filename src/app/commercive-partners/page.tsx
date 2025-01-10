@@ -21,9 +21,11 @@ import {
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import "../home/home.css";
+import { useRouter } from "next/navigation";
 
 export default function CommercivePartners() {
   const supabase = createClient();
+  const router = useRouter();
   const today = new Date();
   const currentDay = today.getDay();
   const currentWeekMonday = new Date(today);
@@ -346,6 +348,20 @@ export default function CommercivePartners() {
       item.amount?.trim() !== "" &&
       item.commission?.trim() !== ""
   );
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user?.id) {
+        router.push("/login");
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   return (
     <>
