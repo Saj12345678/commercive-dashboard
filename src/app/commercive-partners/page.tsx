@@ -175,14 +175,17 @@ export default function CommercivePartners() {
     }
   };
 
-  // Function to calculate total earnings
-  const calculateEarnings = (orders: any, weekOffset = 0, status = "paid") => {
+  const calculateEarnings = (orders: any[], weekOffset = 0, status: string): number => {
     const totalEarning = orders.reduce((total: number, order: any) => {
-      if (order.financial_status === status) {
-        total += parseFloat(order.sub_total_price);
+      const financialStatus = order.financial_status.trim();
+      const subTotal = parseFloat(order.sub_total_price);
+
+      if (financialStatus === status.trim()) {
+        total += subTotal;
       }
       return total;
     }, 0);
+  
     return totalEarning;
   };
 
@@ -302,13 +305,12 @@ export default function CommercivePartners() {
         );
 
         setTableData(updatedTableData);
-        console.log(orderData,);
         
         const pendingRecords = orderData.filter(
-          (data) => data.financial_status === "pending"
+          (data) => data.financial_status.trim().toLowerCase() === "pending"
         );
         const paidRecords = orderData.filter(
-          (data) => data.financial_status === "paid"
+          (data) => data.financial_status.trim().toLowerCase() === "paid"
         );
 
         const totalEarningsChart = groupAndSumByDate(pendingRecords);
@@ -323,8 +325,6 @@ export default function CommercivePartners() {
           formattedStartDate,
           formattedEndDate,
         });
-
-        console.log(totalEarnings,totalEarning, pendingEarnings, pendingEarning);
 
         setChartData((prevData: any) => {
           return prevData.map((item: any) => {
