@@ -25,9 +25,11 @@ import "../home/home.css";
 import CustomButton from "@/components/ui/custom-button";
 import InputField from "@/components/ui/custom-inputfild";
 import { BsCopy } from "react-icons/bs";
+import { useRouter } from "next/navigation";
 
 export default function CommercivePartners() {
   const supabase = createClient();
+  const router = useRouter();
   const today = new Date();
   const currentDay = today.getDay();
   const currentWeekMonday = new Date(today);
@@ -405,6 +407,20 @@ export default function CommercivePartners() {
       item.amount?.trim() !== "" &&
       item.commission?.trim() !== ""
   );
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user?.id) {
+        router.push("/login");
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   return (
     <>
