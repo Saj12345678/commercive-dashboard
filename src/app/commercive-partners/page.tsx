@@ -174,7 +174,7 @@ export default function CommercivePartners() {
     }
   };
 
-  const calculateEarnings = (orders: any[], weekOffset = 0, status: string): number => {
+  const calculateEarnings = (orders: any, weekOffset = 0, status: string): number => {
     const totalEarning = orders.reduce((total: number, order: any) => {
       const financialStatus = order.financial_status.trim();
       const subTotal = parseFloat(order.sub_total_price);
@@ -218,10 +218,10 @@ export default function CommercivePartners() {
   };
 
   function getTotalsBetweenDates(data: any) {
-    const { chartData, formattedStartDate, formattedEndDate } = data;
+    const { chartData, formattedStartDateCurrent, formattedEndDateCurrent } = data;
 
-    const startDate = new Date(formattedStartDate);
-    const endDate = new Date(formattedEndDate);
+    const startDate = new Date(formattedStartDateCurrent);
+    const endDate = new Date(formattedEndDateCurrent);
 
     const totalsMap = new Map(
       chartData?.map((item: any) => [
@@ -243,29 +243,63 @@ export default function CommercivePartners() {
     return totalsArray;
   }
 
+  const calculatePercentageChange = (currentWeek: number, pastWeek: number): string => {
+    // Handle cases where the past week's earnings are zero to avoid division by zero
+    if (pastWeek === 0) {
+        return currentWeek > 0 ? "100%" : "No change";
+    }
+
+    const change = ((currentWeek - pastWeek) / pastWeek) * 100;
+
+    return `${change.toFixed(2)}%`; 
+};
+
   const fetchOrders = async (startDate: Date, endDate: Date) => {
     const formatDateForQuery = (date: Date) => {
       const isoString = date.toISOString();
-      return isoString.split("Z")[0];
-    };
+      return isoString.split("Z")[0]; 
+  };
 
-    const formattedStartDate = formatDateForQuery(startDate);
-    const formattedEndDate = formatDateForQuery(endDate);
+  const getPastWeekDatesFromSelectedDates = (startDate: Date, endDate: Date) => {
+    const pastStartDate = new Date(startDate);
+    pastStartDate.setDate(startDate.getDate() - 7);
 
+    const pastEndDate = new Date(endDate);
+    pastEndDate.setDate(endDate.getDate() - 7);
+
+    return { pastStartDate, pastEndDate };
+  };
+
+  const { pastStartDate, pastEndDate } = getPastWeekDatesFromSelectedDates(startDate, endDate);
+
+  // Format dates for query
+  const formattedStartDateCurrent = formatDateForQuery(startDate);
+  const formattedEndDateCurrent = formatDateForQuery(endDate);
+
+  const formattedStartDatePast = formatDateForQuery(pastStartDate);
+  const formattedEndDatePast = formatDateForQuery(pastEndDate);
+    
     setLoading(true);
 
     try {
       const { data: orderData, error: orderError } = await supabase
         .from("order")
         .select("*")
-        .gte("created_at", formattedStartDate)
-        .lt("created_at", formattedEndDate);
+        .gte("created_at", formattedStartDateCurrent)
+        .lt("created_at", formattedEndDateCurrent);
+
+        const { data: pastWeekOrders, error: pastWeekError } = await supabase
+            .from("order")
+            .select("*")
+            .gte("created_at", formattedStartDatePast)
+            .lt("created_at", formattedEndDatePast);
+
 
       const { data: referral, error: referralsError } = await supabase
         .from("referrals")
         .select("*")
-        .gte("created_at", formattedStartDate)
-        .lte("created_at", formattedEndDate);
+        .gte("created_at", formattedStartDateCurrent)
+        .lte("created_at", formattedEndDateCurrent);
 
       if (orderError || referralsError) {
         console.error("Error fetching orders:", orderError, referralsError);
@@ -273,6 +307,11 @@ export default function CommercivePartners() {
       } else {
         const totalEarnings = calculateEarnings(orderData, 0, "paid");
         const pendingEarnings = calculateEarnings(orderData, 0, "pending");
+        const totalEarningsPastWeek = calculateEarnings(pastWeekOrders, 0, "paid");
+        const pendingEarningsPastWeek = calculateEarnings(pastWeekOrders, 0, "pending");
+
+        const totalEarningsChange = calculatePercentageChange(totalEarnings, totalEarningsPastWeek);
+        const pendingEarningsChange = calculatePercentageChange(pendingEarnings, pendingEarningsPastWeek);
 
         const groupedOrders = orderData.reduce((acc, order) => {
           if (order.customer_email) {
@@ -314,15 +353,16 @@ export default function CommercivePartners() {
 
         const totalEarningsChart = groupAndSumByDate(pendingRecords);
         const pendingEarningsChart = groupAndSumByDate(paidRecords);
+
         const totalEarning = getTotalsBetweenDates({
           chartData: totalEarningsChart,
-          formattedStartDate,
-          formattedEndDate,
+          formattedStartDateCurrent,
+          formattedEndDateCurrent,
         });
         const pendingEarning = getTotalsBetweenDates({
           chartData: pendingEarningsChart,
-          formattedStartDate,
-          formattedEndDate,
+          formattedStartDateCurrent,
+          formattedEndDateCurrent,
         });
 
         setChartData((prevData: any) => {
@@ -332,6 +372,7 @@ export default function CommercivePartners() {
                 ...item,
                 amount: totalEarnings.toFixed(2),
                 series: totalEarning,
+                percentage: totalEarningsChange
               };
             }
             if (item.name === "Pending Earnings") {
@@ -339,6 +380,7 @@ export default function CommercivePartners() {
                 ...item,
                 amount: pendingEarnings.toFixed(2),
                 series: pendingEarning,
+                percentage: pendingEarningsChange
               };
             }
             if (item.name === "Total Referrals") {

@@ -54,7 +54,7 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                       className="rounded-full w-[26px] h-[26px] flex justify-center items-center"
                       style={{ backgroundColor: data.bgColor }}
                     >
-                      {index === 3 ? (
+                      {(index === 3 || parseFloat(data.percentage) < 0) ? (
                         <FaArrowDown
                           color={data.color}
                           fontWeight="bold"
@@ -73,7 +73,7 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                   <p className="text-[#B1B0B0]">compared to last week</p>
                 </div>
                 <div className="flex">
-                  <div className="block w-full h-full overflow-hidden max-w-[100px]">
+                  <div className="block w-full h-full overflow-hidden max-w-[200px]">
                     <SparklineChart
                       data={data.series}
                       stokeColor={data.color}
