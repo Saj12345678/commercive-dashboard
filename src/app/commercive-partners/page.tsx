@@ -407,6 +407,11 @@ export default function CommercivePartners() {
       item.commission?.trim() !== ""
   );
 
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   useEffect(() => {
     const fetchUser = async () => {
       const {
@@ -649,8 +654,8 @@ export default function CommercivePartners() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {filteredData.length > 0 ? (
-                      filteredData.map((item, index) => (
+                    {paginatedData.length > 0 ? (
+                      paginatedData.map((item, index) => (
                         <TableRow
                           key={index}
                           style={{ border: "1px solid #F4F4F7" }}
