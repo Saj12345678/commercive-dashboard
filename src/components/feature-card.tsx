@@ -16,7 +16,6 @@ export default function FeatureCard({ data }: FeatureCardProps) {
   const handleWithdrawalClick = () => {
     setModalOpen(true);
   };
-  
   const closeModal = () => {
     setModalOpen(false);
   };
