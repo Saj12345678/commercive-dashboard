@@ -152,8 +152,7 @@ export default function CommercivePartners() {
     }
   };
   const handleLinkInfoCopy = () => {
-    const textToCopy = `Hey! I found this great AI assistant called Monica. It's a real time-saver - summarizes multiple PDFs & YouTube
-    videos instantly, helps with emails... if you sign up with my link we both get free Claude 3.5 and GPT-40 credits worth trying!
+    const textToCopy = `Hey! I just started using this fantastic Order Tracking App that keeps me updated on all my deliveries. It’s super convenient and saves me so much time! If you sign up with my link, we both get exclusive discounts on our next orders. Check it out!
     ${referralLink}`;
     if (textToCopy) {
       navigator.clipboard
@@ -785,8 +784,7 @@ export default function CommercivePartners() {
                   </div>
                 </Tooltip>
                 </div>
-               <p className="max-w-[500px] text-sm">Hey! I found this great AI assistant called Monica. It's a real time-saver - summarizes multiple PDFs & You tube
-                videos instantly, helps with emails... if you sign up with my link we both get free claude 3.5 and GPT-40 credits worth trying!
+               <p className="max-w-[500px] text-sm">Hey! I just started using this fantastic Order Tracking App that keeps me updated on all my deliveries. It’s super convenient and saves me so much time! If you sign up with my link, we both get exclusive discounts on our next orders. Check it out!
                 <br/>{referralLink}
                </p>
                 </div>
