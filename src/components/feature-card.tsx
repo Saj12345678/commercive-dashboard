@@ -16,7 +16,7 @@ export default function FeatureCard({ data }: FeatureCardProps) {
   const handleWithdrawalClick = () => {
     setModalOpen(true);
   };
-  
+
   const closeModal = () => {
     setModalOpen(false);
   };
@@ -105,7 +105,7 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                   <div className="w-full">
                     <p>To</p>
                     <div className="border rounded p-2">
-                      <p className="text-sm">Chase Bank **** **** **** 3842</p>
+                      <input placeholder="Enter your paypal address"/>
                     </div>
                   </div>
                   <Button
@@ -117,7 +117,7 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                       fontWeight: "bold",
                     }}
                   >
-                    Pay out $ 1393.73
+                    Request Payout
                   </Button>
                 </div>
               </div>

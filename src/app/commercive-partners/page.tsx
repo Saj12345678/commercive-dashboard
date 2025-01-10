@@ -795,8 +795,7 @@ export default function CommercivePartners() {
                 <MdOutlineClose size={24} onClick={closeModal} />
               </div>
               <p className="text-sm">
-                Copy the link and send it to your friends, they can access and
-                use the PoewrUp.
+                Copy the link and send it to your friends.
               </p>
               <div className="flex flex-col sm:flex-row gap-2">
                 <InputField
