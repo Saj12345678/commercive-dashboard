@@ -357,7 +357,20 @@ export default function CommercivePartners() {
         const paidRecords = orderData.filter(
           (data) => data.financial_status.trim().toLowerCase() === "paid"
         );
-
+         
+         const groupedByDate = referral.reduce((acc, item) => {
+          // Extract date part (YYYY-MM-DD) from created_at
+          const date = item.created_at.split('T')[0];
+          if (!acc[date]) {
+            acc[date] = []; // Initialize an array for this date
+          }
+          acc[date].push(item);
+          return acc;
+        }, {});
+        
+        // Convert the grouped data into counts
+        const groupedCounts = Object.values(groupedByDate).map((group:any) => group.length);
+        
         const totalEarningsChart = groupAndSumByDate(pendingRecords);
         const pendingEarningsChart = groupAndSumByDate(paidRecords);
 
@@ -404,7 +417,8 @@ export default function CommercivePartners() {
               return {
                 ...item,
                 amount: currentWeekCount,
-                percentage,
+                series: groupedCounts,
+                percentage:percentage,
               };
             }
             return item;
