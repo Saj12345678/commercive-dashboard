@@ -38,7 +38,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
           <div className="flex flex-col h-[100dvh] w-full">
-            <div className="flex sticky top-0 z-50">
+             <div className="flex sticky top-0 z-50">
             {!pathName?.includes("/login") &&
               !pathName?.includes("/signUp") &&
               !pathName?.includes("/error") &&
@@ -46,7 +46,8 @@ export default function RootLayout({
                 <Header toggleSidebar={toggleSidebar} />
               )}
               </div>
-            <div className={`flex h-full w-full ${pathName?.includes("/admin") && 'bg-[#1b1838] p-4'} `}>
+            <div className="flex flex-col md:h-full">
+            <div className={`flex w-full h-full ${pathName?.includes("/admin") && 'bg-[#1b1838] p-4'}`}>
               {!pathName?.includes("/login") &&
                 !pathName?.includes("/signUp") &&
                 !pathName?.includes("/error") && (
@@ -63,6 +64,7 @@ export default function RootLayout({
                 !pathName?.includes("/error") && (
                   <LabelBottomNavigation />
                 )}
+            </div>
             </div>
           </div>
           <ToastContainer position="top-right" transition={Flip} />

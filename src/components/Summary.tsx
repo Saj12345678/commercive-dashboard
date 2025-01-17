@@ -44,7 +44,7 @@ const dummyData = [
 export default function Summary() {
   return (
     <Paper elevation={3} style={{ padding: "16px", width: "100%" }}>
-      <div className="bg-white">
+      <div className="bg-white w-full min-w-[570px] overflow-auto custom-scrollbar">
         <Box className="flex justify-between items-center mb-4">
           <Typography variant="h6" className="text-gray-700 font-semibold">
             Order Statistics

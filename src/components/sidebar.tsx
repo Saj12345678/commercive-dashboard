@@ -85,9 +85,6 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const [tooltipMessage, setTooltipMessage] = useState("");
 
-  console.log(isModalOpen, "fddb")
-
-
   const sidebarData = pathName?.includes("/admin") ? adminData : data
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {

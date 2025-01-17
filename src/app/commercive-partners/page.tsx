@@ -503,7 +503,7 @@ export default function CommercivePartners() {
   return (
     <>
       <main
-        style={{ height: "calc(100vh - 60px)" }}
+        // style={{ height: "calc(100vh - 70px)" }}
         className="flex flex-col w-full gap-5 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
         {loading && (
