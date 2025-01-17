@@ -76,8 +76,11 @@ export default function Home() {
   // Function to calculate total earnings
   const calculateEarnings = (orders: any, weekOffset = 0, status = "paid") => {
     const totalEarning = orders.reduce((total: number, order: any) => {
-      if (order.financial_status === status) {
-        total += parseFloat(order.sub_total_price);
+      const financialStatus = order.financial_status.trim();
+      const subTotal = parseFloat(order.sub_total_price);
+
+      if (financialStatus === status.trim()) {
+        total += subTotal;
       }
       return total;
     }, 0);
@@ -207,30 +210,23 @@ export default function Home() {
       } else {
         const totalEarnings = calculateEarnings(orderData, 0, "paid");
 
-        const pendingRecords = orderData.filter(
-          (data) => data.financial_status === "pending"
-        );
-        const paidRecords = orderData.filter(
-          (data) => data.financial_status === "paid"
-        );
-
-        const totalEarningsChart = groupAndSumByDate(pendingRecords);
-        const pendingEarningsChart = groupAndSumByDate(paidRecords);
-        const totalEarning = getTotalsBetweenDates({
-          chartData: totalEarningsChart,
-          formattedStartDate,
-          formattedEndDate,
-        });
-        const pendingEarning = getTotalsBetweenDates({
-          chartData: pendingEarningsChart,
-          formattedStartDate,
-          formattedEndDate,
-        });
         const totalEarningsPastWeek = calculateEarnings(
           pastWeekOrders,
           0,
           "paid"
         );
+
+        const paidRecords = orderData.filter(
+          (data) => data.financial_status.trim().toLowerCase() === "paid"
+        );
+
+        const totalEarningsChart = groupAndSumByDate(paidRecords);
+        const totalEarning = getTotalsBetweenDates({
+          chartData: totalEarningsChart,
+          formattedStartDate,
+          formattedEndDate,
+        });
+
         const totalEarningsChange = calculatePercentageChange(
           totalEarnings,
           totalEarningsPastWeek
@@ -240,15 +236,14 @@ export default function Home() {
           (item) => item.status === "false"
         );
 
-        const filterePastTrackingData = pastWeekTrackings
+        const filteredPastTrackingData = pastWeekTrackings
         ? pastWeekTrackings.filter((item) => item.status === "false")
         : [];
 
         const groupedByDate = filteredData.reduce((acc, item) => {
-          // Extract date part (YYYY-MM-DD) from created_at
           const date = item.created_at.split("T")[0];
           if (!acc[date]) {
-            acc[date] = []; // Initialize an array for this date
+            acc[date] = []; 
           }
           acc[date].push(item);
           return acc;
@@ -262,15 +257,16 @@ export default function Home() {
         setChartData((prevData: any) => {
           return prevData.map((item: any) => {
             if (item.name === "Orders Needing Resolution") {
-              const currentWeekCount = filteredData?.length || 0; // Handle null/undefined
-              const pastWeekCount = filterePastTrackingData?.length || 0; // Handle null/undefined
-              
-              const percentage =
-                pastWeekCount === 0
-                  ? currentWeekCount > 0
-                    ? "100%" // If past week is 0 and current week has data
-                    : "0%" // If both past week and current week have no data
-                  : ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
+              const currentWeekCount = filteredData?.length || 0; 
+              const pastWeekCount = filteredPastTrackingData?.length || 0;               
+              let percentage;
+
+              if (pastWeekCount === 0) {
+                percentage = currentWeekCount > 0 ? "100%" : "0%";
+              } else {
+                percentage = ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
+                percentage = `${percentage.toFixed(2)}%`;
+              }
 
               return {
                 ...item,
@@ -288,15 +284,16 @@ export default function Home() {
               };
             }
             if (item.name === "Unfulfilled Orders") {
-              const currentWeekCount = filteredData?.length || 0; // Handle null/undefined
-              const pastWeekCount = filterePastTrackingData?.length || 0; // Handle null/undefined
-              
-              const percentage =
-                pastWeekCount === 0
-                  ? currentWeekCount > 0
-                    ? "100%" // If past week is 0 and current week has data
-                    : "0%" // If both past week and current week have no data
-                  : ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
+              const currentWeekCount = filteredData?.length || 0; 
+              const pastWeekCount = filteredPastTrackingData?.length || 0; 
+              let percentage;
+
+              if (pastWeekCount === 0) {
+                percentage = currentWeekCount > 0 ? "100%" : "0%";
+              } else {
+                percentage = ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
+                percentage = `${percentage.toFixed(2)}%`; 
+              }
 
               return {
                 ...item,
