@@ -123,6 +123,33 @@ export default function Home() {
     return totalsArray;
   }
 
+  const getPastWeekDatesFromSelectedDates = (
+    startDate: Date,
+    endDate: Date
+  ) => {
+    const pastStartDate = new Date(startDate);
+    pastStartDate.setDate(startDate.getDate() - 7);
+
+    const pastEndDate = new Date(endDate);
+    pastEndDate.setDate(endDate.getDate() - 7);
+
+    return { pastStartDate, pastEndDate };
+  };
+
+  const calculatePercentageChange = (
+    currentWeek: number,
+    pastWeek: number
+  ): string => {
+    // Handle cases where the past week's earnings are zero to avoid division by zero
+    if (pastWeek === 0) {
+      return currentWeek > 0 ? "100%" : "0%";
+    }
+
+    const change = ((currentWeek - pastWeek) / pastWeek) * 100;
+
+    return `${change.toFixed(2)}%`;
+  };
+
   const fetchOrders = async (startDate: Date, endDate: Date) => {
     const formatDateForQuery = (date: Date) => {
       const isoString = date.toISOString();
@@ -131,6 +158,14 @@ export default function Home() {
 
     const formattedStartDate = formatDateForQuery(startDate);
     const formattedEndDate = formatDateForQuery(endDate);
+
+    const { pastStartDate, pastEndDate } = getPastWeekDatesFromSelectedDates(
+      startDate,
+      endDate
+    );
+
+    const formattedStartDatePast = formatDateForQuery(pastStartDate);
+    const formattedEndDatePast = formatDateForQuery(pastEndDate);
 
     setLoading(true);
 
@@ -141,18 +176,36 @@ export default function Home() {
         .gte("created_at", formattedStartDate)
         .lt("created_at", formattedEndDate);
 
+      const { data: pastWeekOrders, error: pastWeekError } = await supabase
+        .from("order")
+        .select("*")
+        .gte("created_at", formattedStartDatePast)
+        .lt("created_at", formattedEndDatePast);
+
+      const { data: trackingsData, error: trackingsError } = await supabase
+        .from("trackings")
+        .select("*")
+        .gte("created_at", formattedStartDate)
+        .lt("created_at", formattedEndDate);
+
+      const { data: pastWeekTrackings, error: pastWeekTrackingsError } =
+        await supabase
+          .from("trackings")
+          .select("*")
+          .gte("created_at", formattedStartDatePast)
+          .lte("created_at", formattedEndDatePast);
+
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
         .gte("created_at", formattedStartDate)
         .lte("created_at", formattedEndDate);
 
-      if (orderError || inventoryError) {
+      if (orderError || inventoryError || trackingsError) {
         console.error("Error fetching orders:", orderError, inventoryError);
         setLoading(false);
       } else {
         const totalEarnings = calculateEarnings(orderData, 0, "paid");
-        const pendingEarnings = calculateEarnings(orderData, 0, "pending");
 
         const pendingRecords = orderData.filter(
           (data) => data.financial_status === "pending"
@@ -173,21 +226,83 @@ export default function Home() {
           formattedStartDate,
           formattedEndDate,
         });
+        const totalEarningsPastWeek = calculateEarnings(
+          pastWeekOrders,
+          0,
+          "paid"
+        );
+        const totalEarningsChange = calculatePercentageChange(
+          totalEarnings,
+          totalEarningsPastWeek
+        );
+       
+        const filteredData = trackingsData.filter(
+          (item) => item.status === "false"
+        );
+
+        const filterePastTrackingData = pastWeekTrackings
+        ? pastWeekTrackings.filter((item) => item.status === "false")
+        : [];
+
+        const groupedByDate = filteredData.reduce((acc, item) => {
+          // Extract date part (YYYY-MM-DD) from created_at
+          const date = item.created_at.split("T")[0];
+          if (!acc[date]) {
+            acc[date] = []; // Initialize an array for this date
+          }
+          acc[date].push(item);
+          return acc;
+        }, {});
+
+        // Convert the grouped data into counts
+        const groupedCounts = Object.values(groupedByDate).map(
+          (group: any) => group.length
+        );
 
         setChartData((prevData: any) => {
           return prevData.map((item: any) => {
             if (item.name === "Orders Needing Resolution") {
+              const currentWeekCount = filteredData?.length || 0; // Handle null/undefined
+              const pastWeekCount = filterePastTrackingData?.length || 0; // Handle null/undefined
+              
+              const percentage =
+                pastWeekCount === 0
+                  ? currentWeekCount > 0
+                    ? "100%" // If past week is 0 and current week has data
+                    : "0%" // If both past week and current week have no data
+                  : ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
+
               return {
                 ...item,
-                amount: totalEarnings.toFixed(2),
-                series: totalEarning,
+                amount: currentWeekCount,
+                series: groupedCounts,
+                percentage: percentage,
               };
             }
             if (item.name === "Total Cost") {
               return {
                 ...item,
-                amount: pendingEarnings.toFixed(2),
-                series: pendingEarning,
+                amount: totalEarnings.toFixed(2),
+                series: totalEarning,
+                percentage: totalEarningsChange,
+              };
+            }
+            if (item.name === "Unfulfilled Orders") {
+              const currentWeekCount = filteredData?.length || 0; // Handle null/undefined
+              const pastWeekCount = filterePastTrackingData?.length || 0; // Handle null/undefined
+              
+              const percentage =
+                pastWeekCount === 0
+                  ? currentWeekCount > 0
+                    ? "100%" // If past week is 0 and current week has data
+                    : "0%" // If both past week and current week have no data
+                  : ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
+
+              return {
+                ...item,
+                amount: currentWeekCount,
+                series: groupedCounts,
+                percentage: percentage,
               };
             }
             return item;
@@ -195,26 +310,30 @@ export default function Home() {
         });
 
         const transformedData = inventoryData.map((item) => {
-          const inventoryQuantities = item.inventory_level[0]?.node?.quantities || [];
-          const available = inventoryQuantities.find((q: any) => q.name === 'available')?.quantity || 0;
-          const committed = inventoryQuantities.find((q: any) => q.name === 'committed')?.quantity || 0;
-    
-          let stockStatus = 'Enough Stock';
-          if (available === 0) stockStatus = 'No Stock';
-          else if (available < 50) stockStatus = 'Low Stock';
-    
+          const inventoryQuantities =
+            item.inventory_level[0]?.node?.quantities || [];
+          const available =
+            inventoryQuantities.find((q: any) => q.name === "available")
+              ?.quantity || 0;
+          const committed =
+            inventoryQuantities.find((q: any) => q.name === "committed")
+              ?.quantity || 0;
+
+          let stockStatus = "Enough Stock";
+          if (available === 0) stockStatus = "No Stock";
+          else if (available < 50) stockStatus = "Low Stock";
+
           return {
-            image: '', 
-            color: '#' + Math.floor(Math.random() * 16777215).toString(16), 
-            name: `Product ${item.sku}`, 
-            stockMeter: available + committed, 
+            image: "",
+            color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+            name: `Product ${item.sku}`,
+            stockMeter: available + committed,
             stockStatus,
             backorders: committed,
           };
         });
-    
-        setInventoryData(transformedData);
 
+        setInventoryData(transformedData);
       }
     } catch (error) {
       console.error("Error in fetchOrders:", error);
@@ -309,12 +428,12 @@ export default function Home() {
         )}
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col sm:flex-row gap-1">
-              <h1 className="flex w-full text-[#454545] text-2xl font-bold">
-                Hello, Matthew!
-              </h1>
-              <p className="text-[#af9ae4] text-nowrap text-2xl">
-                Here’s an update for your store
-              </p>
+            <h1 className="flex w-full text-[#454545] text-2xl font-bold">
+              Hello, Matthew!
+            </h1>
+            <p className="text-[#af9ae4] text-nowrap text-2xl">
+              Here’s an update for your store
+            </p>
           </div>
           <Button
             variant="outlined"
@@ -324,7 +443,7 @@ export default function Home() {
               border: "3px solid #EBEBEB",
               boxShadow: "none",
               backgroundColor: "transparent",
-              color:"#454545"
+              color: "#454545",
             }}
           >
             <FullScreen />
@@ -348,7 +467,7 @@ export default function Home() {
                     gap: "0.5rem",
                     padding: "0.5rem 1rem",
                     border: "3px solid #EBEBEB",
-                    color:"#454545"
+                    color: "#454545",
                   }}
                 >
                   <MdOutlineCalendarToday size={18} />
@@ -365,9 +484,8 @@ export default function Home() {
                   maxDate={today}
                   onClose={() => setShowDatePicker(null)}
                 />
-                </div>
+              </div>
               <div className="flex items-center gap-2">
-
                 <Button
                   variant="outlined"
                   className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
@@ -378,7 +496,7 @@ export default function Home() {
                     gap: "0.5rem",
                     padding: "0.5rem 1rem",
                     border: "3px solid #EBEBEB !important",
-                    color:"#454545"
+                    color: "#454545",
                   }}
                 >
                   <MdOutlineCalendarToday size={18} />
