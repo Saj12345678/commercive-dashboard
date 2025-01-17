@@ -536,7 +536,7 @@ export default function Home() {
           <FeatureCard data={chartData} />
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4 w-full overflow-auto custom-scrollbar">
+        <div className="flex flex-col lg:flex-row gap-4 w-full overflow-auto custom-scrollbar">
           <Inventory data={inventoryData} />
           <Summary />
         </div>

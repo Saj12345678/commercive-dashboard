@@ -1,6 +1,7 @@
 import { Box, Typography, Chip, Paper, Button } from "@mui/material";
 import React from "react";
 import { GoArrowUpRight } from "react-icons/go";
+import OrderIcon from "./images/order";
 
 const dummyData = [
   {
@@ -44,11 +45,14 @@ const dummyData = [
 export default function Summary() {
   return (
     <Paper elevation={3} style={{ padding: "16px", width: "100%" }}>
-      <div className="bg-white w-full min-w-[570px] overflow-auto custom-scrollbar">
-        <Box className="flex justify-between items-center mb-4">
+      <div className="bg-white">
+        <Box className="flex flex-col sm:flex-row justify-between sm:items-center mb-4">
+          <Box className="flex gap-2 items-center">
+          <OrderIcon width={20} height={20} color={"#4f11c9"} />
           <Typography variant="h6" className="text-gray-700 font-semibold">
             Order Statistics
           </Typography>
+          </Box>
           <Button
           variant="outlined"
           color="secondary"
@@ -58,7 +62,7 @@ export default function Summary() {
           View all Inventory
         </Button>
         </Box>
-        <Box className="grid grid-cols-5 gap-4 text-center">
+        <Box className="grid grid-cols-5 gap-4 text-center  ">
           {["SUN 19", "MON 20", "TUE 21", "WED 22", "THU 23"].map(
             (day, index) => (
               <Typography
@@ -77,11 +81,11 @@ export default function Summary() {
         <Box className="mt-4 space-y-4">
           {dummyData.map((data, index) => (
             <Box key={index} className="flex gap-2 items-start">
-              <Box className="w-4/5 space-y-2">
+              <Box className="w-[100%] space-y-2">
                 {data.items.map((item, idx) => (
                   <Box
                     key={idx}
-                    className="p-3 bg-gray-100 rounded-lg flex justify-between items-center"
+                    className="p-3 bg-[#E8ECFE] rounded-lg flex justify-between items-center"
                   >
                     <Typography className="text-sm text-gray-800">
                       {item.id}
