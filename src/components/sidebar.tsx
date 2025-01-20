@@ -320,13 +320,13 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               </div>
             )}
              <CustomSelection
-        className="rounded-[8px] cursor-pointer"
-        placeholder={"Select store"}
-        data={storeData} // Pass the fetched store data
-        value={selectedStore}
-        onChange={setSelectedStore}
-        label={'Select store'}
-      />
+                className="rounded-[8px] cursor-pointer"
+                placeholder={"Select store"}
+                data={storeData} // Pass the fetched store data
+                value={selectedStore}
+                onChange={setSelectedStore}
+                label={'Select store'}
+            />
             <div
               className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar`}
             >
@@ -476,7 +476,14 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   </div>
                 </div>
               </div>}
-
+              <CustomSelection
+                className="rounded-[8px] cursor-pointer"
+                placeholder={"Select store"}
+                data={storeData} // Pass the fetched store data
+                value={selectedStore}
+                onChange={setSelectedStore}
+                label={'Select store'}
+            />
               {/* Links Section */}
               <div
                 className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar bg-white`}
