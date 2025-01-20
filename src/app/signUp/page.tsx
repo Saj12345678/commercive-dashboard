@@ -39,7 +39,6 @@ function SignupForm() {
           });
         });
       }
-    
       if (state.success) {
         toast.success("SignUp successfully!", {
           toastId: "signup-success",
