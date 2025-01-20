@@ -18,6 +18,8 @@ import { MdOutlineClose } from "react-icons/md";
 import InputField from "./ui/custom-inputfild";
 import CustomButton from "./ui/custom-button";
 import { BsCopy } from "react-icons/bs";
+import CustomSelection from "./ui/custom-select";
+import { useStoreContext } from "@/context/StoreContext";
 
 export interface SidebarProps {
   isOpen?: any;
@@ -74,6 +76,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const supabase = createClient();
   const pathName = usePathname();
   const router = useRouter();
+  const { selectedStore, setSelectedStore, storeData } = useStoreContext();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userData, setUserData] = useState<string>();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -316,6 +319,14 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 <LogoIcon width={150} height={35} color={'#ffffff'} />
               </div>
             )}
+             <CustomSelection
+        className="rounded-[8px] cursor-pointer"
+        placeholder={"Select store"}
+        data={storeData} // Pass the fetched store data
+        value={selectedStore}
+        onChange={setSelectedStore}
+        label={'Select store'}
+      />
             <div
               className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar`}
             >

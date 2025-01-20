@@ -8,6 +8,7 @@ import { Flip, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
 import LabelBottomNavigation from "@/components/bottom-navigation";
+import { StoreProvider } from "@/context/StoreContext"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+         <StoreProvider>
           <div className="flex flex-col h-[100dvh] w-full">
              <div className="flex sticky top-0 z-50">
             {!pathName?.includes("/login") &&
@@ -56,7 +58,7 @@ export default function RootLayout({
                     handleToggleSidebar={toggleSidebar}
                   />
                 )}
-              {children}
+      {children} {/* All components under this will have access to the context */}
             </div>
             <div className="flex md:hidden sticky bottom-0 z-50">
             {!pathName?.includes("/login") &&
@@ -67,7 +69,8 @@ export default function RootLayout({
             </div>
             </div>
           </div>
-          <ToastContainer position="top-right" transition={Flip} />
+          <ToastContainer position="top-right" transition={Flip} />             
+        </StoreProvider>
       </body>
     </html>
   );

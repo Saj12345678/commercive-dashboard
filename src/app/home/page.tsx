@@ -12,6 +12,7 @@ import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import "./home.css";
 import Summary from "@/components/Summary";
+import { useStoreContext } from "@/context/StoreContext";
 
 interface InventoryData {
   image: string;
@@ -27,6 +28,9 @@ export default function Home() {
   const today = new Date();
   const currentDay = today.getDay();
   const currentWeekMonday = new Date(today);
+  const { selectedStore, setSelectedStore, storeData } = useStoreContext();
+  const storeName = selectedStore ? selectedStore.label : null;
+  
   currentWeekMonday.setDate(
     today.getDate() - (currentDay === 0 ? 6 : currentDay - 1)
   );
@@ -154,6 +158,11 @@ export default function Home() {
   };
 
   const fetchOrders = async (startDate: Date, endDate: Date) => {
+    
+    if(!storeName){
+      return;
+    }
+    
     const formatDateForQuery = (date: Date) => {
       const isoString = date.toISOString();
       return isoString.split("Z")[0];
@@ -173,36 +182,52 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const { data: orderData, error: orderError } = await supabase
-        .from("order")
-        .select("*")
-        .gte("created_at", formattedStartDate)
-        .lt("created_at", formattedEndDate);
+      // const { data: orderData, error: orderError } = await supabase
+      //   .from("order")
+      //   .select("*")
+      //   .gte("created_at", formattedStartDate)
+      //   .lt("created_at", formattedEndDate);
 
-      const { data: pastWeekOrders, error: pastWeekError } = await supabase
-        .from("order")
-        .select("*")
-        .gte("created_at", formattedStartDatePast)
-        .lt("created_at", formattedEndDatePast);
+      // const { data: pastWeekOrders, error: pastWeekError } = await supabase
+      //   .from("order")
+      //   .select("*")
+      //   .gte("created_at", formattedStartDatePast)
+      //   .lt("created_at", formattedEndDatePast);
+      const { data: orderData, error: orderError } = await supabase
+      .from("order")
+      .select("*")
+      .gte("created_at", formattedStartDate)
+      .lt("created_at", formattedEndDate)
+      .eq("store_name", storeName);  // Add the condition to filter by store_name
+
+    const { data: pastWeekOrders, error: pastWeekError } = await supabase
+      .from("order")
+      .select("*")
+      .gte("created_at", formattedStartDatePast)
+      .lt("created_at", formattedEndDatePast)
+      .eq("store_name", storeName);  // Add the condition to filter by store_name
 
       const { data: trackingsData, error: trackingsError } = await supabase
         .from("trackings")
         .select("*")
         .gte("created_at", formattedStartDate)
-        .lt("created_at", formattedEndDate);
+        .lt("created_at", formattedEndDate)
+        .eq("store_name", storeName); 
 
       const { data: pastWeekTrackings, error: pastWeekTrackingsError } =
         await supabase
           .from("trackings")
           .select("*")
           .gte("created_at", formattedStartDatePast)
-          .lte("created_at", formattedEndDatePast);
+          .lte("created_at", formattedEndDatePast)
+          .eq("store_name", storeName); 
 
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
         .gte("created_at", formattedStartDate)
-        .lte("created_at", formattedEndDate);
+        .lte("created_at", formattedEndDate)
+        .eq("store_name", storeName); 
 
       if (orderError || inventoryError || trackingsError) {
         console.error("Error fetching orders:", orderError, inventoryError);
@@ -378,7 +403,7 @@ export default function Home() {
     if (selectedDate && compareDate) {
       handleFetchData();
     }
-  }, [selectedDate, compareDate]);
+  }, [selectedDate, compareDate, selectedStore]);
 
   const Data = [
     {
@@ -416,7 +441,7 @@ export default function Home() {
     <>
       <main
         // style={{ height: "calc(100vh - 70px)" }}
-        className="flex flex-col w-full gap-5 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
+        className="flex flex-col h-full w-full gap-5 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
         {loading && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -426,7 +451,7 @@ export default function Home() {
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col sm:flex-row gap-1">
             <h1 className="flex w-full text-[#454545] text-2xl font-bold">
-              Hello, Matthew!
+              Hello, {storeName}
             </h1>
             <p className="text-[#af9ae4] text-nowrap text-2xl">
               Here’s an update for your store
@@ -536,7 +561,7 @@ export default function Home() {
           <FeatureCard data={chartData} />
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-4 w-full overflow-auto custom-scrollbar">
+        <div className="flex flex-col lg:flex-row gap-4 w-full">
           <Inventory data={inventoryData} />
           <Summary />
         </div>
