@@ -20,6 +20,8 @@ import CustomButton from "./ui/custom-button";
 import { BsCopy } from "react-icons/bs";
 import CustomSelection from "./ui/custom-select";
 import { useStoreContext } from "@/context/StoreContext";
+import { FiPlus } from "react-icons/fi";
+import { IoIosMore } from "react-icons/io";
 
 export interface SidebarProps {
   isOpen?: any;
@@ -87,12 +89,18 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [isInfoTooltipOpen, setInfoIsTooltipOpen] = useState(false);
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const [tooltipMessage, setTooltipMessage] = useState("");
+  const [showStoreData, setShowStoreData] = useState(false);
+  const storeName = selectedStore ? selectedStore.label : null;
+
+  console.log(selectedStore,'selectedStore');
+  
+
 
   const sidebarData = pathName?.includes("/admin") ? adminData : data
 
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  // const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+  //   setAnchorEl(event.currentTarget);
+  // };
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleClose = () => {
@@ -103,6 +111,20 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
     setSidebarOpen(!sidebarOpen);
 
     setIsCollapsed(!isCollapsed);
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget); // Keeps the Menu functionality intact
+    setShowStoreData((prev) => !prev); // Toggles the display of storeData
+  };
+
+  const handleStoreSelect = (store: any) => {
+    setSelectedStore(store); // Set selected store
+    setShowStoreData(false); // Hide store list after selection
+  };
+
+  const handleAddStore = () => {
+    console.log('Add Store');
   };
 
   useEffect(() => {
@@ -255,6 +277,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               isCollapsed ? "gap-5" : "gap-8"
             } h-full`}
           >
+            <div className="flex flex-col gap-2 relative">
             {!pathName?.includes("/admin") && <div
               className={`w-full flex justify-between border-4 border-[#F4F4F7] rounded-md py-2 px-4 ${
                 isCollapsed && "!px-1"
@@ -272,7 +295,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     }}
                   />
                   <div className="flex flex-col">
-                    <h2>{userData}</h2>
+                    <h2>{storeName}</h2>
                     <p className="text-[#B1B0B0]">Connected</p>
                   </div>
                 </div>
@@ -286,15 +309,16 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                       width={14}
                       height={14}
                       alt="down-arrow"
+                      // className={`transition-transform duration-300 ${showStoreData ? 'rotate-180' : ''}`}
                     />
                   </div>
-                  <Menu
+                  {/* <Menu
                     anchorEl={anchorEl}
                     open={Boolean(anchorEl)}
                     onClose={handleClose}
                   >
                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                  </Menu>
+                  </Menu> */}   
                 </div>
               </div>
               <div
@@ -314,19 +338,47 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 />
               </div>
             </div>}
+            {showStoreData && !isCollapsed && (
+              <div className="w-full border rounded shadow-lg absolute top-[78px] ">
+                <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar">
+                {storeData && storeData.length > 0 ? (
+                  storeData.map((store, index) => (
+                    <div
+                    key={index}
+                    className={`flex justify-between items-center p-3 border-b ${store.label === storeName ? 'bg-[#F3E8FF] hover:bg-none' : 'hover:bg-[#f9f9ff]'}`}
+                    onClick={() => handleStoreSelect(store)} // Select store on click
+                  >
+                    <p>{store.label}</p> 
+                    <IoIosMore scale={20} className="cursor-pointer"/>
+                  </div>
+                 ))
+               ) : (
+                 <p className="p-4">No stores available.</p>
+               )}
+               </div>
+               <div
+                  className="p-3 cursor-pointer bg-white hover:bg-[#f9f9ff] border-t"
+                  onClick={() => handleAddStore()} // Call function to add a store
+                >
+                  <p className="flex items-center gap-1 text-[#4F12CA]"><span><FiPlus size={20} /></span> Connect new store</p>
+                </div>
+             </div>
+            )}
+            </div>
             {pathName?.includes("/admin") && (
               <div className="p-3">
                 <LogoIcon width={150} height={35} color={'#ffffff'} />
               </div>
             )}
-             <CustomSelection
+             
+             {/* <CustomSelection
                 className="rounded-[8px] cursor-pointer"
                 placeholder={"Select store"}
                 data={storeData} // Pass the fetched store data
                 value={selectedStore}
                 onChange={setSelectedStore}
                 label={'Select store'}
-            />
+            /> */}
             <div
               className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar`}
             >
@@ -450,7 +502,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <h2>{userData}</h2>
+                      <h2>{storeName}</h2>
                       <p className="text-[#B1B0B0]">Connected</p>
                     </div>
                   </div>

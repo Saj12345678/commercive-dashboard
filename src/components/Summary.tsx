@@ -2,6 +2,7 @@ import { Box, Typography, Chip, Paper, Button } from "@mui/material";
 import React from "react";
 import { GoArrowUpRight } from "react-icons/go";
 import OrderIcon from "./images/order";
+import Image from "next/image";
 
 const dummyData = [
   {
@@ -85,16 +86,32 @@ export default function Summary() {
                 {data.items.map((item, idx) => (
                   <Box
                     key={idx}
-                    className="p-3 bg-[#E8ECFE] rounded-lg flex justify-between items-center"
+                    className={`p-3 ${item.status === 'In Transit' ? 'bg-[#FFECD6]' : 'bg-[#E8ECFE]'} rounded-lg flex justify-between items-center`}
                   >
                     <Typography className="text-sm text-gray-800">
                       {item.id}
                     </Typography>
+                    <Box className={"flex w-max gap-2"}>
+                    {item.carrier === 'DHL Express' && <Image
+                                                   src="/icons/dhl.png"
+                                                   alt="dhl"
+                                                   width={24}
+                                                   height={24}
+                                                   className="w-[24px] h-[24px]"
+                                                 /> }
+                                                  {item.carrier === 'USPS' && <Image
+                                                   src="/icons/Layer.png"
+                                                   alt="dhl"
+                                                   width={24}
+                                                   height={22}
+                                                   className="w-[24px] h-[20px]"
+                                                 /> }
                     <Chip
                       label={item.carrier}
                       size="small"
-                      className="text-sm bg-yellow-100 text-yellow-600"
+                      className="text-sm !bg-transparent text-yellow-600"
                     />
+                    </Box>
                     <Typography className="text-sm text-gray-500">
                       {item.days} days
                     </Typography>
