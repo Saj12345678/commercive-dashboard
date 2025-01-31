@@ -45,9 +45,7 @@ function SignupForm() {
         });
         router.push('/')
       }
-    }, [state]);
-
-    
+    }, [state]);    
   return (
     <div className="flex items-center justify-center w-full h-screen">
       <div className="bg-white p-8 rounded-md shadow-lg w-full max-w-md">
