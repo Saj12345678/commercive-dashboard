@@ -62,9 +62,9 @@ export default function Summary({ data }: TransactionProps) {
   );
 
   return (
-    <Paper elevation={3} className="w-full px-4 py-6 sm:px-6 sm:py-8">
+    <Paper elevation={3} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8">
       <div className="bg-white">
-        <Box className="flex flex-col sm:flex-row justify-between sm:items-center mb-4">
+        <Box className="flex flex-col gap-2 md:gap-0 sm:flex-row justify-between sm:items-center mb-4">
           <Box className="flex gap-2 items-center">
             <OrderIcon width={20} height={20} color={"#4f11c9"} />
             <Typography
@@ -171,25 +171,21 @@ export default function Summary({ data }: TransactionProps) {
                       </TableCell>
                       <TableCell className="text-nowrap">
                         {(() => {
-                          // Parse the created_at and updated_at strings into Date objects
                           const createdDate = new Date(transaction.created_at);
                           const updatedDate = new Date(transaction.updated_at);
 
-                          // Normalize the dates to midnight to ignore the time portion
                           createdDate.setHours(0, 0, 0, 0);
                           updatedDate.setHours(0, 0, 0, 0);
 
-                          // Calculate the time difference in milliseconds
                           const timeDiff =
                             updatedDate.getTime() - createdDate.getTime();
 
-                          // Convert milliseconds to days and ensure it never goes below 0
-                          const daysGap =
-                            timeDiff === 0
-                              ? 0
-                              : Math.floor(timeDiff / (1000 * 3600 * 24));
+                          const daysGap = Math.max(
+                            0,
+                            Math.floor(timeDiff / (1000 * 3600 * 24))
+                          );
 
-                          return `${daysGap} days`; // Return the days gap
+                          return `${daysGap} days`; 
                         })()}
                       </TableCell>
 
