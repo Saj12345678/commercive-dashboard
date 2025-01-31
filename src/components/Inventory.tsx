@@ -102,9 +102,10 @@ export default function Inventory({ data }: InventoryProps) {
         </Typography>
         <Button
           variant="outlined"
-          color="secondary"
+          // color="secondary"
           endIcon={<GoArrowUpRight size={24} />}
           className="!rounded-full"
+          sx={{borderColor: "#f0edf5", borderWidth: 2, color: "#9A88BE"}}
         >
           View all Inventory
         </Button>
@@ -135,7 +136,7 @@ export default function Inventory({ data }: InventoryProps) {
           ))}
         </div>
       </div>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{maxHeight: 300, overflowY: 'auto'}} className="custom-scrollbar">
         <Table>
           <TableHead style={{ backgroundColor: "#f4f4f7", fontWeight: "bold", color: "black" }}>
             <TableRow>

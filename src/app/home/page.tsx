@@ -13,6 +13,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import "./home.css";
 import Summary from "@/components/Summary";
 import { useStoreContext } from "@/context/StoreContext";
+import Image from "next/image";
 
 interface InventoryData {
   image: string;
@@ -22,7 +23,18 @@ interface InventoryData {
   stockStatus: string;
   backorders: number;
 }
-
+interface TransactionData {
+  id: string;
+  tracking_company: string;
+  tracking_number: string;
+  status: string;
+  shipment_status: string;
+  tracking_url: string;
+  created_at: string;
+  updated_at: string;
+  store_location: string;
+  due_date: string;
+}
 export default function Home() {
   const supabase = createClient();
   const today = new Date();
@@ -30,7 +42,7 @@ export default function Home() {
   const currentWeekMonday = new Date(today);
   const { selectedStore, setSelectedStore, storeData } = useStoreContext();
   const storeName = selectedStore ? selectedStore.label : null;
-  
+
   currentWeekMonday.setDate(
     today.getDate() - (currentDay === 0 ? 6 : currentDay - 1)
   );
@@ -76,6 +88,7 @@ export default function Home() {
     },
   ]);
   const [inventoryData, setInventoryData] = useState<InventoryData[]>([]);
+  const [trackingsData, setTrackingsData] = useState<TransactionData[]>([]);
 
   // Function to calculate total earnings
   const calculateEarnings = (orders: any, weekOffset = 0, status = "paid") => {
@@ -158,11 +171,10 @@ export default function Home() {
   };
 
   const fetchOrders = async (startDate: Date, endDate: Date) => {
-    
-    if(!storeName){
+    if (!storeName) {
       return;
     }
-    
+
     const formatDateForQuery = (date: Date) => {
       const isoString = date.toISOString();
       return isoString.split("Z")[0];
@@ -194,25 +206,25 @@ export default function Home() {
       //   .gte("created_at", formattedStartDatePast)
       //   .lt("created_at", formattedEndDatePast);
       const { data: orderData, error: orderError } = await supabase
-      .from("order")
-      .select("*")
-      .gte("created_at", formattedStartDate)
-      .lt("created_at", formattedEndDate)
-      .eq("store_name", storeName);  // Add the condition to filter by store_name
+        .from("order")
+        .select("*")
+        .gte("created_at", formattedStartDate)
+        .lt("created_at", formattedEndDate)
+        .eq("store_name", storeName); // Add the condition to filter by store_name
 
-    const { data: pastWeekOrders, error: pastWeekError } = await supabase
-      .from("order")
-      .select("*")
-      .gte("created_at", formattedStartDatePast)
-      .lt("created_at", formattedEndDatePast)
-      .eq("store_name", storeName);  // Add the condition to filter by store_name
+      const { data: pastWeekOrders, error: pastWeekError } = await supabase
+        .from("order")
+        .select("*")
+        .gte("created_at", formattedStartDatePast)
+        .lt("created_at", formattedEndDatePast)
+        .eq("store_name", storeName); // Add the condition to filter by store_name
 
       const { data: trackingsData, error: trackingsError } = await supabase
         .from("trackings")
         .select("*")
         .gte("created_at", formattedStartDate)
         .lt("created_at", formattedEndDate)
-        .eq("store_name", storeName); 
+        .eq("store_name", storeName);
 
       const { data: pastWeekTrackings, error: pastWeekTrackingsError } =
         await supabase
@@ -220,14 +232,14 @@ export default function Home() {
           .select("*")
           .gte("created_at", formattedStartDatePast)
           .lte("created_at", formattedEndDatePast)
-          .eq("store_name", storeName); 
+          .eq("store_name", storeName);
 
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
         .gte("created_at", formattedStartDate)
         .lte("created_at", formattedEndDate)
-        .eq("store_name", storeName); 
+        .eq("store_name", storeName);
 
       if (orderError || inventoryError || trackingsError) {
         console.error("Error fetching orders:", orderError, inventoryError);
@@ -256,19 +268,19 @@ export default function Home() {
           totalEarnings,
           totalEarningsPastWeek
         );
-       
+
         const filteredData = trackingsData.filter(
           (item) => item.status === "false"
         );
-
+        setTrackingsData(trackingsData);
         const filteredPastTrackingData = pastWeekTrackings
-        ? pastWeekTrackings.filter((item) => item.status === "false")
-        : [];
+          ? pastWeekTrackings.filter((item) => item.status === "false")
+          : [];
 
         const groupedByDate = filteredData.reduce((acc, item) => {
           const date = item.created_at.split("T")[0];
           if (!acc[date]) {
-            acc[date] = []; 
+            acc[date] = [];
           }
           acc[date].push(item);
           return acc;
@@ -282,14 +294,15 @@ export default function Home() {
         setChartData((prevData: any) => {
           return prevData.map((item: any) => {
             if (item.name === "Orders Needing Resolution") {
-              const currentWeekCount = filteredData?.length || 0; 
-              const pastWeekCount = filteredPastTrackingData?.length || 0;               
+              const currentWeekCount = filteredData?.length || 0;
+              const pastWeekCount = filteredPastTrackingData?.length || 0;
               let percentage;
 
               if (pastWeekCount === 0) {
                 percentage = currentWeekCount > 0 ? "100%" : "0%";
               } else {
-                percentage = ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
+                percentage =
+                  ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
                 percentage = `${percentage.toFixed(2)}%`;
               }
 
@@ -316,8 +329,9 @@ export default function Home() {
               if (pastWeekCount === 0) {
                 percentage = currentWeekCount > 0 ? "100%" : "0%";
               } else {
-                percentage = ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
-                percentage = `${percentage.toFixed(2)}%`; 
+                percentage =
+                  ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
+                percentage = `${percentage.toFixed(2)}%`;
               }
 
               return {
@@ -450,12 +464,12 @@ export default function Home() {
         )}
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col sm:flex-row gap-1">
-            <h1 className="flex w-full text-[#454545] text-2xl font-bold">
-              Hello, {storeName}
+            <h1 className="flex w-full text-[#454545] text-4xl font-bold">
+              Hello, {storeName}!
             </h1>
-            <p className="text-[#af9ae4] text-nowrap text-2xl">
+            {/* <p className="text-[#af9ae4] text-nowrap text-2xl">
               Here’s an update for your store
-            </p>
+            </p> */}
           </div>
           <Button
             variant="outlined"
@@ -562,8 +576,27 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 w-full">
-          <Inventory data={inventoryData} />
-          <Summary />
+          <div className="flex-1 overflow-auto">
+            <Inventory data={inventoryData} />
+          </div>
+          <div className="flex-1 overflow-auto">
+            <Summary data={trackingsData} />
+          </div>
+        </div>
+        <div className="flex gap-4 w-full px-4 py-6 sm:px-6 sm:py-8 bg-white border border-white rounded-lg shadow-lg">
+          <div className="bg-white rounded-lg flex items-center gap-2">
+            <Image
+              src={"/svgs/icon-20.svg"}
+              width={30}
+              height={30}
+              alt="icon"
+              className="text-[#5014ca]"
+            />
+
+            <h3 className="flex w-full text-[#454545] text-2xl font-bold">
+              Stock Forecast
+            </h3>
+          </div>
         </div>
       </main>
     </>

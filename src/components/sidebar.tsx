@@ -114,7 +114,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget); // Keeps the Menu functionality intact
+    // setAnchorEl(event.currentTarget); // Keeps the Menu functionality intact
     setShowStoreData((prev) => !prev); // Toggles the display of storeData
   };
 
@@ -147,6 +147,9 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   };
 
   const generateNameFromEmail = (email: string) => {
+    if (!email || typeof email !== 'string') {
+      return "Anonymous"; 
+    }
     const localPart = email.split("@")[0];
     const parts = localPart.match(/[a-z]+/gi);
 
@@ -340,12 +343,12 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             </div>}
             {showStoreData && !isCollapsed && (
               <div className="w-full border rounded shadow-lg absolute top-[78px] ">
-                <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar">
+                <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar cursor-pointer">
                 {storeData && storeData.length > 0 ? (
                   storeData.map((store, index) => (
                     <div
                     key={index}
-                    className={`flex justify-between items-center p-3 border-b ${store.label === storeName ? 'bg-[#F3E8FF] hover:bg-none' : 'hover:bg-[#f9f9ff]'}`}
+                    className={`flex justify-between items-center p-3 border-b ${store.label === storeName ? 'bg-[#F3E8FF] hover:bg-none' : 'bg-[#F9F9FF] hover:bg-[#F9F9FF]'}`}
                     onClick={() => handleStoreSelect(store)} // Select store on click
                   >
                     <p>{store.label}</p> 
@@ -486,7 +489,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 <div
                   className={`flex w-full`}
                   onClick={() => {
-                    setIsCollapsed(true);
+                    setIsCollapsed(false);
                   }}
                 >
                   <div className="flex w-full gap-2">
@@ -518,24 +521,50 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                         alt="down-arrow"
                       />
                     </div>
-                    <Menu
+                    {/* <Menu
                       anchorEl={anchorEl}
                       open={Boolean(anchorEl)}
                       onClose={handleClose}
                     >
                       <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                    </Menu>
+                    </Menu> */}
                   </div>
                 </div>
               </div>}
-              <CustomSelection
+              {showStoreData && !isCollapsed && (
+              <div className="w-[275px] border rounded shadow-lg absolute top-24">
+                <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar cursor-pointer">
+                {storeData && storeData.length > 0 ? (
+                  storeData.map((store, index) => (
+                    <div
+                    key={index}
+                    className={`flex justify-between items-center p-3 border-b ${store.label === storeName ? 'bg-[#F3E8FF] hover:bg-none' : 'bg-[#F9F9FF] hover:bg-[#F9F9FF]'}`}
+                    onClick={() => handleStoreSelect(store)} // Select store on click
+                  >
+                    <p>{store.label}</p> 
+                    <IoIosMore scale={20} className="cursor-pointer"/>
+                  </div>
+                 ))
+               ) : (
+                 <p className="p-4">No stores available.</p>
+               )}
+               </div>
+               <div
+                  className="p-3 cursor-pointer bg-white hover:bg-[#f9f9ff] border-t"
+                  onClick={() => handleAddStore()} // Call function to add a store
+                >
+                  <p className="flex items-center gap-1 text-[#4F12CA]"><span><FiPlus size={20} /></span> Connect new store</p>
+                </div>
+             </div>
+            )}
+              {/* <CustomSelection
                 className="rounded-[8px] cursor-pointer"
                 placeholder={"Select store"}
                 data={storeData} // Pass the fetched store data
                 value={selectedStore}
                 onChange={setSelectedStore}
                 label={'Select store'}
-            />
+            /> */}
               {/* Links Section */}
               <div
                 className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar bg-white`}
