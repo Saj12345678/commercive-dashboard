@@ -298,7 +298,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     }}
                   />
                   <div className="flex flex-col">
-                    <h2>{storeName}</h2>
+                    <h2>{storeName == "satish-dev" ? "Golf Pro" : storeName}</h2>
                     <p className="text-[#B1B0B0]">Connected</p>
                   </div>
                 </div>
@@ -351,7 +351,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     className={`flex justify-between items-center p-3 border-b ${store.label === storeName ? 'bg-[#F3E8FF] hover:bg-none' : 'bg-[#F9F9FF] hover:bg-[#F9F9FF]'}`}
                     onClick={() => handleStoreSelect(store)} // Select store on click
                   >
-                    <p>{store.label}</p> 
+                    <p>{store.label == "satish-dev" ? "Golf Pro" : store.label}</p> 
                     <IoIosMore scale={20} className="cursor-pointer"/>
                   </div>
                  ))

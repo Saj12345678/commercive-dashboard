@@ -465,7 +465,7 @@ export default function Home() {
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col sm:flex-row gap-1">
             <h1 className="flex w-full text-[#454545] text-4xl font-bold">
-              Hello, {storeName == "satis-dev" ? "Golf Pro" : storeName}!
+              Hello, {storeName == "satish-dev" ? "Golf Pro" : storeName}!
             </h1>
             {/* <p className="text-[#af9ae4] text-nowrap text-2xl">
               Here’s an update for your store
