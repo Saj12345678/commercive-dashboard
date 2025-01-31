@@ -576,10 +576,10 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 w-full">
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 bg-white border-2 border-[#EBEBEB] rounded-lg shadow-lg overflow-auto custom-scrollbar">
             <Inventory data={inventoryData} />
           </div>
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 bg-white border-2 border-[#EBEBEB] rounded-lg shadow-lg overflow-auto custom-scrollbar">
             <Summary data={trackingsData} />
           </div>
         </div>
