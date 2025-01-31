@@ -465,7 +465,7 @@ export default function Home() {
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col sm:flex-row gap-1">
             <h1 className="flex w-full text-[#454545] text-4xl font-bold">
-              Hello, {storeName}!
+              Hello, {storeName == "satis-dev" ? "Golf Pro" : storeName}!
             </h1>
             {/* <p className="text-[#af9ae4] text-nowrap text-2xl">
               Here’s an update for your store
@@ -474,7 +474,7 @@ export default function Home() {
           <Button
             variant="outlined"
             type="submit"
-            className="!px-4 !py-1 !rounded-md !font-semibold gap-2 !capitalize"
+            className="!hidden !px-4 !py-1 !rounded-md !font-semibold gap-2 !capitalize md:!flex"
             sx={{
               border: "3px solid #EBEBEB",
               boxShadow: "none",
@@ -488,7 +488,7 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between">
-          <div className="flex flex-col md:flex-row">
+          <div className="flex flex-row md:flex-row">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <div className="flex items-center gap-2">
                 <Button
@@ -538,7 +538,7 @@ export default function Home() {
                   <MdOutlineCalendarToday size={18} />
                   <span>
                     {compareDate
-                      ? `Compare to ${compareDate.toDateString()}`
+                      ? `Compare to ${compareDate.toDateString().substring(0, 10)}`
                       : "Compare to ..."}
                   </span>
                 </Button>
