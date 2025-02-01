@@ -90,11 +90,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const [tooltipMessage, setTooltipMessage] = useState("");
   const [showStoreData, setShowStoreData] = useState(false);
-  const storeName = selectedStore ? selectedStore.label : null;
-
-  console.log(selectedStore,'selectedStore');
-  
-
+  const storeName = selectedStore ? selectedStore.label : null;  
 
   const sidebarData = pathName?.includes("/admin") ? adminData : data
 

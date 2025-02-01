@@ -234,11 +234,16 @@ export default function Home() {
           .lte("created_at", formattedEndDatePast)
           .eq("store_name", storeName);
 
-      const { data: inventoryData, error: inventoryError } = await supabase
+      // const { data: inventoryData, error: inventoryError } = await supabase
+      //   .from("inventory")
+      //   .select("*")
+      //   .gte("created_at", formattedStartDate)
+      //   .lte("created_at", formattedEndDate)
+      //   .eq("store_name", storeName);
+
+        const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
-        .gte("created_at", formattedStartDate)
-        .lte("created_at", formattedEndDate)
         .eq("store_name", storeName);
 
       if (orderError || inventoryError || trackingsError) {
@@ -488,7 +493,7 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between">
-          <div className="flex flex-row md:flex-row">
+          <div className="flex flex-col md:flex-row">
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <div className="flex items-center gap-2">
                 <Button
@@ -571,7 +576,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex flex-row overflow-auto whitespace-nowrap custom-scrollbar">
+        <div className="flex min-h-[165px] flex-row overflow-auto whitespace-nowrap custom-scrollbar">
           <FeatureCard data={chartData} />
         </div>
 
@@ -586,7 +591,7 @@ export default function Home() {
         <div className="flex gap-4 w-full px-4 py-6 sm:px-6 sm:py-8 bg-white border border-white rounded-lg shadow-lg">
           <div className="bg-white rounded-lg flex items-center gap-2">
             <Image
-              src={"/svgs/icon-20.svg"}
+              src={"/svgs/Forecast.svg"}
               width={30}
               height={30}
               alt="icon"

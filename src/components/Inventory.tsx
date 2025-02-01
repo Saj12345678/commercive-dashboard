@@ -83,7 +83,7 @@ export default function Inventory({ data }: InventoryProps) {
       : data.filter((item) => item.stockStatus === selectedTab);
 
   return (
-    <Paper elevation={2} className="w-full px-4 py-6 sm:px-6 sm:py-8">
+    <Paper elevation={2} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8">
       <div className="w-full flex flex-col gap-2 sm:flex-row justify-start sm:justify-between" >
         <Typography
           variant="h5"
@@ -105,9 +105,9 @@ export default function Inventory({ data }: InventoryProps) {
           // color="secondary"
           endIcon={<GoArrowUpRight size={24} />}
           className="!rounded-full"
-          sx={{borderColor: "#f0edf5", borderWidth: 2, color: "#9A88BE"}}
+          sx={{borderColor: "#f0edf5", borderWidth: 2, color: "#9A88BE", textTransform: "initial" }}
         >
-          View all Inventory
+          View All Inventory
         </Button>
       </div>
       <div className="flex flex-col sm:flex-row sm:items-center w-full gap-5 pt-4 pb-8">

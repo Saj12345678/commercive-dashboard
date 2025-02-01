@@ -87,9 +87,9 @@ export default function Summary({ data }: TransactionProps) {
             // color="secondary"
             endIcon={<GoArrowUpRight size={24} />}
             className="!rounded-full"
-            sx={{ borderColor: "#f0edf5", borderWidth: 2, color: "#9A88BE" }}
+            sx={{ borderColor: "#f0edf5", borderWidth: 2, color: "#9A88BE", textTransform: "initial" }}
           >
-            View all Summary
+            View All Summary
           </Button>
         </Box>
 
