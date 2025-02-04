@@ -15,9 +15,9 @@ import {
 import { GoArrowUpRight } from "react-icons/go";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { LuThumbsUp } from "react-icons/lu";
+import { PiCodesandboxLogoFill } from "react-icons/pi";
 import { MdKeyboardDoubleArrowDown } from "react-icons/md";
 import TotalInventory from "./images/total-inventory";
-import { PiCodesandboxLogoFill } from "react-icons/pi";
 
 type InventoryItem = {
   image: string;

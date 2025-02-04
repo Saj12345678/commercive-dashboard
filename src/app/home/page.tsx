@@ -1,15 +1,14 @@
 "use client";
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css'; // theme css file
 import { Button } from "@mui/material";
-import { useEffect, useState } from "react";
-import { MdOutlineCalendarToday } from "react-icons/md";
-import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
+
+import { DateRangePicker, Range } from "react-date-range";
 import FeatureCard from "@/components/feature-card";
 import { createClient } from "../utils/supabase/client";
 import Inventory from "@/components/Inventory";
 import FullScreen from "@/components/images/full-screen";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import "./home.css";
 import Summary from "@/components/Summary";
 import { useStoreContext } from "@/context/StoreContext";
@@ -37,21 +36,114 @@ interface TransactionData {
 }
 export default function Home() {
   const supabase = createClient();
-  const today = new Date();
-  const currentDay = today.getDay();
-  const currentWeekMonday = new Date(today);
+  const currentPickerRef = useRef<HTMLDivElement | null>(null);
+  const comparePickerRef = useRef<HTMLDivElement | null>(null);
   const { selectedStore, setSelectedStore, storeData } = useStoreContext();
   const storeName = selectedStore ? selectedStore.label : null;
 
-  currentWeekMonday.setDate(
-    today.getDate() - (currentDay === 0 ? 6 : currentDay - 1)
-  );
-  const oneWeekAgo = new Date(currentWeekMonday);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(today);
-  const [compareDate, setCompareDate] = useState<Date | null>(oneWeekAgo);
-  const [showDatePicker, setShowDatePicker] = useState<
-    "today" | "compare" | null
-  >(null);
+  const getSundayOfWeek = (date: Date) => {
+    const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
+    const diff = day === 0 ? 0 : - day; // Adjust when today is Sunday
+    return new Date(date.setDate(date.getDate() + diff));
+  };
+
+  const getSaturdayOfWeek = (date: Date) => {
+    const sunday = getSundayOfWeek(new Date(date));
+    return new Date(sunday.setDate(sunday.getDate() + 6));
+  };
+
+  const getSundayOfLastWeek = (date: Date) => {
+    const sunday = getSundayOfWeek(new Date(date));
+    return new Date(sunday.setDate(sunday.getDate() - 7)); // Go back 7 days
+  };
+  const getSaturdayOfLastWeek = (date: Date): Date => {
+    const lastSunday = getSundayOfLastWeek(new Date(date));
+    return new Date(lastSunday.setDate(lastSunday.getDate() + 6)); // Move forward 6 days
+  };
+  const [showCurrentDateRange, setShowCurrentDateRange] = useState<boolean>(false);
+  const [currentDateRange, setCurrentDateRange] = useState<Range[]>([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
+  const [showCompareDateRange, setShowCompareDateRange] = useState<boolean>(false);
+  const [compareDateRange, setCompareDateRange] = useState<Range[]>([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
+  const handleCurrentDateSelect = (ranges: any) => {
+    setCurrentDateRange([ranges.selection]);
+    setShowCurrentDateRange(false); // Hide after selection
+  };
+  const handleCompareDateSelect = (ranges: any) => {
+    setCompareDateRange([ranges.selection]);
+    setShowCompareDateRange(false); // Hide after selection
+  };
+
+  useEffect(() => {
+    // Current week (Monday to Today)
+    const today = new Date();
+    // Current week (Sunday to Saturday)
+    const thisSunday = getSundayOfWeek(new Date());
+    const thisSaturday = getSaturdayOfWeek(new Date());
+
+    // Last week (Sunday to Saturday)
+    const lastSunday = getSundayOfLastWeek(new Date());
+    const lastSaturday = getSaturdayOfLastWeek(new Date());
+    setCurrentDateRange([
+      {
+        startDate: thisSunday,
+        endDate: thisSaturday,
+        key: "selection",
+      },
+    ]);
+
+    setCompareDateRange([
+      {
+        startDate: lastSunday,
+        endDate: lastSaturday,
+        key: "selection",
+      },
+    ]);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (currentPickerRef.current && !currentPickerRef.current.contains(event.target as Node)) {
+        setShowCurrentDateRange(false);
+      }
+    };
+
+    if (showCurrentDateRange) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showCurrentDateRange]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (comparePickerRef.current && !comparePickerRef.current.contains(event.target as Node)) {
+        setShowCompareDateRange(false);
+      }
+    };
+
+    if (showCompareDateRange) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showCompareDateRange]);
+
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState([
     {
@@ -89,6 +181,7 @@ export default function Home() {
   ]);
   const [inventoryData, setInventoryData] = useState<InventoryData[]>([]);
   const [trackingsData, setTrackingsData] = useState<TransactionData[]>([]);
+
 
   // Function to calculate total earnings
   const calculateEarnings = (orders: any, weekOffset = 0, status = "paid") => {
@@ -143,19 +236,6 @@ export default function Home() {
     return totalsArray;
   }
 
-  const getPastWeekDatesFromSelectedDates = (
-    startDate: Date,
-    endDate: Date
-  ) => {
-    const pastStartDate = new Date(startDate);
-    pastStartDate.setDate(startDate.getDate() - 7);
-
-    const pastEndDate = new Date(endDate);
-    pastEndDate.setDate(endDate.getDate() - 7);
-
-    return { pastStartDate, pastEndDate };
-  };
-
   const calculatePercentageChange = (
     currentWeek: number,
     pastWeek: number
@@ -170,7 +250,7 @@ export default function Home() {
     return `${change.toFixed(2)}%`;
   };
 
-  const fetchOrders = async (startDate: Date, endDate: Date) => {
+  const fetchOrders = async (currentDateRange: any, compareDateRange: any) => {
     if (!storeName) {
       return;
     }
@@ -180,16 +260,11 @@ export default function Home() {
       return isoString.split("Z")[0];
     };
 
-    const formattedStartDate = formatDateForQuery(startDate);
-    const formattedEndDate = formatDateForQuery(endDate);
-
-    const { pastStartDate, pastEndDate } = getPastWeekDatesFromSelectedDates(
-      startDate,
-      endDate
-    );
-
-    const formattedStartDatePast = formatDateForQuery(pastStartDate);
-    const formattedEndDatePast = formatDateForQuery(pastEndDate);
+    const formattedStartDate = formatDateForQuery(currentDateRange.startDate);
+    const formattedEndDate = formatDateForQuery(currentDateRange.endDate);
+    
+    const formattedStartDatePast = formatDateForQuery(compareDateRange.startDate);
+    const formattedEndDatePast = formatDateForQuery(compareDateRange.endDate);
 
     setLoading(true);
 
@@ -211,7 +286,7 @@ export default function Home() {
         .gte("created_at", formattedStartDate)
         .lt("created_at", formattedEndDate)
         .eq("store_name", storeName); // Add the condition to filter by store_name
-
+        
       const { data: pastWeekOrders, error: pastWeekError } = await supabase
         .from("order")
         .select("*")
@@ -234,14 +309,7 @@ export default function Home() {
           .lte("created_at", formattedEndDatePast)
           .eq("store_name", storeName);
 
-      // const { data: inventoryData, error: inventoryError } = await supabase
-      //   .from("inventory")
-      //   .select("*")
-      //   .gte("created_at", formattedStartDate)
-      //   .lte("created_at", formattedEndDate)
-      //   .eq("store_name", storeName);
-
-        const { data: inventoryData, error: inventoryError } = await supabase
+      const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
         .eq("store_name", storeName);
@@ -257,7 +325,6 @@ export default function Home() {
           0,
           "paid"
         );
-
         const paidRecords = orderData.filter(
           (data) => data.financial_status.trim().toLowerCase() === "paid"
         );
@@ -327,8 +394,8 @@ export default function Home() {
               };
             }
             if (item.name === "Unfulfilled Orders") {
-              const currentWeekCount = filteredData?.length || 0; 
-              const pastWeekCount = filteredPastTrackingData?.length || 0; 
+              const currentWeekCount = filteredData?.length || 0;
+              const pastWeekCount = filteredPastTrackingData?.length || 0;
               let percentage;
 
               if (pastWeekCount === 0) {
@@ -383,46 +450,17 @@ export default function Home() {
     }
   };
 
-  const isToday = (date: Date) => {
-    const today = new Date();
-    return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
-    );
-  };
-
-  const handleDateChange = (date: Date) => {
-    if (showDatePicker === "today") {
-      setSelectedDate(date);
-    } else if (showDatePicker === "compare") {
-      if (selectedDate && date > selectedDate) {
-        toast.warning("Comparison date cannot be after the selected date.");
-        return;
-      }
-      //   if (
-      //     selectedDate &&
-      //     (selectedDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24) > 7
-      //   ) {
-      //     toast.warning("Maximum date range is 7 days.");
-      //     return;
-      //   }
-      setCompareDate(date);
-    }
-    setShowDatePicker(null);
-  };
-
   const handleFetchData = () => {
-    if (selectedDate && compareDate) {
-      fetchOrders(compareDate, selectedDate);
+    if (currentDateRange && compareDateRange) {
+      fetchOrders(currentDateRange[0], compareDateRange[0]);
     }
   };
 
   useEffect(() => {
-    if (selectedDate && compareDate) {
+    if (currentDateRange && compareDateRange) {
       handleFetchData();
     }
-  }, [selectedDate, compareDate, selectedStore]);
+  }, [currentDateRange, compareDateRange, selectedStore]);
 
   const Data = [
     {
@@ -456,11 +494,12 @@ export default function Home() {
   const handleCheckboxChange = () => {
     setIsChecked(!isChecked);
   };
+
   return (
     <>
       <main
         // style={{ height: "calc(100vh - 70px)" }}
-        className="flex flex-col h-full w-full gap-5 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
+        className="flex flex-col h-screen max-h-screen w-full gap-5 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
         {loading && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -493,70 +532,85 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between">
-          <div className="flex flex-col md:flex-row">
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <div className="flex items-center gap-2">
-                <Button
-                  className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
-                  variant="outlined"
-                  onClick={() => {
-                    setShowDatePicker("today");
-                  }}
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "0.5rem 1rem",
-                    border: "3px solid #EBEBEB",
-                    color: "#454545",
-                  }}
-                >
-                  <MdOutlineCalendarToday size={18} />
-                  <span>
-                    {selectedDate && isToday(selectedDate)
-                      ? "Today"
-                      : selectedDate?.toDateString() || "Today"}
-                  </span>
-                </Button>
-                <DatePicker
-                  open={showDatePicker === "today"}
-                  value={selectedDate}
-                  onChange={(date: any) => handleDateChange(date)}
-                  maxDate={today}
-                  onClose={() => setShowDatePicker(null)}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outlined"
-                  className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
-                  onClick={() => setShowDatePicker("compare")}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "0.5rem 1rem",
-                    border: "3px solid #EBEBEB !important",
-                    color: "#454545",
-                  }}
-                >
-                  <MdOutlineCalendarToday size={18} />
-                  <span>
-                    {compareDate
-                      ? `Compare to ${compareDate.toDateString().substring(0, 10)}`
-                      : "Compare to ..."}
-                  </span>
-                </Button>
+          <div className="flex flex-col md:flex-row gap-2">
+            <div style={{ position: "relative" }}>
+              {/* Input Field */}
+              <input
+                type="text"
+                value={
+                  currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
+                    ? `${currentDateRange[0].startDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })} - ${currentDateRange[0].endDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })}`
+                    : "Select a date range"
+                }
+                onFocus={() => setShowCurrentDateRange(true)} // Show on focus
+                readOnly
+                className="border p-2 w-full text-sm cursor-pointer"
+              />
 
-                <DatePicker
-                  open={showDatePicker === "compare"}
-                  value={compareDate}
-                  onChange={(date: any) => handleDateChange(date)}
-                  maxDate={today}
-                  onClose={() => setShowDatePicker(null)}
-                />
-              </div>
-            </LocalizationProvider>
+              {/* Date Picker - Show/Hide Based on State */}
+              {showCurrentDateRange && (
+                <div
+                  ref={currentPickerRef}
+                  style={{
+                    position: "absolute",
+                    zIndex: 1000,
+                    background: "white",
+                    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  <DateRangePicker
+                    ranges={currentDateRange}
+                    onChange={handleCurrentDateSelect}
+                    moveRangeOnFirstSelection={false}
+                  />
+                </div>
+              )}
+            </div>
+            <div style={{ position: "relative" }}>
+              {/* Input Field */}
+              <input
+                type="text"
+                value={
+                  compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
+                    ? `${compareDateRange[0].startDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })} - ${compareDateRange[0].endDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })}`
+                    : "Select a date range"
+                }
+                onFocus={() => setShowCompareDateRange(true)} // Show on focus
+                readOnly
+                className="border p-2 w-full text-sm cursor-pointer"
+              />
+
+              {/* Date Picker - Show/Hide Based on State */}
+              {showCompareDateRange && (
+                <div
+                  ref={comparePickerRef}
+                  style={{
+                    position: "absolute",
+                    zIndex: 1000,
+                    background: "white",
+                    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                  }}
+                >
+                  <DateRangePicker
+                    ranges={compareDateRange}
+                    onChange={handleCompareDateSelect}
+                    moveRangeOnFirstSelection={false}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center">

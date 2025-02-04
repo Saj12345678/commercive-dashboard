@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { MdOutlineCalendarToday, MdOutlineClose } from "react-icons/md";
 import { toast } from "react-toastify";
 import FeatureCard from "@/components/feature-card";
@@ -19,8 +19,7 @@ import {
   Stack,
   Tooltip,
 } from "@mui/material";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DateRangePicker, Range } from "react-date-range";
 import "../home/home.css";
 import CustomButton from "@/components/ui/custom-button";
 import InputField from "@/components/ui/custom-inputfild";
@@ -28,21 +27,113 @@ import { BsCopy } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 
 export default function CommercivePartners() {
+  const currentPickerRef = useRef<HTMLDivElement | null>(null);
+  const comparePickerRef = useRef<HTMLDivElement | null>(null);
   const supabase = createClient();
   const router = useRouter();
-  const today = new Date();
-  const currentDay = today.getDay();
-  const currentWeekMonday = new Date(today);
-  currentWeekMonday.setDate(
-    today.getDate() - (currentDay === 0 ? 6 : currentDay - 1)
-  );
-  const oneWeekAgo = new Date(currentWeekMonday);
+  const getSundayOfWeek = (date: Date) => {
+    const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
+    const diff = day === 0 ? 0 : - day; // Adjust when today is Sunday
+    return new Date(date.setDate(date.getDate() + diff));
+  };
 
-  const [selectedDate, setSelectedDate] = useState<Date | null>(today);
-  const [compareDate, setCompareDate] = useState<Date | null>(oneWeekAgo);
-  const [showDatePicker, setShowDatePicker] = useState<
-    "today" | "compare" | null
-  >(null);
+  const getSaturdayOfWeek = (date: Date) => {
+    const sunday = getSundayOfWeek(new Date(date));
+    return new Date(sunday.setDate(sunday.getDate() + 6));
+  };
+
+  const getSundayOfLastWeek = (date: Date) => {
+    const sunday = getSundayOfWeek(new Date(date));
+    return new Date(sunday.setDate(sunday.getDate() - 7)); // Go back 7 days
+  };
+  const getSaturdayOfLastWeek = (date: Date): Date => {
+    const lastSunday = getSundayOfLastWeek(new Date(date));
+    return new Date(lastSunday.setDate(lastSunday.getDate() + 6)); // Move forward 6 days
+  };
+  const [showCurrentDateRange, setShowCurrentDateRange] = useState<boolean>(false);
+  const [currentDateRange, setCurrentDateRange] = useState<Range[]>([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
+  const [showCompareDateRange, setShowCompareDateRange] = useState<boolean>(false);
+  const [compareDateRange, setCompareDateRange] = useState<Range[]>([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
+  const handleCurrentDateSelect = (ranges: any) => {
+    setCurrentDateRange([ranges.selection]);
+    setShowCurrentDateRange(false); // Hide after selection
+  };
+  const handleCompareDateSelect = (ranges: any) => {
+    setCompareDateRange([ranges.selection]);
+    setShowCompareDateRange(false); // Hide after selection
+  };
+
+  useEffect(() => {
+    // Current week (Monday to Today)
+    const today = new Date();
+    // Current week (Sunday to Saturday)
+    const thisSunday = getSundayOfWeek(new Date());
+    const thisSaturday = getSaturdayOfWeek(new Date());
+
+    // Last week (Sunday to Saturday)
+    const lastSunday = getSundayOfLastWeek(new Date());
+    const lastSaturday = getSaturdayOfLastWeek(new Date());
+    setCurrentDateRange([
+      {
+        startDate: thisSunday,
+        endDate: thisSaturday,
+        key: "selection",
+      },
+    ]);
+
+    setCompareDateRange([
+      {
+        startDate: lastSunday,
+        endDate: lastSaturday,
+        key: "selection",
+      },
+    ]);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (currentPickerRef.current && !currentPickerRef.current.contains(event.target as Node)) {
+        setShowCurrentDateRange(false);
+      }
+    };
+
+    if (showCurrentDateRange) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showCurrentDateRange]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (comparePickerRef.current && !comparePickerRef.current.contains(event.target as Node)) {
+        setShowCompareDateRange(false);
+      }
+    };
+
+    if (showCompareDateRange) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showCompareDateRange]);
+
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [referralLink, setReferralLink] = useState("");
@@ -184,7 +275,7 @@ export default function CommercivePartners() {
       }
       return total;
     }, 0);
-  
+
     return totalEarning;
   };
 
@@ -246,62 +337,50 @@ export default function CommercivePartners() {
   const calculatePercentageChange = (currentWeek: number, pastWeek: number): string => {
     // Handle cases where the past week's earnings are zero to avoid division by zero
     if (pastWeek === 0) {
-        return currentWeek > 0 ? "100%" : "0%";
+      return currentWeek > 0 ? "100%" : "0%";
     }
 
     const change = ((currentWeek - pastWeek) / pastWeek) * 100;
 
-    return `${change.toFixed(2)}%`; 
-};
+    return `${change.toFixed(2)}%`;
+  };
 
-  const fetchOrders = async (startDate: Date, endDate: Date) => {
+  const fetchOrders = async (currentDateRange: any, compareDateRange: any) => {
     const formatDateForQuery = (date: Date) => {
       const isoString = date.toISOString();
-      return isoString.split("Z")[0]; 
-  };
+      return isoString.split("Z")[0];
+    };
 
-  const getPastWeekDatesFromSelectedDates = (startDate: Date, endDate: Date) => {
-    const pastStartDate = new Date(startDate);
-    pastStartDate.setDate(startDate.getDate() - 7);
+    // Format dates for query
+    const formattedStartDate = formatDateForQuery(currentDateRange.startDate);
+    const formattedEndDate = formatDateForQuery(currentDateRange.endDate);
 
-    const pastEndDate = new Date(endDate);
-    pastEndDate.setDate(endDate.getDate() - 7);
+    const formattedStartDatePast = formatDateForQuery(compareDateRange.startDate);
+    const formattedEndDatePast = formatDateForQuery(compareDateRange.endDate);
 
-    return { pastStartDate, pastEndDate };
-  };
-
-  const { pastStartDate, pastEndDate } = getPastWeekDatesFromSelectedDates(startDate, endDate);
-
-  // Format dates for query
-  const formattedStartDateCurrent = formatDateForQuery(startDate);
-  const formattedEndDateCurrent = formatDateForQuery(endDate);
-
-  const formattedStartDatePast = formatDateForQuery(pastStartDate);
-  const formattedEndDatePast = formatDateForQuery(pastEndDate);
-    
     setLoading(true);
 
     try {
       const { data: orderData, error: orderError } = await supabase
         .from("order")
         .select("*")
-        .gte("created_at", formattedStartDateCurrent)
-        .lt("created_at", formattedEndDateCurrent);
+        .gte("created_at", formattedStartDate)
+        .lt("created_at", formattedEndDate);
 
-        const { data: pastWeekOrders, error: pastWeekError } = await supabase
-            .from("order")
-            .select("*")
-            .gte("created_at", formattedStartDatePast)
-            .lt("created_at", formattedEndDatePast);
+      const { data: pastWeekOrders, error: pastWeekError } = await supabase
+        .from("order")
+        .select("*")
+        .gte("created_at", formattedStartDatePast)
+        .lt("created_at", formattedEndDatePast);
 
 
       const { data: referral, error: referralsError } = await supabase
         .from("referrals")
         .select("*")
-        .gte("created_at", formattedStartDateCurrent)
-        .lte("created_at", formattedEndDateCurrent);
+        .gte("created_at", formattedStartDate)
+        .lte("created_at", formattedEndDate);
 
-        const { data: pastWeekReferral, error: pastWeekReferralsError } = await supabase
+      const { data: pastWeekReferral, error: pastWeekReferralsError } = await supabase
         .from("referrals")
         .select("*")
         .gte("created_at", formattedStartDatePast)
@@ -350,15 +429,15 @@ export default function CommercivePartners() {
         );
 
         setTableData(updatedTableData);
-        
+
         const pendingRecords = orderData.filter(
           (data) => data.financial_status.trim().toLowerCase() === "pending"
         );
         const paidRecords = orderData.filter(
           (data) => data.financial_status.trim().toLowerCase() === "paid"
         );
-         
-         const groupedByDate = referral.reduce((acc, item) => {
+
+        const groupedByDate = referral.reduce((acc, item) => {
           // Extract date part (YYYY-MM-DD) from created_at
           const date = item.created_at.split('T')[0];
           if (!acc[date]) {
@@ -367,22 +446,22 @@ export default function CommercivePartners() {
           acc[date].push(item);
           return acc;
         }, {});
-        
+
         // Convert the grouped data into counts
-        const groupedCounts = Object.values(groupedByDate).map((group:any) => group.length);
-        
+        const groupedCounts = Object.values(groupedByDate).map((group: any) => group.length);
+
         const totalEarningsChart = groupAndSumByDate(pendingRecords);
         const pendingEarningsChart = groupAndSumByDate(paidRecords);
 
         const totalEarning = getTotalsBetweenDates({
           chartData: totalEarningsChart,
-          formattedStartDateCurrent,
-          formattedEndDateCurrent,
+          formattedStartDate,
+          formattedEndDate,
         });
         const pendingEarning = getTotalsBetweenDates({
           chartData: pendingEarningsChart,
-          formattedStartDateCurrent,
-          formattedEndDateCurrent,
+          formattedStartDate,
+          formattedEndDate,
         });
 
         setChartData((prevData: any) => {
@@ -418,7 +497,7 @@ export default function CommercivePartners() {
                 ...item,
                 amount: currentWeekCount,
                 series: groupedCounts,
-                percentage:percentage,
+                percentage: percentage,
               };
             }
             return item;
@@ -432,46 +511,17 @@ export default function CommercivePartners() {
     }
   };
 
-  const isToday = (date: Date) => {
-    const today = new Date();
-    return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
-    );
-  };
-
-  const handleDateChange = (date: Date) => {
-    if (showDatePicker === "today") {
-      setSelectedDate(date);
-    } else if (showDatePicker === "compare") {
-      if (selectedDate && date > selectedDate) {
-        toast.warning("Comparison date cannot be after the selected date.");
-        return;
-      }
-      //   if (
-      //     selectedDate &&
-      //     (selectedDate.getTime() - date.getTime()) / (1000 * 60 * 60 * 24) > 7
-      //   ) {
-      //     toast.warning("Maximum date range is 7 days.");
-      //     return;
-      //   }
-      setCompareDate(date);
-    }
-    setShowDatePicker(null);
-  };
-
   const handleFetchData = () => {
-    if (selectedDate && compareDate) {
-      fetchOrders(compareDate, selectedDate);
+    if (currentDateRange && compareDateRange) {
+      fetchOrders(currentDateRange[0], compareDateRange[0]);
     }
   };
 
   useEffect(() => {
-    if (selectedDate && compareDate) {
+    if (currentDateRange && compareDateRange) {
       handleFetchData();
     }
-  }, [selectedDate, compareDate]);
+  }, [currentDateRange, compareDateRange]);
 
   const filteredData = tableData.filter(
     (item) =>
@@ -553,71 +603,85 @@ export default function CommercivePartners() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-0 sm:gap-3">
-          <div className="flex flex-col md:flex-row">
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <div className="flex items-center gap-2">
-                <Button
-                  className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
-                  variant="outlined"
-                  onClick={() => {
-                    setShowDatePicker("today");
-                  }}
+          <div className="flex flex-col md:flex-row gap-2">
+            <div style={{ position: "relative" }}>
+              {/* Input Field */}
+              <input
+                type="text"
+                value={
+                  currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
+                    ? `${currentDateRange[0].startDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })} - ${currentDateRange[0].endDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })}`
+                    : "Select a date range"
+                }
+                onFocus={() => setShowCurrentDateRange(true)} // Show on focus
+                readOnly
+                className="border p-2 w-full text-sm cursor-pointer"
+              />
+
+              {/* Date Picker - Show/Hide Based on State */}
+              {showCurrentDateRange && (
+                <div
+                  ref={currentPickerRef}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "0.5rem 1rem",
-                    border: "3px solid #EBEBEB !important",
-                    color: "#454545",
+                    position: "absolute",
+                    zIndex: 1000,
+                    background: "white",
+                    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
                   }}
                 >
-                  <MdOutlineCalendarToday size={18} />
-                  <span>
-                    {selectedDate && isToday(selectedDate)
-                      ? "Today"
-                      : selectedDate?.toDateString() || "Today"}
-                  </span>
-                </Button>
+                  <DateRangePicker
+                    ranges={currentDateRange}
+                    onChange={handleCurrentDateSelect}
+                    moveRangeOnFirstSelection={false}
+                  />
+                </div>
+              )}
+            </div>
+            <div style={{ position: "relative" }}>
+              {/* Input Field */}
+              <input
+                type="text"
+                value={
+                  compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
+                    ? `${compareDateRange[0].startDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })} - ${compareDateRange[0].endDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })}`
+                    : "Select a date range"
+                }
+                onFocus={() => setShowCompareDateRange(true)} // Show on focus
+                readOnly
+                className="border p-2 w-full text-sm cursor-pointer"
+              />
 
-                <DatePicker
-                  open={showDatePicker === "today"}
-                  value={selectedDate}
-                  onChange={(date: any) => handleDateChange(date)}
-                  maxDate={today}
-                  onClose={() => setShowDatePicker(null)}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outlined"
-                  className="!rounded-md !font-semibold gap-2 !bg-transparent !border-2 !border-[#EBEBEB] !shadow-none !capitalize"
-                  onClick={() => setShowDatePicker("compare")}
+              {/* Date Picker - Show/Hide Based on State */}
+              {showCompareDateRange && (
+                <div
+                  ref={comparePickerRef}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "0.5rem 1rem",
-                    border: "3px solid #EBEBEB !important",
-                    color: "#454545",
+                    position: "absolute",
+                    zIndex: 1000,
+                    background: "white",
+                    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
                   }}
                 >
-                  <MdOutlineCalendarToday size={18} />
-                  <span>
-                    {compareDate
-                      ? `Compare to ${compareDate.toDateString()}`
-                      : "Compare to ..."}
-                  </span>
-                </Button>
-
-                <DatePicker
-                  open={showDatePicker === "compare"}
-                  value={compareDate}
-                  onChange={(date: any) => handleDateChange(date)}
-                  maxDate={today}
-                  onClose={() => setShowDatePicker(null)}
-                />
-              </div>
-            </LocalizationProvider>
+                  <DateRangePicker
+                    ranges={compareDateRange}
+                    onChange={handleCompareDateSelect}
+                    moveRangeOnFirstSelection={false}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -843,29 +907,29 @@ export default function CommercivePartners() {
               </div>
               <div className="flex flex-col bg-[#F5F5F5] border px-4 py-6 rounded-lg gap-3">
                 <div className="flex justify-between items-center">
-                <p className="font-bold">Text Preview</p>
-                <Tooltip
-                  title={tooltipInfoMessage}
-                  open={isInfoTooltipOpen}
-                  arrow
-                  disableFocusListener
-                  disableHoverListener
-                  disableTouchListener
-                >
-                  <div>
-                    <CustomButton
-                      label="Copy"
-                      className="w-max !bg-transparent !text-[#4F11C9]"
-                      callback={handleLinkInfoCopy}
-                      prefixIcon={<BsCopy size={14} color="#4F11C9" />}
-                    />
-                  </div>
-                </Tooltip>
+                  <p className="font-bold">Text Preview</p>
+                  <Tooltip
+                    title={tooltipInfoMessage}
+                    open={isInfoTooltipOpen}
+                    arrow
+                    disableFocusListener
+                    disableHoverListener
+                    disableTouchListener
+                  >
+                    <div>
+                      <CustomButton
+                        label="Copy"
+                        className="w-max !bg-transparent !text-[#4F11C9]"
+                        callback={handleLinkInfoCopy}
+                        prefixIcon={<BsCopy size={14} color="#4F11C9" />}
+                      />
+                    </div>
+                  </Tooltip>
                 </div>
-               <p className="max-w-[500px] text-sm">Hey! I just started using this fantastic Order Tracking App that keeps me updated on all my deliveries. It’s super convenient and saves me so much time! If you sign up with my link, we both get exclusive discounts on our next orders. Check it out!
-                <br/>{referralLink}
-               </p>
-                </div>
+                <p className="max-w-[500px] text-sm">Hey! I just started using this fantastic Order Tracking App that keeps me updated on all my deliveries. It’s super convenient and saves me so much time! If you sign up with my link, we both get exclusive discounts on our next orders. Check it out!
+                  <br />{referralLink}
+                </p>
+              </div>
             </div>
           </CustomModal>
         )}

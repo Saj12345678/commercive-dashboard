@@ -11,6 +11,7 @@ export interface FeatureCardProps {
 const amount = ["$100", "$500", "$100", "Max"];
 
 export default function FeatureCard({ data }: FeatureCardProps) {
+  console.log(data)
   const [isModalOpen, setModalOpen] = useState(false);
 
   const handleWithdrawalClick = () => {

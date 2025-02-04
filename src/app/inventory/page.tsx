@@ -1,0 +1,308 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import {
+    Button,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Typography,
+    LinearProgress,
+    Box,
+} from "@mui/material";
+import { GoArrowUpRight } from "react-icons/go";
+import { IoCloseCircleOutline } from "react-icons/io5";
+import { LuThumbsUp } from "react-icons/lu";
+import { MdKeyboardDoubleArrowDown } from "react-icons/md";
+import TotalInventory from "../../components/images/total-inventory";
+import { useStoreContext } from "@/context/StoreContext";
+import { PiCodesandboxLogoFill } from "react-icons/pi";
+import { createClient } from "../utils/supabase/client";
+
+type InventoryItem = {
+    image: string;
+    color: string;
+    name: string;
+    stockMeter: number;
+    stockStatus: string;
+    backorders: number;
+};
+
+export default function Inventory() {
+    const supabase = createClient();
+    const [loading, setLoading] = useState(false);
+    const [selectedTab, setSelectedTab] = useState("All");
+    const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
+    const { selectedStore } = useStoreContext();
+    const storeName = selectedStore ? selectedStore.label : null;
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(20); // Default 20 items per page
+
+    const fetchInventoryData = async () => {
+        if (!storeName) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const { data: fetchedData, error: inventoryError } = await supabase
+                .from("inventory")
+                .select("*")
+                .eq("store_name", storeName);
+
+            if (inventoryError) {
+                console.error("Error fetching inventory data:", inventoryError);
+                setLoading(false);
+            } else {
+                const transformedData = fetchedData.map((item) => {
+                    const inventoryQuantities =
+                        item.inventory_level[0]?.node?.quantities || [];
+                    const available =
+                        inventoryQuantities.find((q: any) => q.name === "available")
+                            ?.quantity || 0;
+                    const committed =
+                        inventoryQuantities.find((q: any) => q.name === "committed")
+                            ?.quantity || 0;
+
+                    let stockStatus = "Enough Stock";
+                    if (available === 0) stockStatus = "No Stock";
+                    else if (available < 50) stockStatus = "Low Stock";
+
+                    return {
+                        image: "",
+                        color: "#" + Math.floor(Math.random() * 16777215).toString(16),
+                        name: `Product ${item.sku}`,
+                        stockMeter: available + committed,
+                        stockStatus,
+                        backorders: committed,
+                    };
+                });
+
+                setInventoryData(transformedData);
+            }
+        } catch (error) {
+            console.error("Error in fetchOrders:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleFetchData = () => {
+        fetchInventoryData();
+    };
+
+    useEffect(() => {
+        handleFetchData();
+    }, [selectedStore]);
+
+    const getStockStatusClass = (status: string) => {
+        switch (status) {
+            case "Enough Stock":
+                return "bg-green-100 text-green-700";
+            case "No Stock":
+                return "bg-red-100 text-red-700";
+            case "Low Stock":
+                return "bg-orange-100 text-orange-700";
+            default:
+                return "";
+        }
+    };
+
+    const getColorPalette = (
+        status: string
+    ): "success" | "error" | "warning" | "info" | "primary" => {
+        switch (status) {
+            case "Enough Stock":
+                return "success";
+            case "No Stock":
+                return "error";
+            case "Low Stock":
+                return "warning";
+            default:
+                return "primary";
+        }
+    };
+
+    const getStatusIcon = (status: string) => {
+        switch (status) {
+            case "Enough Stock":
+                return <LuThumbsUp size={20} />;
+            case "No Stock":
+                return <IoCloseCircleOutline size={20} />;
+            case "Low Stock":
+                return <MdKeyboardDoubleArrowDown size={20} />;
+            default:
+                return <PiCodesandboxLogoFill size={20} />;
+        }
+    };
+
+    const filteredData =
+        selectedTab === "All"
+            ? inventoryData
+            : inventoryData.filter((item) => item.stockStatus === selectedTab);
+
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
+
+    const handleItemsPerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setItemsPerPage(Number(event.target.value));
+        setCurrentPage(1);
+    };
+
+    return (
+        <Paper elevation={0} className="w-full px-4 py-6 sm:px-6 sm:py-8" style={{ height: "100%" }}>
+            <div className="w-full flex flex-col gap-2 sm:flex-row justify-start sm:justify-between">
+                <Typography
+                    variant="h5"
+                    fontWeight="bold"
+                    className="flex items-center gap-3"
+                    sx={{
+                        fontSize: {
+                            xs: "1rem",
+                            sm: "1.2rem",
+                            md: "1.5rem",
+                        },
+                    }}
+                >
+                    <TotalInventory width={24} height={24} color={"#4F11C9"} />
+                    Inventory Summary
+                </Typography>
+                {/* Category Tabs */}
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center w-full gap-5 pt-4 pb-8">
+                <p className="text-[36px] font-bold ">{filteredData.length}</p>
+                <div className="flex w-full flex-wrap gap-2 sm:gap-4">
+                    {[
+                        { label: "All", color: "gray" },
+                        { label: "Enough Stock", color: "green" },
+                        { label: "Low Stock", color: "orange" },
+                        { label: "No Stock", color: "red" },
+                    ].map((tab: any) => (
+                        <button
+                            type="button"
+                            key={tab.label}
+                            className={`flex items-center gap-2 w-max px-4 py-1 rounded-md text-${tab.color
+                                }-700 bg-${tab.color}-100 ${selectedTab === tab.label
+                                    ? `border border-${tab.color}-700`
+                                    : ""
+                                }`}
+                            onClick={() => setSelectedTab(tab.label)}
+                        >
+                            <span>{getStatusIcon(tab.label)}</span> {tab.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+            <TableContainer component={Paper} sx={{ maxHeight: "100%", overflowY: "auto" }} className="custom-scrollbar">
+                <Table>
+                    <TableHead style={{ backgroundColor: "#f4f4f7", fontWeight: "bold", color: "black" }}>
+                        <TableRow>
+                            <TableCell sx={{ fontWeight: "bold", color: "black" }}>Photo</TableCell>
+                            <TableCell sx={{ fontWeight: "bold", color: "black" }}>Name/SKU</TableCell>
+                            <TableCell sx={{ fontWeight: "bold", color: "black" }}>Stock Meter</TableCell>
+                            <TableCell sx={{ fontWeight: "bold", color: "black" }}>Stock Status</TableCell>
+                            <TableCell sx={{ fontWeight: "bold", color: "black" }}>Backorders</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {paginatedData.length > 0 ? (
+                            paginatedData.map((item, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>
+                                        <div
+                                            style={{
+                                                backgroundColor: "#f4f4f7",
+                                                width: "24px",
+                                                height: "24px",
+                                                borderRadius: "8px",
+                                            }}
+                                        >
+                                            {item.image}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Typography variant="subtitle1" fontWeight="bold">
+                                            {item.name}
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            {item.color}
+                                        </Typography></TableCell>
+                                    <TableCell>
+                                        <Box display="flex" width={100} alignItems="center" gap={1}>
+                                            <Typography
+                                                variant="body2"
+                                                align="center"
+                                            >
+                                                {item.stockMeter}
+                                            </Typography>
+
+                                            <LinearProgress
+                                                variant="determinate"
+                                                value={Math.min(
+                                                    100,
+                                                    Math.max(0, (item.stockMeter / 1000) * 100)
+                                                )}
+                                                color={getColorPalette(item.stockStatus)}
+                                                sx={{ height: 10, borderRadius: 10, flex: 1 }}
+                                            />
+                                        </Box>
+                                    </TableCell>
+                                    <TableCell>
+                                        <p
+                                            className={`flex items-center gap-2 w-max py-2 px-4 rounded-md ${getStockStatusClass(
+                                                item.stockStatus
+                                            )}`}
+                                        >
+                                            <span>{getStatusIcon(item.stockStatus)}</span>{" "}
+                                            {item.stockStatus}
+                                        </p>
+                                    </TableCell>
+                                    <TableCell>{item.backorders}</TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={5} style={{ textAlign: "center" }}>
+                                    No data available
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+
+            {/* Pagination UI */}
+            <div className="flex justify-between items-center mt-4">
+                <select value={itemsPerPage} onChange={handleItemsPerPageChange} className="border rounded p-1">
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                </select>
+
+                <div className="flex gap-2 items-center">
+                    <Button disabled={currentPage === 1} onClick={() => handlePageChange(1)}>First</Button>
+                    <Button disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)}>Previous</Button>
+                    <span>Page {currentPage} of {totalPages}</span>
+                    <Button disabled={currentPage === totalPages} onClick={() => handlePageChange(currentPage + 1)}>Next</Button>
+                    <Button disabled={currentPage === totalPages} onClick={() => handlePageChange(totalPages)}>Last</Button>
+                </div>
+            </div>
+        </Paper>
+    );
+}
