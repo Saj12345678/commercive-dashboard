@@ -22,18 +22,7 @@ interface InventoryData {
   stockStatus: string;
   backorders: number;
 }
-interface TransactionData {
-  id: string;
-  tracking_company: string;
-  tracking_number: string;
-  status: string;
-  shipment_status: string;
-  tracking_url: string;
-  created_at: string;
-  updated_at: string;
-  store_location: string;
-  due_date: string;
-}
+
 export default function Home() {
   const supabase = createClient();
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
@@ -180,8 +169,7 @@ export default function Home() {
     },
   ]);
   const [inventoryData, setInventoryData] = useState<InventoryData[]>([]);
-  const [trackingsData, setTrackingsData] = useState<TransactionData[]>([]);
-
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   // Function to calculate total earnings
   const calculateEarnings = (orders: any, weekOffset = 0, status = "paid") => {
@@ -344,7 +332,7 @@ export default function Home() {
         const filteredData = trackingsData.filter(
           (item) => item.status === "false"
         );
-        setTrackingsData(trackingsData);
+
         const filteredPastTrackingData = pastWeekTrackings
           ? pastWeekTrackings.filter((item) => item.status === "false")
           : [];
@@ -495,6 +483,13 @@ export default function Home() {
     setIsChecked(!isChecked);
   };
 
+  const toggleFullScreen = () => {
+    if(!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => setIsFullScreen(true));
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen().then(() => setIsFullScreen(false));
+    }
+  }
   return (
     <>
       <main
@@ -517,8 +512,9 @@ export default function Home() {
           </div>
           <Button
             variant="outlined"
-            type="submit"
+            type="button"
             className="!hidden !px-4 !py-1 !rounded-md !font-semibold gap-2 !capitalize md:!flex"
+            onClick={toggleFullScreen}
             sx={{
               border: "3px solid #EBEBEB",
               boxShadow: "none",
@@ -527,7 +523,7 @@ export default function Home() {
             }}
           >
             <FullScreen />
-            Fullscreen
+            {isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
           </Button>
         </div>
 
@@ -639,7 +635,7 @@ export default function Home() {
             <Inventory data={inventoryData} />
           </div>
           <div className="flex-1 bg-white border-2 border-[#EBEBEB] rounded-lg shadow-lg overflow-auto custom-scrollbar">
-            <Summary data={trackingsData} />
+            <Summary />
           </div>
         </div>
         <div className="flex gap-4 w-full px-4 py-6 sm:px-6 sm:py-8 bg-white border border-white rounded-lg shadow-lg">
