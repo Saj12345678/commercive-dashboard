@@ -41,7 +41,7 @@ const data = [
   },
   {
     title: "Shipments",
-    href: "/shipment",
+    href: "/shipments",
     icon: <ShipmentIcon width={20} height={20} color={"#000000"} />,
   },
   {

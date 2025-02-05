@@ -1,14 +1,14 @@
-import { Box, Typography, Chip, Paper, Button, Tooltip } from "@mui/material";
+"use client";
+import { Box, Typography, Chip, Paper, Tooltip, Button } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
-import { GoArrowUpRight } from "react-icons/go";
-import OrderIcon from "./images/order";
+import OrderIcon from "../../components/images/order";
 import Image from "next/image";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { useStoreContext } from "@/context/StoreContext";
 import { createClient } from "@/app/utils/supabase/client";
-import Link from "next/link";
+import FullScreen from "@/components/images/full-screen";
 
 type TransactionItem = {
   id: string;
@@ -21,13 +21,14 @@ type TransactionItem = {
   store_location: string;
 };
 
-export default function Summary() {
+export default function Shipment() {
   const supabase = createClient();
   const { selectedStore } = useStoreContext();
   const [trackingData, setTrackingData] = useState<TransactionItem[]>([]);
   const storeName = selectedStore ? selectedStore.label : null;
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   const getStartOfWeek = () => {
     const now = new Date();
@@ -38,7 +39,7 @@ export default function Summary() {
 
   const getEndOfWeek = (startOfWeek: Date) => {
     const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setDate(startOfWeek.getDate() + 9);
     return endOfWeek;
   };
   const [dateRange, setDateRange] = useState([
@@ -68,7 +69,7 @@ export default function Summary() {
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    if (diffInDays > 6) {
+    if (diffInDays > 9) {
       return;
     }
 
@@ -94,6 +95,7 @@ export default function Summary() {
     if (trackingsError) {
       console.error("Error fetching trackings:", trackingsError.message);
     } else {
+      console.log("Fetched Trackings:", trackingsData);
       setTrackingData(trackingsData);
     }
   };
@@ -132,8 +134,19 @@ export default function Summary() {
       updatedDate,
     });
   });
+
   const truncatedText = (text: string, maxLength: number) => {
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+  };
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement
+        .requestFullscreen()
+        .then(() => setIsFullScreen(true));
+    } else if (document.exitFullscreen) {
+      document.exitFullscreen().then(() => setIsFullScreen(false));
+    }
   };
   return (
     <Paper elevation={3} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8">
@@ -156,66 +169,68 @@ export default function Summary() {
               Order Statistics
             </Typography>
           </Box>
-          <div style={{ position: "relative" }} className="w-4/12 border-2 border-[#F4F4F7] rounded-md sm:w-2/12 md:w-3/12 lg:w-1/12">
-            {/* Input Field */}
-            <input
-              type="text"
-              value={
-                dateRange[0]?.startDate && dateRange[0]?.endDate
-                  ? `${dateRange[0].startDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })} - ${dateRange[0].endDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })}`
-                  : "Select a date range"
-              }
-              onFocus={() => setShowDatePicker(true)}
-              readOnly
-              className="p-2 w-full text-sm cursor-pointer focus-within:outline-none"
-            />
-
-            {/* Date Picker */}
-            {showDatePicker && (
-              <div
-                ref={datePickerRef}
-                style={{
-                  position: "absolute",
-                  zIndex: 1000,
-                  background: "white",
-                  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                  top: "100%", 
-                  left: 0,
-                }}
-              >
-                <DateRange
-                  ranges={dateRange}
-                  onChange={handleSelect}
-                  moveRangeOnFirstSelection={false}
-                  maxDate={new Date()}
-                />
-              </div>
-            )}
-          </div>
-          <Link href={"/shipments"}>
-            {" "}
-            <Button
-              variant="outlined"
-              endIcon={<GoArrowUpRight size={24} />}
-              className="!rounded-full"
-              sx={{
-                borderColor: "#f0edf5",
-                borderWidth: 2,
-                color: "#9A88BE",
-                textTransform: "initial",
-              }}
-            >
-              View All Summary
-            </Button>
-          </Link>
+          <Button
+            variant="outlined"
+            type="button"
+            className="!hidden !px-4 !py-1 !rounded-md !font-semibold gap-2 !capitalize md:!flex"
+            onClick={toggleFullScreen}
+            sx={{
+              border: "3px solid #EBEBEB",
+              boxShadow: "none",
+              backgroundColor: "transparent",
+              color: "#454545",
+            }}
+          >
+            <FullScreen />
+            {isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
+          </Button>
         </Box>
 
+        <Box
+          style={{ position: "relative" }}
+          className="w-4/12 border-2 border-[#F4F4F7] rounded-md sm:w-2/12 md:w-3/12 lg:w-1/12"
+        >
+          {/* Input Field */}
+          <input
+            type="text"
+            value={
+              dateRange[0]?.startDate && dateRange[0]?.endDate
+                ? `${dateRange[0].startDate.toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                  })} - ${dateRange[0].endDate.toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                  })}`
+                : "Select a date range"
+            }
+            onFocus={() => setShowDatePicker(true)}
+            readOnly
+            className="p-2 w-full text-sm cursor-pointer focus-within:outline-none"
+          />
+
+          {/* Date Picker */}
+          {showDatePicker && (
+            <div
+              ref={datePickerRef}
+              style={{
+                position: "absolute",
+                zIndex: 1000,
+                background: "white",
+                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                top: "100%",
+                left: 0,
+              }}
+            >
+              <DateRange
+                ranges={dateRange}
+                onChange={handleSelect}
+                moveRangeOnFirstSelection={false}
+                maxDate={new Date()}
+              />
+            </div>
+          )}
+        </Box>
         <Box className="flex gap-4 text-center justify-between overflow-auto mt-3 border-b-2 border-[#F4F4F7]">
           {dateLabels.map((day, index) => (
             <Typography
@@ -227,7 +242,7 @@ export default function Summary() {
           ))}
         </Box>
         {trackingData.length > 0 ? (
-          <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#d1d5db_1px,transparent_1px)] bg-[size:24%_100%]">
+          <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#d1d5db_1px,transparent_1px)] bg-[size:10%_100%]">
             {/* Shipment Items */}
             {trackingData.map((data, i) => {
               const createdIndex = dateLabels.indexOf(
@@ -311,6 +326,7 @@ export default function Summary() {
                             (1000 * 3600 * 24)
                         );
                       }
+
                       daysGap = Math.max(0, daysGap);
 
                       return `${daysGap} days`;
@@ -341,6 +357,7 @@ export default function Summary() {
                       : data.status === "FAILURE"
                       ? "Failed"
                       : "Unknown"}
+                    `;
                   </Typography>
                 </Box>
               );
