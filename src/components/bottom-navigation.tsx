@@ -53,7 +53,7 @@ export default function LabelBottomNavigation({route}:LabelBottomNavigationProps
       ),
     },
     {
-      value: "/shipment",
+      value: "/shipments",
       icon: (
         <ShipmentIcon
           width={20}

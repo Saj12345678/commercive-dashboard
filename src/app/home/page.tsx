@@ -13,6 +13,7 @@ import "./home.css";
 import Summary from "@/components/Summary";
 import { useStoreContext } from "@/context/StoreContext";
 import Image from "next/image";
+import { CiCalendar } from "react-icons/ci";
 
 interface InventoryData {
   image: string;
@@ -274,7 +275,7 @@ export default function Home() {
         .gte("created_at", formattedStartDate)
         .lt("created_at", formattedEndDate)
         .eq("store_name", storeName); // Add the condition to filter by store_name
-        
+
       const { data: pastWeekOrders, error: pastWeekError } = await supabase
         .from("order")
         .select("*")
@@ -494,7 +495,7 @@ export default function Home() {
     <>
       <main
         // style={{ height: "calc(100vh - 70px)" }}
-        className="flex flex-col h-screen max-h-screen w-full gap-5 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
+        className="flex flex-col h-full max-h-full w-full gap-5 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
         {loading && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -546,9 +547,17 @@ export default function Home() {
                 }
                 onFocus={() => setShowCurrentDateRange(true)} // Show on focus
                 readOnly
-                className="border p-2 w-full text-sm cursor-pointer"
+                className="border p-2 pl-8 w-full text-sm cursor-pointer"
               />
-
+              <CiCalendar
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  zIndex: 1,
+                }}
+              />
               {/* Date Picker - Show/Hide Based on State */}
               {showCurrentDateRange && (
                 <div
@@ -585,9 +594,17 @@ export default function Home() {
                 }
                 onFocus={() => setShowCompareDateRange(true)} // Show on focus
                 readOnly
-                className="border p-2 w-full text-sm cursor-pointer"
+                className="border p-2 pl-8 w-full text-sm cursor-pointer"
               />
-
+              <CiCalendar
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  zIndex: 1,
+                }}
+              />
               {/* Date Picker - Show/Hide Based on State */}
               {showCompareDateRange && (
                 <div
@@ -609,7 +626,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <input
               type="checkbox"
               id="auto-refresh"
@@ -623,7 +640,7 @@ export default function Home() {
             >
               Auto-Refresh
             </label>
-          </div>
+          </div> */}
         </div>
 
         <div className="flex min-h-[165px] flex-row overflow-auto whitespace-nowrap custom-scrollbar">
@@ -631,14 +648,14 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 w-full">
-          <div className="flex-1 bg-white border-2 border-[#EBEBEB] rounded-lg shadow-lg overflow-auto custom-scrollbar">
+          <div className="flex-1 bg-white border-2 border-[#EBEBEB] rounded-lg shadow-lg lg:w-[50%]">
             <Inventory data={inventoryData} />
           </div>
-          <div className="flex-1 bg-white border-2 border-[#EBEBEB] rounded-lg shadow-lg overflow-auto custom-scrollbar">
+          <div className="flex-1 bg-white border-2 border-[#EBEBEB] rounded-lg shadow-lg lg:w-[50%]">
             <Summary />
           </div>
         </div>
-        <div className="flex gap-4 w-full px-4 py-6 sm:px-6 sm:py-8 bg-white border border-white rounded-lg shadow-lg">
+        <div className="flex gap-4 w-full px-4 py-6 mb-6 sm:px-6 sm:py-8 bg-white border border-white rounded-lg shadow-lg">
           <div className="bg-white rounded-lg flex items-center gap-2">
             <Image
               src={"/svgs/Forecast.svg"}

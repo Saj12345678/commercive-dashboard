@@ -9,6 +9,7 @@ import "react-date-range/dist/theme/default.css";
 import { useStoreContext } from "@/context/StoreContext";
 import { createClient } from "@/app/utils/supabase/client";
 import Link from "next/link";
+import { CiCalendar } from "react-icons/ci";
 
 type TransactionItem = {
   id: string;
@@ -52,10 +53,27 @@ export default function Summary() {
   const formatDateLabel = (date: Date) =>
     date.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit" });
 
-  const generateDateLabels = (start: Date, end: Date) => {
+  const generateDateLabels = (
+    start: string | number | Date,
+    end: string | number | Date,
+    trackingData: any[]
+  ) => {
     const labels = [];
     let currentDate = new Date(start);
-    while (currentDate <= end) {
+
+    const maxUpdatedDate = trackingData.reduce(
+      (maxDate: Date, item: { updated_at: string | number | Date }) => {
+        const updatedDate = new Date(item.updated_at);
+        return updatedDate.getTime() > maxDate.getTime()
+          ? updatedDate
+          : maxDate;
+      },
+      new Date(end)
+    );
+
+    const finalEndDate = maxUpdatedDate > end ? maxUpdatedDate : end;
+
+    while (currentDate <= finalEndDate) {
       labels.push(formatDateLabel(new Date(currentDate)));
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -118,7 +136,8 @@ export default function Summary() {
 
   const dateLabels = generateDateLabels(
     dateRange[0].startDate,
-    dateRange[0].endDate
+    dateRange[0].endDate,
+    trackingData
   );
   const trackingsByDate: { [key: string]: any[] } = {};
   trackingData.forEach((tracking) => {
@@ -132,14 +151,9 @@ export default function Summary() {
       updatedDate,
     });
   });
-  const truncatedText = (text: string, maxLength: number) => {
-    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
-  };
   return (
     <Paper elevation={3} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8">
-      <div className="bg-white">
-        <Box className="flex flex-col gap-2 md:gap-2 sm:flex-row justify-between sm:items-center mb-4">
-          <Box className="flex gap-2 items-center">
+        <div className="w-full flex flex-col gap-2 md:gap-2 sm:flex-row justify-between sm:items-center mb-4">
             <Typography
               variant="h5"
               fontWeight="bold"
@@ -152,12 +166,13 @@ export default function Summary() {
                 },
               }}
             >
-              <OrderIcon width={20} height={20} color={"#4f11c9"} />
+              <OrderIcon width={24} height={24} color={"#4f11c9"} />
               Order Statistics
             </Typography>
-          </Box>
-          <div style={{ position: "relative" }} className="w-4/12 border-2 border-[#F4F4F7] rounded-md sm:w-2/12 md:w-3/12 lg:w-1/12">
-            {/* Input Field */}
+          <div
+            style={{ position: "relative" }}
+            className="flex flex-col md:flex-row gap-2"
+          >
             <input
               type="text"
               value={
@@ -173,10 +188,17 @@ export default function Summary() {
               }
               onFocus={() => setShowDatePicker(true)}
               readOnly
-              className="p-2 w-full text-sm cursor-pointer focus-within:outline-none"
+              className="border p-2 pl-8 w-full text-sm cursor-pointer focus-within:outline-none"
             />
-
-            {/* Date Picker */}
+            <CiCalendar
+              style={{
+                position: "absolute",
+                left: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 1,
+              }}
+            />
             {showDatePicker && (
               <div
                 ref={datePickerRef}
@@ -185,7 +207,7 @@ export default function Summary() {
                   zIndex: 1000,
                   background: "white",
                   boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                  top: "100%", 
+                  top: "100%",
                   left: 0,
                 }}
               >
@@ -211,12 +233,12 @@ export default function Summary() {
                 textTransform: "initial",
               }}
             >
-              View All Summary
+              View Full Summary
             </Button>
           </Link>
-        </Box>
+        </div>
 
-        <Box className="flex gap-4 text-center justify-between overflow-auto mt-3 border-b-2 border-[#F4F4F7]">
+        <Box className="flex gap-4 text-center justify-between overflow-auto mt-3 border-b-4 border-[#F4F4F7]">
           {dateLabels.map((day, index) => (
             <Typography
               key={index}
@@ -227,7 +249,7 @@ export default function Summary() {
           ))}
         </Box>
         {trackingData.length > 0 ? (
-          <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#d1d5db_1px,transparent_1px)] bg-[size:24%_100%]">
+          <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#F4F4F7_4px,transparent_1px)] bg-[size:24%_100%]">
             {/* Shipment Items */}
             {trackingData.map((data, i) => {
               const createdIndex = dateLabels.indexOf(
@@ -240,11 +262,11 @@ export default function Summary() {
               return (
                 <Box
                   key={i}
-                  className={`p-3 ${
+                  className={`px-3 pt-2 ${
                     data.status === "PENDING" ? "bg-[#FFECD6]" : "bg-[#E8ECFE]"
-                  } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap`}
+                  } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
                   style={{
-                    top: `${i * 60}px`,
+                    top: `${i * 55}px`,
                     left: `${(createdIndex / dateLabels.length) * 100}%`,
                     width: `${(colSpan / dateLabels.length) * 100}%`,
                     gap: "2rem",
@@ -266,11 +288,63 @@ export default function Summary() {
                     )}
                     {data.tracking_company === "USPS" && (
                       <Image
-                        src="/icons/Layer.png"
-                        alt="dhl"
+                        src="/icons/usps.png"
+                        alt="usps"
                         width={24}
                         height={22}
-                        className="w-[24px] h-[20px]"
+                        className="w-[24px] h-[24px]"
+                      />
+                    )}
+                    {data.tracking_company === "SDH" && (
+                      <Image
+                        src="/icons/sdh.png"
+                        alt="sdh"
+                        width={24}
+                        height={22}
+                        className="w-[24px] h-[24px]"
+                      />
+                    )}
+                    {data.tracking_company === "UPS" && (
+                      <Image
+                        src="/svgs/ups-icon.svg"
+                        alt="ups"
+                        width={24}
+                        height={22}
+                        className="w-[24px] h-[24px]"
+                      />
+                    )}
+                    {data.tracking_company === "YANWEN" && (
+                      <Image
+                        src="/svgs/yanwen.svg"
+                        alt="yanwen"
+                        width={24}
+                        height={22}
+                        className="w-[24px] h-[24px]"
+                      />
+                    )}
+                    {data.tracking_company === "Yun Express" && (
+                      <Image
+                        src="/svgs/yun-express.svg"
+                        alt="yun-express"
+                        width={24}
+                        height={22}
+                        className="w-[24px] h-[24px]"
+                      />
+                    )}
+                    {![
+                      "DHL Express",
+                      "USPS",
+                      "SDH",
+                      "UPS",
+                      "YANWEN",
+                      "Yun Express",
+                    ].includes(data.tracking_company) && (
+                      <Image
+                        src="/icons/layer.png"
+                        alt="default-logo"
+                        width={24}
+                        height={22}
+                        className="w-[24px] h-[24px]"
                       />
                     )}
                     <Chip
@@ -279,12 +353,6 @@ export default function Summary() {
                       className="text-sm !bg-transparent text-yellow-600"
                     />
                   </Box>
-                  <Typography className="text-sm text-gray-500">•</Typography>
-                  <Tooltip title={data.store_location} arrow>
-                    <Typography className="text-sm text-gray-500 ml-2 text-nowrap text-ellipsis max-w-[100px]">
-                      {truncatedText(data.store_location, 10)}
-                    </Typography>
-                  </Tooltip>
                   <Typography className="text-sm text-gray-500">•</Typography>
                   <Typography>
                     {(() => {
@@ -298,7 +366,7 @@ export default function Summary() {
 
                       let daysGap = 0;
 
-                      if (data.status === "FAILURE") {
+                      if (data.status === "FAILURE" || data.status === "ERROR" || data.status === "CANCELLED") {
                         daysGap = 0;
                       } else if (data.status === "SUCCESS") {
                         daysGap = Math.floor(
@@ -351,7 +419,6 @@ export default function Summary() {
             No Data Available
           </Box>
         )}
-      </div>
     </Paper>
   );
 }

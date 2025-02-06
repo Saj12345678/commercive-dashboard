@@ -1,10 +1,11 @@
-'use client'
-import React, { useState } from "react";
+"use client";
+import React, { useState, useEffect } from "react";
 import LogoIcon from "./images/full-logo";
 import Logo from "./images/logo";
-import { Avatar } from "@mui/material";
-import { Menu, MenuItem } from "@mui/material";
+import { Avatar, Menu, MenuItem } from "@mui/material";
 import Image from "next/image";
+import { createClient } from "@/app/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 export interface HeaderProps {
   toggleSidebar?: any;
@@ -12,6 +13,22 @@ export interface HeaderProps {
 
 const Header = ({ toggleSidebar }: HeaderProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const supabase = createClient();
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error("Error fetching current user:", error.message);
+      } else {
+        setUserEmail(data.user?.email || null);
+      }
+    };
+
+    fetchCurrentUser();
+  }, [supabase]);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -19,6 +36,12 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+      router.push("/login");
+    }
   };
 
   return (
@@ -52,18 +75,57 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
             alt="down-arrow"
           />
         </div>
-        {/* <Menu
+        <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleClose}
           MenuListProps={{
             "aria-labelledby": "basic-button",
           }}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "left",
+          }}
+          slotProps={{
+            paper: {
+              sx: {
+                width: 200,
+                marginTop: 1,
+              },
+            },
+          }}
         >
-          <MenuItem onClick={handleClose}>Profile</MenuItem>
-          <MenuItem onClick={handleClose}>My Account</MenuItem>
-          <MenuItem onClick={handleClose}>Logout</MenuItem>
-        </Menu> */}
+          <MenuItem
+            onClick={handleClose}
+            className={`${
+              userEmail
+                ? "bg-[#F3E8FF] hover:bg-[#D1B7F2] active:bg-[#D1B7F2]"
+                : "bg-[#F9F9FF] hover:bg-[#E1E1E1] active:bg-[#D0D0D0]"
+            }`}
+            sx={{
+              "&.Mui-focusVisible": {
+                backgroundColor: "transparent",
+              },
+            }}
+          >
+            {userEmail ? userEmail : "Not Logged In"}
+          </MenuItem>
+          <MenuItem
+            onClick={handleLogout}
+            className="hover:bg-[#E1E1E1] active:bg-[#D0D0D0]"
+            sx={{
+              "&.Mui-focusVisible": {
+                backgroundColor: "transparent",
+              },
+            }}
+          >
+            Logout
+          </MenuItem>
+        </Menu>
       </div>
     </div>
   );

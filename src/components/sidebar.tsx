@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar, Button, Tooltip } from "@mui/material";
@@ -91,6 +91,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [tooltipMessage, setTooltipMessage] = useState("");
   const [showStoreData, setShowStoreData] = useState(false);
   const storeName = selectedStore ? selectedStore.label : null;  
+  const dropdownRef = useRef<HTMLDivElement>(null);  
 
   const sidebarData = pathName?.includes("/admin") ? adminData : data
 
@@ -99,15 +100,29 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   // };
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  // const handleClose = () => {
+  //   setAnchorEl(null);
+  // };
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
 
     setIsCollapsed(!isCollapsed);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: { target: any; }) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowStoreData(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     // setAnchorEl(event.currentTarget); // Keeps the Menu functionality intact
@@ -135,12 +150,12 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
-      router.push("/login");
-    }
-  };
+  // const handleLogout = async () => {
+  //   const { error } = await supabase.auth.signOut();
+  //   if (!error) {
+  //     router.push("/login");
+  //   }
+  // };
 
   const generateNameFromEmail = (email: string) => {
     if (!email || typeof email !== 'string') {
@@ -283,7 +298,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               }`}
             >
               <div className={`flex w-full ${isCollapsed && "hidden"}`}>
-                <div className="flex w-full gap-2 items-center">
+                <div className="flex w-full gap-2 items-center cursor-pointer" onClick={toggleSidebar}>
                   <Avatar
                     alt="User Avatar"
                     sx={{
@@ -338,7 +353,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               </div>
             </div>}
             {showStoreData && !isCollapsed && (
-              <div className="w-full border rounded shadow-lg absolute top-[78px] ">
+              <div ref={dropdownRef} className="w-full border rounded shadow-lg absolute top-[78px] ">
                 <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar cursor-pointer">
                 {storeData && storeData.length > 0 ? (
                   storeData.map((store, index) => (
@@ -348,7 +363,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     onClick={() => handleStoreSelect(store)} // Select store on click
                   >
                     <p>{store.label == "satish-dev" ? "Golf Pro" : store.label}</p> 
-                    <IoIosMore scale={20} className="cursor-pointer"/>
+                    {/* <IoIosMore scale={20} className="cursor-pointer"/> */}
                   </div>
                  ))
                ) : (
@@ -528,31 +543,31 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 </div>
               </div>}
               {showStoreData && !isCollapsed && (
-              <div className="w-[275px] border rounded shadow-lg absolute top-24">
-                <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar cursor-pointer">
-                {storeData && storeData.length > 0 ? (
-                  storeData.map((store, index) => (
-                    <div
-                    key={index}
+                <div  ref={dropdownRef} className="w-[275px] border rounded shadow-lg absolute top-24 left-3 z-[100] bg-white">
+                  <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar cursor-pointer">
+                    {storeData && storeData.length > 0 ? (
+                      storeData.map((store, index) => (
+                        <div
+                          key={index}
                     className={`flex justify-between items-center p-3 border-b ${store.label === storeName ? 'bg-[#F3E8FF] hover:bg-none' : 'bg-[#F9F9FF] hover:bg-[#F9F9FF]'}`}
                     onClick={() => handleStoreSelect(store)} // Select store on click
-                  >
-                    <p>{store.label}</p> 
-                    <IoIosMore scale={20} className="cursor-pointer"/>
+                        >
+                          <p>{store.label}</p>
+                    {/* <IoIosMore scale={20} className="cursor-pointer"/> */}
+                        </div>
+                      ))
+                    ) : (
+                      <p className="p-4">No stores available.</p>
+                    )}
                   </div>
-                 ))
-               ) : (
-                 <p className="p-4">No stores available.</p>
-               )}
-               </div>
-               <div
-                  className="p-3 cursor-pointer bg-white hover:bg-[#f9f9ff] border-t"
+                  <div
+                    className="p-3 cursor-pointer bg-white hover:bg-[#f9f9ff] border-t"
                   onClick={() => handleAddStore()} // Call function to add a store
-                >
+                  >
                   <p className="flex items-center gap-1 text-[#4F12CA]"><span><FiPlus size={20} /></span> Connect new store</p>
+                  </div>
                 </div>
-             </div>
-            )}
+              )}
               {/* <CustomSelection
                 className="rounded-[8px] cursor-pointer"
                 placeholder={"Select store"}

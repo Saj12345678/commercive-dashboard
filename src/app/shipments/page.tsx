@@ -1,7 +1,7 @@
 "use client";
 import { Box, Typography, Chip, Paper, Tooltip, Button } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link"
+import Link from "next/link";
 import OrderIcon from "../../components/images/order";
 import Image from "next/image";
 import { DateRange } from "react-date-range";
@@ -10,6 +10,7 @@ import "react-date-range/dist/theme/default.css";
 import { useStoreContext } from "@/context/StoreContext";
 import { createClient } from "@/app/utils/supabase/client";
 import FullScreen from "@/components/images/full-screen";
+import { CiCalendar } from "react-icons/ci";
 
 type TransactionItem = {
   id: string;
@@ -35,7 +36,7 @@ export default function Shipment() {
   const getStartOfWeek = () => {
     const now = new Date();
     const dayOfWeek = now.getDay();
-    const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+    const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -9 : 1);
     return new Date(now.setDate(diff));
   };
 
@@ -55,10 +56,24 @@ export default function Shipment() {
   const formatDateLabel = (date: Date) =>
     date.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit" });
 
-  const generateDateLabels = (start: Date, end: Date) => {
+  const generateDateLabels = ( start: string | number | Date,
+    end: string | number | Date,
+    trackingData: any[]) => {
     const labels = [];
     let currentDate = new Date(start);
-    while (currentDate <= end) {
+    const maxUpdatedDate = trackingData.reduce(
+      (maxDate: Date, item: { updated_at: string | number | Date }) => {
+        const updatedDate = new Date(item.updated_at);
+        return updatedDate.getTime() > maxDate.getTime()
+          ? updatedDate
+          : maxDate;
+      },
+      new Date(end)
+    );
+
+    const finalEndDate = maxUpdatedDate > end ? maxUpdatedDate : end;
+
+    while (currentDate <= finalEndDate) {
       labels.push(formatDateLabel(new Date(currentDate)));
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -97,7 +112,6 @@ export default function Shipment() {
     if (trackingsError) {
       console.error("Error fetching trackings:", trackingsError.message);
     } else {
-      console.log("Fetched Trackings:", trackingsData);
       setTrackingData(trackingsData);
     }
   };
@@ -122,8 +136,10 @@ export default function Shipment() {
 
   const dateLabels = generateDateLabels(
     dateRange[0].startDate,
-    dateRange[0].endDate
+    dateRange[0].endDate,
+    trackingData
   );
+
   const trackingsByDate: { [key: string]: any[] } = {};
   trackingData.forEach((tracking) => {
     const createdDate = formatDateLabel(new Date(tracking.created_at));
@@ -136,10 +152,6 @@ export default function Shipment() {
       updatedDate,
     });
   });
-
-  const truncatedText = (text: string, maxLength: number) => {
-    return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
-  };
 
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
@@ -190,9 +202,8 @@ export default function Shipment() {
 
         <Box
           style={{ position: "relative" }}
-          className="w-4/12 border-2 border-[#F4F4F7] rounded-md sm:w-2/12 md:w-3/12 lg:w-1/12"
+          className="flex flex-col md:flex-row gap-2"
         >
-          {/* Input Field */}
           <input
             type="text"
             value={
@@ -208,10 +219,17 @@ export default function Shipment() {
             }
             onFocus={() => setShowDatePicker(true)}
             readOnly
-            className="p-2 w-full text-sm cursor-pointer focus-within:outline-none"
+            className="border p-2 pl-8 text-sm cursor-pointer focus-within:outline-none"
           />
-
-          {/* Date Picker */}
+          <CiCalendar
+            style={{
+              position: "absolute",
+              left: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              zIndex: 1,
+            }}
+          />
           {showDatePicker && (
             <div
               ref={datePickerRef}
@@ -233,7 +251,7 @@ export default function Shipment() {
             </div>
           )}
         </Box>
-        <Box className="flex gap-4 text-center justify-between overflow-auto mt-3 border-b-2 border-[#F4F4F7]">
+        <Box className="flex gap-4 text-center justify-between overflow-auto mt-3 border-b-4 border-[#F4F4F7]">
           {dateLabels.map((day, index) => (
             <Typography
               key={index}
@@ -244,11 +262,9 @@ export default function Shipment() {
           ))}
         </Box>
         {trackingData.length > 0 ? (
-          
-          <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#d1d5db_1px,transparent_1px)] bg-[size:10%_100%]">
+          <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#F4F4F7_4px,transparent_1px)] bg-[size:10%_100%]">
             {/* Shipment Items */}
             {trackingData.map((data, i) => {
-              console.log(data)
               const createdIndex = dateLabels.indexOf(
                 formatDateLabel(new Date(data.created_at))
               );
@@ -257,114 +273,165 @@ export default function Shipment() {
               );
               const colSpan = updatedIndex - createdIndex + 1;
               return (
-                <Link href={`/shipments/${data.order_id}`} key={data.id} passHref>
-                <Box
-                  key={i}
-                  className={`p-3 ${
-                    data.status === "PENDING" ? "bg-[#FFECD6]" : "bg-[#E8ECFE]"
-                  } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap`}
-                  style={{
-                    top: `${i * 60}px`,
-                    left: `${(createdIndex / dateLabels.length) * 100}%`,
-                    width: `${(colSpan / dateLabels.length) * 100}%`,
-                    gap: "2rem",
-                  }}
+                <Link
+                  href={`/shipments/${data.order_id}`}
+                  key={data.id}
+                  passHref
                 >
-                  <Typography className="text-sm text-gray-800">
-                    #{data.tracking_number}
-                  </Typography>
-                  <Typography className="text-sm text-gray-500">•</Typography>
-                  <Box className={"flex w-max gap-2"}>
-                    {data.tracking_company === "DHL Express" && (
-                      <Image
-                        src="/icons/dhl.png"
-                        alt="dhl"
-                        width={24}
-                        height={24}
-                        className="w-[24px] h-[24px]"
-                      />
-                    )}
-                    {data.tracking_company === "USPS" && (
-                      <Image
-                        src="/icons/Layer.png"
-                        alt="dhl"
-                        width={24}
-                        height={22}
-                        className="w-[24px] h-[20px]"
-                      />
-                    )}
-                    <Chip
-                      label={data.tracking_company}
-                      size="small"
-                      className="text-sm !bg-transparent text-yellow-600"
-                    />
-                  </Box>
-                  <Typography className="text-sm text-gray-500">•</Typography>
-                  <Tooltip title={data.store_location} arrow>
-                    <Typography className="text-sm text-gray-500 ml-2 text-nowrap text-ellipsis max-w-[100px]">
-                      {truncatedText(data.store_location, 10)}
-                    </Typography>
-                  </Tooltip>
-                  <Typography className="text-sm text-gray-500">•</Typography>
-                  <Typography>
-                    {(() => {
-                      const createdDate = new Date(data.created_at);
-                      const updatedDate = new Date(data.updated_at);
-                      const currentDate = new Date();
-
-                      createdDate.setHours(0, 0, 0, 0);
-                      updatedDate.setHours(0, 0, 0, 0);
-                      currentDate.setHours(0, 0, 0, 0);
-
-                      let daysGap = 0;
-
-                      if (data.status === "FAILURE") {
-                        daysGap = 0;
-                      } else if (data.status === "SUCCESS") {
-                        daysGap = Math.floor(
-                          (updatedDate.getTime() - createdDate.getTime()) /
-                            (1000 * 3600 * 24)
-                        );
-                      } else {
-                        daysGap = Math.floor(
-                          (currentDate.getTime() - createdDate.getTime()) /
-                            (1000 * 3600 * 24)
-                        );
-                      }
-
-                      daysGap = Math.max(0, daysGap);
-
-                      return `${daysGap} days`;
-                    })()}
-                  </Typography>
-                  <Typography className="text-sm text-gray-500">•</Typography>
-                  <Typography
-                    className={`text-sm ml-2 ${
-                      data.status === "SUCCESS"
-                        ? "text-green-600"
-                        : data.status === "PENDING" || data.status === "OPEN"
-                        ? "text-yellow-600"
-                        : data.status === "CANCELLED" ||
-                          data.status === "ERROR" ||
-                          data.status === "FAILURE"
-                        ? "text-red-600"
-                        : "text-gray-600"
-                    }`}
+                  <Box
+                    key={i}
+                    className={`px-3 pt-1 ${
+                      data.status === "PENDING"
+                        ? "bg-[#FFECD6]"
+                        : "bg-[#E8ECFE]"
+                    } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
+                    style={{
+                      top: `${i * 50}px`,
+                      left: `${(createdIndex / dateLabels.length) * 100}%`,
+                      width: `${(colSpan / dateLabels.length) * 100}%`,
+                      gap: "2rem",
+                    }}
                   >
-                    {data.status === "SUCCESS"
-                      ? "On-Time"
-                      : data.status === "PENDING" || data.status === "OPEN"
-                      ? "Pending"
-                      : data.status === "CANCELLED"
-                      ? "Cancelled"
-                      : data.status === "ERROR"
-                      ? "Error"
-                      : data.status === "FAILURE"
-                      ? "Failed"
-                      : "Unknown"}
-                    `;
-                  </Typography>
-                </Box>
+                    <Typography className="text-sm text-gray-800">
+                      #{data.tracking_number}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">•</Typography>
+                    <Box className={"flex w-max gap-2"}>
+                      {data.tracking_company === "DHL Express" && (
+                        <Image
+                          src="/icons/dhl.png"
+                          alt="dhl"
+                          width={24}
+                        height={24}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      {data.tracking_company === "USPS" && (
+                        <Image
+                          src="/icons/usps.png"
+                          alt="usps"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      {data.tracking_company === "SDH" && (
+                        <Image
+                          src="/icons/sdh.png"
+                          alt="sdh"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      {data.tracking_company === "UPS" && (
+                        <Image
+                          src="/svgs/ups-icon.svg"
+                          alt="ups"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      {data.tracking_company === "YANWEN" && (
+                        <Image
+                          src="/svgs/yanwen.svg"
+                          alt="yanwen"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      {data.tracking_company === "Yun Express" && (
+                        <Image
+                          src="/svgs/yun-express.svg"
+                          alt="yun-express"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      {![
+                        "DHL Express",
+                        "USPS",
+                        "SDH",
+                        "UPS",
+                        "YANWEN",
+                        "Yun Express",
+                      ].includes(data.tracking_company) && (
+                        <Image
+                          src="/icons/layer.png"
+                          alt="default-logo"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      <Chip
+                        label={data.tracking_company}
+                        size="small"
+                        className="text-sm !bg-transparent text-yellow-600"
+                      />
+                    </Box>
+                    <Typography className="text-sm text-gray-500">•</Typography>
+                    <Typography>
+                      {(() => {
+                        const createdDate = new Date(data.created_at);
+                        const updatedDate = new Date(data.updated_at);
+                        const currentDate = new Date();
+
+                        createdDate.setHours(0, 0, 0, 0);
+                        updatedDate.setHours(0, 0, 0, 0);
+                        currentDate.setHours(0, 0, 0, 0);
+
+                        let daysGap = 0;
+
+                        if (data.status === "FAILURE" || data.status === "ERROR" || data.status === "CANCELLED") {
+                          daysGap = 0;
+                        } else if (data.status === "SUCCESS") {
+                          daysGap = Math.floor(
+                            (updatedDate.getTime() - createdDate.getTime()) /
+                              (1000 * 3600 * 24)
+                          );
+                        } else {
+                          daysGap = Math.floor(
+                            (currentDate.getTime() - createdDate.getTime()) /
+                              (1000 * 3600 * 24)
+                          );
+                        }
+
+                        daysGap = Math.max(0, daysGap);
+
+                        return `${daysGap} days`;
+                      })()}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">•</Typography>
+                    <Typography
+                      className={`text-sm ml-2 ${
+                        data.status === "SUCCESS"
+                          ? "text-green-600"
+                          : data.status === "PENDING" || data.status === "OPEN"
+                          ? "text-yellow-600"
+                          : data.status === "CANCELLED" ||
+                            data.status === "ERROR" ||
+                            data.status === "FAILURE"
+                          ? "text-red-600"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {data.status === "SUCCESS"
+                        ? "On-Time"
+                        : data.status === "PENDING" || data.status === "OPEN"
+                        ? "Pending"
+                        : data.status === "CANCELLED"
+                        ? "Cancelled"
+                        : data.status === "ERROR"
+                        ? "Error"
+                        : data.status === "FAILURE"
+                        ? "Failed"
+                        : "Unknown"}
+                    </Typography>
+                  </Box>
                 </Link>
               );
             })}
