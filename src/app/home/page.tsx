@@ -145,9 +145,9 @@ export default function Home() {
       series: [0, 0, 0, 0, 0],
     },
     {
-      name: "Orders Needing Resolution",
-      amount: "12",
-      percentage: "3%",
+      name: "Total Sales",
+      amount: "0",
+      percentage: "0%",
       color: "#FFA451",
       bgColor: "#FFEBD6",
       series: [0, 0, 0, 0, 0],
@@ -161,12 +161,12 @@ export default function Home() {
       series: [0, 0, 0, 0, 0],
     },
     {
-      name: "Backordered Items",
-      amount: "35",
-      percentage: "4%",
+      name: "Fulfilled Orders",
+      amount: "0",
+      percentage: "0%",
       color: "#7A94F6",
       bgColor: "#DDE4FC",
-      series: [25, 30, 22, 40, 55],
+      series: [0, 0, 0, 0, 0],
     },
   ]);
   const [inventoryData, setInventoryData] = useState<InventoryData[]>([]);
@@ -318,6 +318,10 @@ export default function Home() {
           (data) => data.financial_status.trim().toLowerCase() === "paid"
         );
 
+        const fulfillRecords = orderData.filter(
+          (data) => data.fulfillment_status.trim().toLowerCase() === "fulfilled"
+        );
+
         const totalEarningsChart = groupAndSumByDate(paidRecords);
         const totalEarning = getTotalsBetweenDates({
           chartData: totalEarningsChart,
@@ -374,6 +378,12 @@ export default function Home() {
                 percentage: percentage,
               };
             }
+            if (item.name === "Total Sales") {
+              return {
+                ...item,
+                amount: paidRecords.length,
+              };
+            }
             if (item.name === "Total Cost") {
               return {
                 ...item,
@@ -382,24 +392,11 @@ export default function Home() {
                 percentage: totalEarningsChange,
               };
             }
-            if (item.name === "Unfulfilled Orders") {
-              const currentWeekCount = filteredData?.length || 0;
-              const pastWeekCount = filteredPastTrackingData?.length || 0;
-              let percentage;
-
-              if (pastWeekCount === 0) {
-                percentage = currentWeekCount > 0 ? "100%" : "0%";
-              } else {
-                percentage =
-                  ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
-                percentage = `${percentage.toFixed(2)}%`;
-              }
+            if (item.name === "Fulfilled Orders") {
 
               return {
                 ...item,
-                amount: currentWeekCount,
-                series: groupedCounts,
-                percentage: percentage,
+                amount: fulfillRecords,
               };
             }
             return item;
