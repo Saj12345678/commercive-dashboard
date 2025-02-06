@@ -56,9 +56,11 @@ export default function Shipment() {
   const formatDateLabel = (date: Date) =>
     date.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit" });
 
-  const generateDateLabels = ( start: string | number | Date,
+  const generateDateLabels = (
+    start: string | number | Date,
     end: string | number | Date,
-    trackingData: any[]) => {
+    trackingData: any[]
+  ) => {
     const labels = [];
     let currentDate = new Date(start);
     const maxUpdatedDate = trackingData.reduce(
@@ -272,166 +274,198 @@ export default function Shipment() {
                 formatDateLabel(new Date(data.updated_at))
               );
               const colSpan = updatedIndex - createdIndex + 1;
+
+              const tooltipContent = (
+                <div className="text-left">
+                  <p>
+                    <strong>SKU #:</strong> {data.tracking_number}
+                  </p>
+                  <p>
+                    <strong>Company:</strong> {data.tracking_company}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {data.status}
+                  </p>
+                </div>
+              );
+
               return (
                 <Link
                   href={`/shipments/${data.order_id}`}
                   key={data.id}
                   passHref
                 >
-                  <Box
-                    key={i}
-                    className={`px-3 pt-1 ${
-                      data.status === "PENDING"
-                        ? "bg-[#FFECD6]"
-                        : "bg-[#E8ECFE]"
-                    } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
-                    style={{
-                      top: `${i * 50}px`,
-                      left: `${(createdIndex / dateLabels.length) * 100}%`,
-                      width: `${(colSpan / dateLabels.length) * 100}%`,
-                      gap: "2rem",
-                    }}
-                  >
-                    <Typography className="text-sm text-gray-800">
-                      #{data.tracking_number}
-                    </Typography>
-                    <Typography className="text-sm text-gray-500">•</Typography>
-                    <Box className={"flex w-max gap-2"}>
-                      {data.tracking_company === "DHL Express" && (
-                        <Image
-                          src="/icons/dhl.png"
-                          alt="dhl"
-                          width={24}
-                        height={24}
-                          className="w-[24px] h-[24px]"
-                        />
-                      )}
-                      {data.tracking_company === "USPS" && (
-                        <Image
-                          src="/icons/usps.png"
-                          alt="usps"
-                          width={24}
-                          height={22}
-                          className="w-[24px] h-[24px]"
-                        />
-                      )}
-                      {data.tracking_company === "SDH" && (
-                        <Image
-                          src="/icons/sdh.png"
-                          alt="sdh"
-                          width={24}
-                          height={22}
-                          className="w-[24px] h-[24px]"
-                        />
-                      )}
-                      {data.tracking_company === "UPS" && (
-                        <Image
-                          src="/svgs/ups-icon.svg"
-                          alt="ups"
-                          width={24}
-                          height={22}
-                          className="w-[24px] h-[24px]"
-                        />
-                      )}
-                      {data.tracking_company === "YANWEN" && (
-                        <Image
-                          src="/svgs/yanwen.svg"
-                          alt="yanwen"
-                          width={24}
-                          height={22}
-                          className="w-[24px] h-[24px]"
-                        />
-                      )}
-                      {data.tracking_company === "Yun Express" && (
-                        <Image
-                          src="/svgs/yun-express.svg"
-                          alt="yun-express"
-                          width={24}
-                          height={22}
-                          className="w-[24px] h-[24px]"
-                        />
-                      )}
-                      {![
-                        "DHL Express",
-                        "USPS",
-                        "SDH",
-                        "UPS",
-                        "YANWEN",
-                        "Yun Express",
-                      ].includes(data.tracking_company) && (
-                        <Image
-                          src="/icons/layer.png"
-                          alt="default-logo"
-                          width={24}
-                          height={22}
-                          className="w-[24px] h-[24px]"
-                        />
-                      )}
-                      <Chip
-                        label={data.tracking_company}
-                        size="small"
-                        className="text-sm !bg-transparent text-yellow-600"
-                      />
-                    </Box>
-                    <Typography className="text-sm text-gray-500">•</Typography>
-                    <Typography>
-                      {(() => {
-                        const createdDate = new Date(data.created_at);
-                        const updatedDate = new Date(data.updated_at);
-                        const currentDate = new Date();
-
-                        createdDate.setHours(0, 0, 0, 0);
-                        updatedDate.setHours(0, 0, 0, 0);
-                        currentDate.setHours(0, 0, 0, 0);
-
-                        let daysGap = 0;
-
-                        if (data.status === "FAILURE" || data.status === "ERROR" || data.status === "CANCELLED") {
-                          daysGap = 0;
-                        } else if (data.status === "SUCCESS") {
-                          daysGap = Math.floor(
-                            (updatedDate.getTime() - createdDate.getTime()) /
-                              (1000 * 3600 * 24)
-                          );
-                        } else {
-                          daysGap = Math.floor(
-                            (currentDate.getTime() - createdDate.getTime()) /
-                              (1000 * 3600 * 24)
-                          );
-                        }
-
-                        daysGap = Math.max(0, daysGap);
-
-                        return `${daysGap} days`;
-                      })()}
-                    </Typography>
-                    <Typography className="text-sm text-gray-500">•</Typography>
-                    <Typography
-                      className={`text-sm ml-2 ${
-                        data.status === "SUCCESS"
-                          ? "text-green-600"
-                          : data.status === "PENDING" || data.status === "OPEN"
-                          ? "text-yellow-600"
-                          : data.status === "CANCELLED" ||
-                            data.status === "ERROR" ||
-                            data.status === "FAILURE"
-                          ? "text-red-600"
-                          : "text-gray-600"
-                      }`}
+                  <Tooltip title={tooltipContent} placement="top" arrow>
+                    <Box
+                      key={i}
+                      className={`px-3 pt-1 ${
+                        data.status === "PENDING"
+                          ? "bg-[#FFECD6]"
+                          : "bg-[#E8ECFE]"
+                      } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
+                      style={{
+                        top: `${i * 50}px`,
+                        left: `${(createdIndex / dateLabels.length) * 100}%`,
+                        width: `${(colSpan / dateLabels.length) * 100}%`,
+                        gap: "2rem",
+                      }}
                     >
-                      {data.status === "SUCCESS"
-                        ? "On-Time"
-                        : data.status === "PENDING" || data.status === "OPEN"
-                        ? "Pending"
-                        : data.status === "CANCELLED"
-                        ? "Cancelled"
-                        : data.status === "ERROR"
-                        ? "Error"
-                        : data.status === "FAILURE"
-                        ? "Failed"
-                        : "Unknown"}
-                    </Typography>
-                  </Box>
+                      <Typography className="text-sm text-gray-800">
+                        #{data.tracking_number}
+                      </Typography>
+                      <Typography className="text-sm text-gray-500">
+                        •
+                      </Typography>
+                      <Box className={"flex w-max gap-2"}>
+                        {data.tracking_company === "DHL Express" && (
+                          <Image
+                            src="/icons/dhl.png"
+                            alt="dhl"
+                            width={24}
+                            height={24}
+                            className="w-[24px] h-[24px]"
+                          />
+                        )}
+                        {data.tracking_company === "USPS" && (
+                          <Image
+                            src="/icons/usps.png"
+                            alt="usps"
+                            width={24}
+                            height={22}
+                            className="w-[24px] h-[24px]"
+                          />
+                        )}
+                        {data.tracking_company === "SDH" && (
+                          <Image
+                            src="/icons/sdh.png"
+                            alt="sdh"
+                            width={24}
+                            height={22}
+                            className="w-[24px] h-[24px]"
+                          />
+                        )}
+                        {data.tracking_company === "UPS" && (
+                          <Image
+                            src="/svgs/ups-icon.svg"
+                            alt="ups"
+                            width={24}
+                            height={22}
+                            className="w-[24px] h-[24px]"
+                          />
+                        )}
+                        {data.tracking_company === "YANWEN" && (
+                          <Image
+                            src="/svgs/yanwen.svg"
+                            alt="yanwen"
+                            width={24}
+                            height={22}
+                            className="w-[24px] h-[24px]"
+                          />
+                        )}
+                        {data.tracking_company === "Yun Express" && (
+                          <Image
+                            src="/svgs/yun-express.svg"
+                            alt="yun-express"
+                            width={24}
+                            height={22}
+                            className="w-[24px] h-[24px]"
+                          />
+                        )}
+                        {![
+                          "DHL Express",
+                          "USPS",
+                          "SDH",
+                          "UPS",
+                          "YANWEN",
+                          "Yun Express",
+                        ].includes(data.tracking_company) && (
+                          <Image
+                            src="/icons/Layer.png"
+                            alt="default-logo"
+                            width={24}
+                            height={22}
+                            className="w-[24px] h-[24px]"
+                          />
+                        )}
+                        <Chip
+                          label={data.tracking_company}
+                          size="small"
+                          className="text-sm !bg-transparent text-yellow-600"
+                        />
+                      </Box>
+                      <Typography className="text-sm text-gray-500">
+                        •
+                      </Typography>
+                      <Typography>
+                        {(() => {
+                          const createdDate = new Date(data.created_at);
+                          const updatedDate = new Date(data.updated_at);
+                          const currentDate = new Date();
+
+                          createdDate.setHours(0, 0, 0, 0);
+                          updatedDate.setHours(0, 0, 0, 0);
+                          currentDate.setHours(0, 0, 0, 0);
+
+                          let daysGap = 0;
+
+                          if (
+                            data.status === "FAILURE" ||
+                            data.status === "ERROR" ||
+                            data.status === "CANCELLED"
+                          ) {
+                            daysGap = 0;
+                          } else if (data.status === "SUCCESS") {
+                            daysGap = Math.floor(
+                              (updatedDate.getTime() - createdDate.getTime()) /
+                                (1000 * 3600 * 24)
+                            );
+                          } else if (
+                            updatedDate.getTime() === createdDate.getTime()
+                          ) {
+                            daysGap = 0;
+                          } else {
+                            daysGap = Math.floor(
+                              (currentDate.getTime() - createdDate.getTime()) /
+                                (1000 * 3600 * 24)
+                            );
+                          }
+
+                          daysGap = Math.max(0, daysGap);
+
+                          return `${daysGap} days`;
+                        })()}
+                      </Typography>
+                      <Typography className="text-sm text-gray-500">
+                        •
+                      </Typography>
+                      <Typography
+                        className={`text-sm ml-2 ${
+                          data.status === "SUCCESS"
+                            ? "text-green-600"
+                            : data.status === "PENDING" ||
+                              data.status === "OPEN"
+                            ? "text-yellow-600"
+                            : data.status === "CANCELLED" ||
+                              data.status === "ERROR" ||
+                              data.status === "FAILURE"
+                            ? "text-red-600"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        {data.status === "SUCCESS"
+                          ? "On-Time"
+                          : data.status === "PENDING" || data.status === "OPEN"
+                          ? "Pending"
+                          : data.status === "CANCELLED"
+                          ? "Cancelled"
+                          : data.status === "ERROR"
+                          ? "Error"
+                          : data.status === "FAILURE"
+                          ? "Failed"
+                          : "Unknown"}
+                      </Typography>
+                    </Box>
+                  </Tooltip>
                 </Link>
               );
             })}
