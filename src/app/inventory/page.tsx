@@ -165,6 +165,11 @@ export default function Inventory() {
 
     return (
         <Paper elevation={0} className="w-full px-4 py-6 sm:px-6 sm:py-8" style={{ height: "100%" }}>
+            {loading && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="loader"></div>
+                </div>
+            )}
             <div className="w-full flex flex-col gap-2 sm:flex-row justify-start sm:justify-between">
                 <Typography
                     variant="h5"

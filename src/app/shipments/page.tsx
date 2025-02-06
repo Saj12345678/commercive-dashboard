@@ -1,6 +1,7 @@
 "use client";
 import { Box, Typography, Chip, Paper, Tooltip, Button } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link"
 import OrderIcon from "../../components/images/order";
 import Image from "next/image";
 import { DateRange } from "react-date-range";
@@ -12,6 +13,7 @@ import FullScreen from "@/components/images/full-screen";
 
 type TransactionItem = {
   id: string;
+  order_id: string;
   tracking_company: string;
   tracking_number: string;
   status: string;
@@ -242,9 +244,11 @@ export default function Shipment() {
           ))}
         </Box>
         {trackingData.length > 0 ? (
+          
           <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#d1d5db_1px,transparent_1px)] bg-[size:10%_100%]">
             {/* Shipment Items */}
             {trackingData.map((data, i) => {
+              console.log(data)
               const createdIndex = dateLabels.indexOf(
                 formatDateLabel(new Date(data.created_at))
               );
@@ -253,6 +257,7 @@ export default function Shipment() {
               );
               const colSpan = updatedIndex - createdIndex + 1;
               return (
+                <Link href={`/shipments/${data.order_id}`} key={data.id} passHref>
                 <Box
                   key={i}
                   className={`p-3 ${
@@ -360,6 +365,7 @@ export default function Shipment() {
                     `;
                   </Typography>
                 </Box>
+                </Link>
               );
             })}
           </Box>
