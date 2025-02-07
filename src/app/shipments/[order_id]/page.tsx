@@ -63,6 +63,8 @@ const generateArcPath = (start: [number, number], end: [number, number]) => {
 export default function OrderDetails() {
     const supabase = createClient();
     const { selectedStore } = useStoreContext();
+    const {order_id} = useParams();
+    console.log(order_id)
     const [destination, setDestination] = useState<[number, number]>([0, 0]);
     const [storeLocation, setStoreLocation] = useState<[number, number]>([10, 10]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -76,7 +78,7 @@ export default function OrderDetails() {
             const { data: trackingData, error: trackingError } = await supabase
                 .from("trackings")
                 .select("*")
-                .eq("order_id", "6055369801926")
+                .eq("order_id", order_id)
                 .single();
 
             if (trackingError) throw trackingError;
@@ -96,7 +98,7 @@ export default function OrderDetails() {
             const { data: orderData, error: orderError } = await supabase
                 .from("order")
                 .select("*")
-                .eq("order_id", "6055369801926")
+                .eq("order_id", order_id)
                 .single();
 
             if (orderError) throw orderError;
