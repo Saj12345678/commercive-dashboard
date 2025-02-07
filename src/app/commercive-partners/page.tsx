@@ -25,6 +25,7 @@ import CustomButton from "@/components/ui/custom-button";
 import InputField from "@/components/ui/custom-inputfild";
 import { BsCopy } from "react-icons/bs";
 import { useRouter } from "next/navigation";
+import { CiCalendar } from "react-icons/ci";
 
 export default function CommercivePartners() {
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
@@ -309,10 +310,10 @@ export default function CommercivePartners() {
   };
 
   function getTotalsBetweenDates(data: any) {
-    const { chartData, formattedStartDateCurrent, formattedEndDateCurrent } = data;
+    const { chartData, formattedStartDate, formattedEndDate } = data;
 
-    const startDate = new Date(formattedStartDateCurrent);
-    const endDate = new Date(formattedEndDateCurrent);
+    const startDate = new Date(formattedStartDate);
+    const endDate = new Date(formattedEndDate);
 
     const totalsMap = new Map(
       chartData?.map((item: any) => [
@@ -463,14 +464,13 @@ export default function CommercivePartners() {
           formattedStartDate,
           formattedEndDate,
         });
-
         setChartData((prevData: any) => {
           return prevData.map((item: any) => {
             if (item.name === "Total Earnings") {
               return {
                 ...item,
                 amount: totalEarnings.toFixed(2),
-                series: totalEarning,
+                series: totalEarning.length > 0 ? totalEarning : [0,0,0,0,0],
                 percentage: totalEarningsChange
               };
             }
@@ -478,7 +478,7 @@ export default function CommercivePartners() {
               return {
                 ...item,
                 amount: pendingEarnings.toFixed(2),
-                series: pendingEarning,
+                series: pendingEarning.length > 0 ? pendingEarning : [0,0,0,0,0],
                 percentage: pendingEarningsChange
               };
             }
@@ -496,7 +496,7 @@ export default function CommercivePartners() {
               return {
                 ...item,
                 amount: currentWeekCount,
-                series: groupedCounts,
+                series: groupedCounts.length > 0 ? groupedCounts : [0,0,0,0,0],
                 percentage: percentage,
               };
             }
@@ -602,7 +602,7 @@ export default function CommercivePartners() {
           </Button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-0 sm:gap-3">
+        <div className="flex flex-col sm:flex-row justify-between">
           <div className="flex flex-col md:flex-row gap-2">
             <div style={{ position: "relative" }}>
               {/* Input Field */}
@@ -610,18 +610,33 @@ export default function CommercivePartners() {
                 type="text"
                 value={
                   currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
-                    ? `${currentDateRange[0].startDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })} - ${currentDateRange[0].endDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })}`
+                    ? `${currentDateRange[0].startDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )} - ${currentDateRange[0].endDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCurrentDateRange(true)} // Show on focus
                 readOnly
-                className="border p-2 w-full text-sm cursor-pointer"
+                className="border p-2 pl-8 w-full text-sm cursor-pointer"
+              />
+              <CiCalendar
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  zIndex: 1,
+                }}
               />
 
               {/* Date Picker - Show/Hide Based on State */}
@@ -649,18 +664,33 @@ export default function CommercivePartners() {
                 type="text"
                 value={
                   compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
-                    ? `${compareDateRange[0].startDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })} - ${compareDateRange[0].endDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })}`
+                    ? `${compareDateRange[0].startDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )} - ${compareDateRange[0].endDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCompareDateRange(true)} // Show on focus
                 readOnly
-                className="border p-2 w-full text-sm cursor-pointer"
+                className="border p-2 pl-8 w-full text-sm cursor-pointer"
+              />
+              <CiCalendar
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  zIndex: 1,
+                }}
               />
 
               {/* Date Picker - Show/Hide Based on State */}
@@ -926,8 +956,14 @@ export default function CommercivePartners() {
                     </div>
                   </Tooltip>
                 </div>
-                <p className="max-w-[500px] text-sm">Hey! I just started using this fantastic Order Tracking App that keeps me updated on all my deliveries. It’s super convenient and saves me so much time! If you sign up with my link, we both get exclusive discounts on our next orders. Check it out!
-                  <br />{referralLink}
+                <p className="max-w-[500px] text-sm">
+                  Hey! I just started using this fantastic Order Tracking App
+                  that keeps me updated on all my deliveries. It’s super
+                  convenient and saves me so much time! If you sign up with my
+                  link, we both get exclusive discounts on our next orders.
+                  Check it out!
+                  <br />
+                  {referralLink}
                 </p>
               </div>
             </div>

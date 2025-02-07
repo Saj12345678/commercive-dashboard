@@ -77,7 +77,7 @@ export default function FeatureCard({ data, page }: FeatureCardProps) {
                   <p className="text-[#B1B0B0]">compared to last week</p>
                 </div>
                 <div className="flex">
-                  <div className="block w-full h-full overflow-hidden max-w-[100px] md:max-w-[100px]">
+                  <div className="block w-full h-full overflow-hidden max-w-[200px]">
                     <SparklineChart
                       data={data.series}
                       stokeColor={data.color}
