@@ -50,8 +50,10 @@ export default function Summary() {
     },
   ]);
 
-  const formatDateLabel = (date: Date) =>
-    date.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit" });
+  const formatDateForLabels = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = { weekday: 'short', day: '2-digit', timeZone: 'UTC' };
+    return new Date(date).toLocaleDateString('en-US', options);
+  };
 
   const generateDateLabels = (
     start: string | number | Date,
@@ -74,7 +76,7 @@ export default function Summary() {
     const finalEndDate = maxUpdatedDate > end ? maxUpdatedDate : end;
 
     while (currentDate <= finalEndDate) {
-      labels.push(formatDateLabel(new Date(currentDate)));
+      labels.push(formatDateForLabels(new Date(currentDate)));
       currentDate.setDate(currentDate.getDate() + 1);
     }
     return labels;
@@ -141,8 +143,8 @@ export default function Summary() {
   );
   const trackingsByDate: { [key: string]: any[] } = {};
   trackingData.forEach((tracking) => {
-    const createdDate = formatDateLabel(new Date(tracking.created_at));
-    const updatedDate = formatDateLabel(new Date(tracking.updated_at));
+    const createdDate = formatDateForLabels(new Date(tracking.created_at));
+    const updatedDate = formatDateForLabels(new Date(tracking.updated_at));
 
     if (!trackingsByDate[createdDate]) trackingsByDate[createdDate] = [];
     trackingsByDate[createdDate].push({
@@ -151,6 +153,28 @@ export default function Summary() {
       updatedDate,
     });
   });
+
+  const calculateDaysGap = (data: { created_at: string; updated_at: string; status: string; }) => {
+    const createdDateStr = data.created_at.split("T")[0];
+    const updatedDateStr = data.updated_at.split("T")[0];
+  
+    const createdDate = new Date(createdDateStr);
+    const updatedDate = new Date(updatedDateStr);
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+  
+    let daysGap = 0;
+  
+    if (createdDate.getTime() === updatedDate.getTime()) {
+      daysGap = 0;
+    } else {
+      daysGap = Math.floor(
+        (updatedDate.getTime() - createdDate.getTime()) / (1000 * 3600 * 24)
+      );
+    }
+  
+    return `${Math.max(0, daysGap)} days`; 
+  };
   return (
     <Paper elevation={3} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8">
       <div className="w-full flex flex-col gap-2 md:gap-2 sm:flex-row justify-between sm:items-center mb-4">
@@ -249,16 +273,18 @@ export default function Summary() {
         ))}
       </Box>
       {trackingData.length > 0 ? (
-        <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#F4F4F7_4px,transparent_1px)] bg-[size:24%_100%]">
+        <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#F4F4F7_4px,transparent_1px)] bg-[size:18%_100%] overflow-hidden">
           {/* Shipment Items */}
           {trackingData.map((data, i) => {
             const createdIndex = dateLabels.indexOf(
-              formatDateLabel(new Date(data.created_at))
+              formatDateForLabels(new Date(data.created_at))
             );
             const updatedIndex = dateLabels.indexOf(
-              formatDateLabel(new Date(data.updated_at))
+              formatDateForLabels(new Date(data.updated_at))
             );
-            const colSpan = updatedIndex - createdIndex + 1;
+            let colSpan = updatedIndex - createdIndex + 1;
+            colSpan = colSpan <= 0 ? 1 : colSpan;
+            const daysGap = calculateDaysGap(data);
 
             const tooltipContent = (
               <div className="text-left">
@@ -271,6 +297,9 @@ export default function Summary() {
                 <p>
                   <strong>Status:</strong> {data.status}
                 </p>
+                <p>
+                  <strong>Days:</strong> {daysGap}
+                </p>
               </div>
             );
             return (
@@ -278,7 +307,7 @@ export default function Summary() {
                 <Tooltip title={tooltipContent} placement="top" arrow>
                   <Box
                     key={i}
-                    className={`px-3 pt-2 ${
+                    className={`px-3 pt-1 ${
                       data.status === "PENDING"
                         ? "bg-[#FFECD6]"
                         : "bg-[#E8ECFE]"
@@ -373,42 +402,7 @@ export default function Summary() {
                     </Box>
                     <Typography className="text-sm text-gray-500">•</Typography>
                     <Typography>
-                      {(() => {
-                        const createdDate = new Date(data.created_at);
-                        const updatedDate = new Date(data.updated_at);
-                        const currentDate = new Date();
-
-                        createdDate.setHours(0, 0, 0, 0);
-                        updatedDate.setHours(0, 0, 0, 0);
-                        currentDate.setHours(0, 0, 0, 0);
-
-                        let daysGap = 0;
-
-                        if (
-                          data.status === "FAILURE" ||
-                          data.status === "ERROR" ||
-                          data.status === "CANCELLED"
-                        ) {
-                          daysGap = 0;
-                        } else if (data.status === "SUCCESS") {
-                          daysGap = Math.floor(
-                            (updatedDate.getTime() - createdDate.getTime()) /
-                              (1000 * 3600 * 24)
-                          );
-                        } else if (
-                          updatedDate.getTime() === createdDate.getTime()
-                        ) {
-                          daysGap = 0;
-                        } else {
-                          daysGap = Math.floor(
-                            (currentDate.getTime() - createdDate.getTime()) /
-                              (1000 * 3600 * 24)
-                          );
-                        }
-                        daysGap = Math.max(0, daysGap);
-
-                        return `${daysGap} days`;
-                      })()}
+                      {calculateDaysGap(data)}
                     </Typography>
                     <Typography className="text-sm text-gray-500">•</Typography>
                     <Typography

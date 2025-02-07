@@ -53,8 +53,14 @@ export default function Shipment() {
     },
   ]);
 
-  const formatDateLabel = (date: Date) =>
-    date.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit" });
+  const formatDateLabel = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "short",
+      day: "2-digit",
+      timeZone: "UTC",
+    };
+    return new Date(date).toLocaleDateString("en-US", options);
+  };
 
   const generateDateLabels = (
     start: string | number | Date,
@@ -163,6 +169,32 @@ export default function Shipment() {
     } else if (document.exitFullscreen) {
       document.exitFullscreen().then(() => setIsFullScreen(false));
     }
+  };
+
+  const calculateDaysGap = (data: {
+    created_at: string;
+    updated_at: string;
+    status: string;
+  }) => {
+    const createdDateStr = data.created_at.split("T")[0];
+    const updatedDateStr = data.updated_at.split("T")[0];
+
+    const createdDate = new Date(createdDateStr);
+    const updatedDate = new Date(updatedDateStr);
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    let daysGap = 0;
+
+    if (createdDate.getTime() === updatedDate.getTime()) {
+      daysGap = 0;
+    } else {
+      daysGap = Math.floor(
+        (updatedDate.getTime() - createdDate.getTime()) / (1000 * 3600 * 24)
+      );
+    }
+
+    return `${Math.max(0, daysGap)} days`;
   };
   return (
     <Paper elevation={3} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8">
@@ -273,8 +305,9 @@ export default function Shipment() {
               const updatedIndex = dateLabels.indexOf(
                 formatDateLabel(new Date(data.updated_at))
               );
-              const colSpan = updatedIndex - createdIndex + 1;
-
+              let colSpan = updatedIndex - createdIndex + 1;
+              colSpan = colSpan <= 0 ? 1 : colSpan;
+              const daysGap = calculateDaysGap(data);
               const tooltipContent = (
                 <div className="text-left">
                   <p>
@@ -285,6 +318,9 @@ export default function Shipment() {
                   </p>
                   <p>
                     <strong>Status:</strong> {data.status}
+                  </p>
+                  <p>
+                    <strong>Days:</strong> {daysGap}
                   </p>
                 </div>
               );
@@ -396,45 +432,7 @@ export default function Shipment() {
                       <Typography className="text-sm text-gray-500">
                         •
                       </Typography>
-                      <Typography>
-                        {(() => {
-                          const createdDate = new Date(data.created_at);
-                          const updatedDate = new Date(data.updated_at);
-                          const currentDate = new Date();
-
-                          createdDate.setHours(0, 0, 0, 0);
-                          updatedDate.setHours(0, 0, 0, 0);
-                          currentDate.setHours(0, 0, 0, 0);
-
-                          let daysGap = 0;
-
-                          if (
-                            data.status === "FAILURE" ||
-                            data.status === "ERROR" ||
-                            data.status === "CANCELLED"
-                          ) {
-                            daysGap = 0;
-                          } else if (data.status === "SUCCESS") {
-                            daysGap = Math.floor(
-                              (updatedDate.getTime() - createdDate.getTime()) /
-                                (1000 * 3600 * 24)
-                            );
-                          } else if (
-                            updatedDate.getTime() === createdDate.getTime()
-                          ) {
-                            daysGap = 0;
-                          } else {
-                            daysGap = Math.floor(
-                              (currentDate.getTime() - createdDate.getTime()) /
-                                (1000 * 3600 * 24)
-                            );
-                          }
-
-                          daysGap = Math.max(0, daysGap);
-
-                          return `${daysGap} days`;
-                        })()}
-                      </Typography>
+                      <Typography>{calculateDaysGap(data)}</Typography>
                       <Typography className="text-sm text-gray-500">
                         •
                       </Typography>
