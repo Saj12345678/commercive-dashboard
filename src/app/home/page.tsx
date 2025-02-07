@@ -258,17 +258,6 @@ export default function Home() {
     setLoading(true);
 
     try {
-      // const { data: orderData, error: orderError } = await supabase
-      //   .from("order")
-      //   .select("*")
-      //   .gte("created_at", formattedStartDate)
-      //   .lt("created_at", formattedEndDate);
-
-      // const { data: pastWeekOrders, error: pastWeekError } = await supabase
-      //   .from("order")
-      //   .select("*")
-      //   .gte("created_at", formattedStartDatePast)
-      //   .lt("created_at", formattedEndDatePast);
       const { data: orderData, error: orderError } = await supabase
         .from("order")
         .select("*")
@@ -314,14 +303,21 @@ export default function Home() {
           0,
           "paid"
         );
+
         const paidRecords = orderData.filter(
           (data) => data.financial_status.trim().toLowerCase() === "paid"
         );
 
-        const fulfillRecords = orderData.filter(
-          (data) => data.fulfillment_status.trim().toLowerCase() === "fulfilled"
-        );
+        const pastWeekPaidRecords = pastWeekOrders?.filter((data) => data.financial_status.trim().toLowerCase() === "paid");
 
+        const fulfillRecords = orderData.filter(
+            (data) => data.fulfillment_status === "fulfilled"
+          );
+
+        const pastWeekFulfillRecords = pastWeekOrders?.filter(
+          (data) => data.fulfillment_status === "fulfilled"
+        );
+        
         const totalEarningsChart = groupAndSumByDate(paidRecords);
         const totalEarning = getTotalsBetweenDates({
           chartData: totalEarningsChart,
@@ -351,14 +347,40 @@ export default function Home() {
           return acc;
         }, {});
 
-        // Convert the grouped data into counts
         const groupedCounts = Object.values(groupedByDate).map(
           (group: any) => group.length
         );
 
+        const groupedByDateTotalSale = paidRecords.reduce((acc, item) => {
+          const date = item.created_at.split("T")[0];
+          if (!acc[date]) {
+            acc[date] = [];
+          }
+          acc[date].push(item);
+          return acc;
+        }, {});
+
+        const groupedCountsTotalSale = Object.values(groupedByDateTotalSale).map(
+          (group: any) => group.length
+        );
+
+        const groupedByDateFulfillOrder = fulfillRecords.reduce((acc, item) => {
+          const date = item.created_at.split("T")[0];
+          if (!acc[date]) {
+            acc[date] = [];
+          }
+          acc[date].push(item);
+          return acc;
+        }, {});
+
+        const groupedCountsFulfillOrder= Object.values(groupedByDateFulfillOrder).map(
+          (group: any) => group.length
+        );
+
+      
         setChartData((prevData: any) => {
           return prevData.map((item: any) => {
-            if (item.name === "Orders Needing Resolution") {
+            if (item.name === "Unfulfilled Orders") {
               const currentWeekCount = filteredData?.length || 0;
               const pastWeekCount = filteredPastTrackingData?.length || 0;
               let percentage;
@@ -374,29 +396,58 @@ export default function Home() {
               return {
                 ...item,
                 amount: currentWeekCount,
-                series: groupedCounts,
+                series: groupedCounts.length > 0 ? groupedCounts : [0,0,0,0,0],
                 percentage: percentage,
               };
             }
             if (item.name === "Total Sales") {
+
+              const currentWeekCount = paidRecords?.length || 0;
+              const pastWeekCount = pastWeekPaidRecords?.length || 0;
+              let percentage;
+
+              if (pastWeekCount === 0) {
+                percentage = currentWeekCount > 0 ? "100%" : "0%";
+              } else {
+                percentage =
+                  ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
+                percentage = `${percentage.toFixed(2)}%`;
+              }
+
               return {
                 ...item,
-                amount: paidRecords.length,
+                amount: currentWeekCount,
+                series: groupedCountsTotalSale.length > 0 ? groupedCountsTotalSale : [0,0,0,0,0],
+                percentage: percentage,
               };
             }
             if (item.name === "Total Cost") {
               return {
                 ...item,
                 amount: totalEarnings.toFixed(2),
-                series: totalEarning,
+                series: totalEarning.length > 0 ? totalEarning : [0,0,0,0,0],
                 percentage: totalEarningsChange,
               };
             }
             if (item.name === "Fulfilled Orders") {
 
+              const currentWeekCount = fulfillRecords?.length || 0;
+              const pastWeekCount = pastWeekFulfillRecords?.length || 0;
+              let percentage;
+
+              if (pastWeekCount === 0) {
+                percentage = currentWeekCount > 0 ? "100%" : "0%";
+              } else {
+                percentage =
+                  ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
+                percentage = `${percentage.toFixed(2)}%`;
+              }
+
               return {
                 ...item,
-                amount: fulfillRecords,
+                amount: currentWeekCount,
+                series: groupedCountsFulfillOrder.length > 0 ? groupedCountsFulfillOrder : [0,0,0,0,0],
+                percentage: percentage,
               };
             }
             return item;
@@ -641,7 +692,7 @@ export default function Home() {
         </div>
 
         <div className="flex min-h-[165px] flex-row overflow-auto whitespace-nowrap custom-scrollbar">
-          <FeatureCard data={chartData} />
+          <FeatureCard data={chartData} page={"home"}/>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 w-full">

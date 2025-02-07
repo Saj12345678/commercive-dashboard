@@ -14,8 +14,6 @@ function ErrorContent() {
     const code = searchParams.get("code");
     const msg = searchParams.get("msg");
 
-    console.log(code, "dd");
-
     if (code === "400") {
       toast.error(msg || "Something went wrong. Please try again.");
     }

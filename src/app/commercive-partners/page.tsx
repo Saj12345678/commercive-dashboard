@@ -686,7 +686,7 @@ export default function CommercivePartners() {
         </div>
 
         <div className="flex flex-row overflow-auto whitespace-nowrap custom-scrollbar">
-          <FeatureCard data={chartData} />
+          <FeatureCard data={chartData} page={"commercive"} />
         </div>
 
         <div className="flex w-full flex-col gap-3 py-2">

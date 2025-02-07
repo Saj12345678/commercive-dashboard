@@ -63,8 +63,6 @@ const generateArcPath = (start: [number, number], end: [number, number]) => {
 export default function OrderDetails() {
     const supabase = createClient();
     const { selectedStore } = useStoreContext();
-    const {order_id} = useParams();
-    console.log(order_id)
     const [destination, setDestination] = useState<[number, number]>([0, 0]);
     const [storeLocation, setStoreLocation] = useState<[number, number]>([10, 10]);
     const [loading, setLoading] = useState<boolean>(false);

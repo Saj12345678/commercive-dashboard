@@ -7,11 +7,11 @@ import { Button } from "@mui/material";
 
 export interface FeatureCardProps {
   data?: any;
+  page: any;
 }
 const amount = ["$100", "$500", "$100", "Max"];
 
-export default function FeatureCard({ data }: FeatureCardProps) {
-  console.log(data)
+export default function FeatureCard({ data, page }: FeatureCardProps) {
   const [isModalOpen, setModalOpen] = useState(false);
 
   const handleWithdrawalClick = () => {
@@ -32,9 +32,7 @@ export default function FeatureCard({ data }: FeatureCardProps) {
             <div className="flex w-full flex-col gap-8">
               <div className="flex w-full flex-wrap justify-between items-center">
                 <h2
-                  className={`text-[#454545] font-semibold ${
-                    index === 3 ? "mt-0" : "mt-3"
-                  }`}
+                  className={`text-[#454545] font-semibold ${page === "home" ? index === 3 ? "mt-3" : "mt-3" : page === "commercive" && index === 3 ? "mt-0" : "mt-3"}`}
                 >
                   {data.name}
                 </h2>
@@ -51,7 +49,8 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                 <div className="flex flex-1 flex-col gap-2">
                   <div className="flex gap-2 items-center">
                     <p className="font-semibold text-[#454545] text-[18px]">
-                      {index === 0 ? data.amount : "$" + data.amount}
+                      {page === "home" ? index === 2 ? "$" + data.amount : data.amount 
+                       : page === "commercive" && index === 0 ? data.amount : "$" + data.amount }
                     </p>
                     <div
                       className={`rounded-full w-[26px] h-[26px] flex justify-center items-center ${
@@ -78,7 +77,7 @@ export default function FeatureCard({ data }: FeatureCardProps) {
                   <p className="text-[#B1B0B0]">compared to last week</p>
                 </div>
                 <div className="flex">
-                  <div className="block w-full h-full overflow-hidden max-w-[120px]">
+                  <div className="block w-full h-full overflow-hidden max-w-[100px] md:max-w-[100px]">
                     <SparklineChart
                       data={data.series}
                       stokeColor={data.color}
