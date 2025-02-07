@@ -94,7 +94,6 @@ export default function OrderDetails() {
                 ]);
                 setTrackingData(trackingData);
             }
-
             const { data: orderData, error: orderError } = await supabase
                 .from("order")
                 .select("*")
