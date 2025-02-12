@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import * as turf from "@turf/turf";
 import { useParams } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
-import { Paper, LinearProgress, Box, Typography, Button } from "@mui/material";
+import { Paper, LinearProgress, Box, Typography, Button, Breadcrumbs } from "@mui/material";
 import { useStoreContext } from "@/context/StoreContext";
 import { createClient } from "../../utils/supabase/client";
 import "leaflet/dist/leaflet.css";
@@ -14,6 +14,7 @@ import {
   formatDistanceToNow,
 } from "date-fns";
 import { enGB } from "date-fns/locale";
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 // ✅ Dynamically Import Components to Fix SSR Issues
 const MapContainer = dynamic(
@@ -39,6 +40,7 @@ const Polyline = dynamic(
 import { useMap } from "react-leaflet";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 // ✅ Map styles
 const mapStyles = {
@@ -280,7 +282,19 @@ export default function OrderDetails() {
       });
     }
   };
-
+  const breadcrumbs = [
+    <Link
+      key="1"
+      color="inherit"
+      href="/shipments"
+      className="text-md"
+    >
+      Shipments
+    </Link>,
+    <Typography variant="body1" key="2" sx={{ color: '#969697' }}>
+      Order #{order_id}
+    </Typography>
+  ];
   return (
     <Box
       className="w-full px-4 py-6 sm:px-6 sm:py-8 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] overflow-y-auto custom-scrollbar"
@@ -291,6 +305,10 @@ export default function OrderDetails() {
           <LinearProgress />
         </div>
       )}
+      <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} className="pb-4"
+        aria-label="breadcrumb">
+        {breadcrumbs}
+      </Breadcrumbs>
       <Box className="pb-6">
         <Typography
           variant="h4"
@@ -298,7 +316,7 @@ export default function OrderDetails() {
             fontSize: {
               xs: "1rem",
               sm: "1.2rem",
-              md: "1.5rem",
+              md: "1.9rem",
             },
           }}
         >
