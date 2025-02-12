@@ -54,32 +54,20 @@ export default function Summary() {
     const options: Intl.DateTimeFormatOptions = { weekday: 'short', day: '2-digit', timeZone: 'UTC' };
     return new Date(date).toLocaleDateString('en-US', options);
   };
+  
 
-  const generateDateLabels = (
-    start: string | number | Date,
-    end: string | number | Date,
-    trackingData: any[]
-  ) => {
-    const labels = [];
-    let currentDate = new Date(start);
-
-    const maxUpdatedDate = trackingData.reduce(
-      (maxDate: Date, item: { updated_at: string | number | Date }) => {
-        const updatedDate = new Date(item.updated_at);
-        return updatedDate.getTime() > maxDate.getTime()
-          ? updatedDate
-          : maxDate;
-      },
-      new Date(end)
-    );
-
-    const finalEndDate = maxUpdatedDate > end ? maxUpdatedDate : end;
-
-    while (currentDate <= finalEndDate) {
-      labels.push(formatDateForLabels(new Date(currentDate)));
+  const generateDateLabels = (startDate: string | number | Date, endDate: number | Date) => {
+    const dateLabels = [];
+    let currentDate = new Date(startDate);
+  
+    while (currentDate <= endDate) {
+      const day = currentDate.getDate().toString().padStart(2, '0');
+      const weekday = currentDate.toLocaleDateString('en-US', { weekday: 'short' });
+      dateLabels.push(`${day} ${weekday}`);   
       currentDate.setDate(currentDate.getDate() + 1);
     }
-    return labels;
+  
+    return dateLabels;
   };
 
   const handleSelect = (ranges: any) => {
@@ -91,7 +79,6 @@ export default function Summary() {
     if (diffInDays > 6) {
       return;
     }
-
     setDateRange([ranges.selection]);
     setShowDatePicker(false);
   };
@@ -139,7 +126,6 @@ export default function Summary() {
   const dateLabels = generateDateLabels(
     dateRange[0].startDate,
     dateRange[0].endDate,
-    trackingData
   );
   const trackingsByDate: { [key: string]: any[] } = {};
   trackingData.forEach((tracking) => {
@@ -262,7 +248,7 @@ export default function Summary() {
         </Link>
       </div>
 
-      <Box className="flex gap-4 text-center justify-between overflow-auto mt-3 border-b-4 border-[#F4F4F7]">
+      <Box className="flex gap-4 text-center justify-between overflow-auto custom-scrollbar mt-3 border-b-4 border-[#F4F4F7]">
         {dateLabels.map((day, index) => (
           <Typography
             key={index}
@@ -273,17 +259,19 @@ export default function Summary() {
         ))}
       </Box>
       {trackingData.length > 0 ? (
-        <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#F4F4F7_4px,transparent_1px)] bg-[size:18%_100%] overflow-hidden">
+        <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#F4F4F7_4px,transparent_1px)] bg-[size:18%_100%] overflow-auto custom-scrollbar">
           {/* Shipment Items */}
           {trackingData.map((data, i) => {
+            const createdDateStr = data.created_at.split("T")[0];
+            const updatedDateStr = data.updated_at.split("T")[0];
             const createdIndex = dateLabels.indexOf(
-              formatDateForLabels(new Date(data.created_at))
+              formatDateForLabels(new Date(createdDateStr))
             );
             const updatedIndex = dateLabels.indexOf(
-              formatDateForLabels(new Date(data.updated_at))
+              formatDateForLabels(new Date(updatedDateStr))
             );
             let colSpan = updatedIndex - createdIndex + 1;
-            colSpan = colSpan <= 0 ? 1 : colSpan;
+            // colSpan = colSpan <= 0 ? 1 : colSpan;
             const daysGap = calculateDaysGap(data);
 
             const tooltipContent = (
@@ -303,7 +291,7 @@ export default function Summary() {
               </div>
             );
             return (
-              <>
+              <React.Fragment key={data.id}>
                 <Tooltip title={tooltipContent} placement="top" arrow>
                   <Box
                     key={i}
@@ -432,7 +420,7 @@ export default function Summary() {
                     </Typography>
                   </Box>
                 </Tooltip>
-              </>
+              </React.Fragment>
             );
           })}
         </Box>

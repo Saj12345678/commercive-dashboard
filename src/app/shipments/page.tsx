@@ -81,8 +81,10 @@ export default function Shipment() {
 
     const finalEndDate = maxUpdatedDate > end ? maxUpdatedDate : end;
 
-    while (currentDate <= finalEndDate) {
-      labels.push(formatDateLabel(new Date(currentDate)));
+    while (currentDate <= end) {
+      const day = currentDate.getDate().toString().padStart(2, '0');
+      const weekday = currentDate.toLocaleDateString('en-US', { weekday: 'short' });
+      labels.push(`${day} ${weekday}`);   
       currentDate.setDate(currentDate.getDate() + 1);
     }
     return labels;
@@ -296,17 +298,18 @@ export default function Shipment() {
           ))}
         </Box>
         {trackingData.length > 0 ? (
-          <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#F4F4F7_4px,transparent_1px)] bg-[size:10%_100%]">
+          <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#F4F4F7_4px,transparent_1px)] bg-[size:10%_100%] overflow-auto custom-scrollbar">
             {/* Shipment Items */}
             {trackingData.map((data, i) => {
+              const createdDateStr = data.created_at.split("T")[0];
+              const updatedDateStr = data.updated_at.split("T")[0];
               const createdIndex = dateLabels.indexOf(
-                formatDateLabel(new Date(data.created_at))
+                formatDateLabel(new Date(createdDateStr))
               );
               const updatedIndex = dateLabels.indexOf(
-                formatDateLabel(new Date(data.updated_at))
+                formatDateLabel(new Date(updatedDateStr))
               );
               let colSpan = updatedIndex - createdIndex + 1;
-              colSpan = colSpan <= 0 ? 1 : colSpan;
               const daysGap = calculateDaysGap(data);
               const tooltipContent = (
                 <div className="text-left">
@@ -333,14 +336,14 @@ export default function Shipment() {
                 >
                   <Tooltip title={tooltipContent} placement="top" arrow>
                     <Box
-                      key={i}
+                      key={data.id}
                       className={`px-3 pt-1 ${
                         data.status === "PENDING"
                           ? "bg-[#FFECD6]"
                           : "bg-[#E8ECFE]"
                       } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
                       style={{
-                        top: `${i * 50}px`,
+                        top: `${i * 55}px`,
                         left: `${(createdIndex / dateLabels.length) * 100}%`,
                         width: `${(colSpan / dateLabels.length) * 100}%`,
                         gap: "2rem",
