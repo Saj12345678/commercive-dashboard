@@ -71,7 +71,6 @@ const color = {
 const generateArcPath = (start: [number, number], end: [number, number]) => {
   const startLngLat: [number, number] = [start[1], start[0]];
   const endLngLat: [number, number] = [end[1], end[0]];
-
   const midpoint = turf.midpoint(startLngLat, endLngLat).geometry.coordinates;
   const arcHeightFactor = 0.2;
   const distance = turf.distance(startLngLat, endLngLat);
