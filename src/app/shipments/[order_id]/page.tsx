@@ -3,7 +3,14 @@ import dynamic from "next/dynamic";
 import * as turf from "@turf/turf";
 import { useParams } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
-import { Paper, LinearProgress, Box, Typography, Button, Breadcrumbs } from "@mui/material";
+import {
+  Paper,
+  LinearProgress,
+  Box,
+  Typography,
+  Button,
+  Breadcrumbs,
+} from "@mui/material";
 import { useStoreContext } from "@/context/StoreContext";
 import { createClient } from "../../utils/supabase/client";
 import "leaflet/dist/leaflet.css";
@@ -14,7 +21,7 @@ import {
   formatDistanceToNow,
 } from "date-fns";
 import { enGB } from "date-fns/locale";
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 // ✅ Dynamically Import Components to Fix SSR Issues
 const MapContainer = dynamic(
@@ -282,21 +289,16 @@ export default function OrderDetails() {
     }
   };
   const breadcrumbs = [
-    <Link
-      key="1"
-      color="inherit"
-      href="/shipments"
-      className="text-md"
-    >
+    <Link key="1" color="inherit" href="/shipments" className="text-md">
       Shipments
     </Link>,
-    <Typography variant="body1" key="2" sx={{ color: '#969697' }}>
+    <Typography variant="body1" key="2" sx={{ color: "#969697" }}>
       Order #{order_id}
-    </Typography>
+    </Typography>,
   ];
   return (
     <Box
-      className="w-full px-4 py-6 sm:px-6 sm:py-8 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] overflow-y-auto custom-scrollbar"
+      className="w-full px-4 py-6 sm:px-6 sm:py-8 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px]"
       style={{ height: "100%" }}
     >
       {loading && (
@@ -304,42 +306,6 @@ export default function OrderDetails() {
           <LinearProgress />
         </div>
       )}
-      <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} className="pb-4"
-        aria-label="breadcrumb">
-        {breadcrumbs}
-      </Breadcrumbs>
-      <Box className="pb-6">
-        <Typography
-          variant="h4"
-          sx={{
-            fontSize: {
-              xs: "1rem",
-              sm: "1.2rem",
-              md: "1.9rem",
-            },
-          }}
-        >
-          Shipment #{order_id}
-        </Typography>
-        <Typography
-          variant="h6"
-          sx={{
-            fontSize: {
-              xs: "1rem",
-              sm: "1.2rem",
-              md: "1rem",
-            },
-          }}
-        >
-          Started on{" "}
-          {orderData.created_at
-            ? format(
-                new Date(orderData.created_at),
-                "dd/MM/yyyy h:mm a"
-              ).toLowerCase()
-            : "—"}
-        </Typography>
-      </Box>
       {/* 🌟 Dropdown to Select Map Style */}
       <div className="mb-4">
         <label className="text-sm font-semibold">Select Map Style:</label>
@@ -397,6 +363,47 @@ export default function OrderDetails() {
             weight={1}
           />
         </MapContainer>
+        <Box className="absolute top-4 left-4" sx={{ zIndex: 1000 }}>
+          <Breadcrumbs
+            separator={<NavigateNextIcon fontSize="small" />}
+            className="pb-4"
+            aria-label="breadcrumb"
+          >
+            {breadcrumbs}
+          </Breadcrumbs>
+          <Box className="pb-6">
+            <Typography
+              variant="h4"
+              sx={{
+                fontSize: {
+                  xs: "1rem",
+                  sm: "1.2rem",
+                  md: "1.9rem",
+                },
+              }}
+            >
+              Shipment #{order_id}
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                fontSize: {
+                  xs: "1rem",
+                  sm: "1.2rem",
+                  md: "1rem",
+                },
+              }}
+            >
+              Started on{" "}
+              {orderData.created_at
+                ? format(
+                    new Date(orderData.created_at),
+                    "dd/MM/yyyy h:mm a"
+                  ).toLowerCase()
+                : "—"}
+            </Typography>
+          </Box>
+        </Box>
         <Box
           className="absolute top-4 right-4 h-[80vh] bg-white shadow-lg rounded-xl p-6 w-[400px]"
           sx={{

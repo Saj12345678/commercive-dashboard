@@ -162,7 +162,7 @@ export default function Summary() {
     return `${Math.max(0, daysGap)} days`; 
   };
   return (
-    <Paper elevation={3} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8">
+    <Paper elevation={3} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8" sx={{borderRadius: "20px", boxShadow: "inset 0px 2px 4px 0px rgba(60, 60, 60, 0.11),inset 0px -4px 3px 0px rgba(62, 62, 62, 0.1)"}}>
       <div className="w-full flex flex-col gap-2 md:gap-2 sm:flex-row justify-between sm:items-center mb-4">
         <Typography
           variant="h5"

@@ -696,14 +696,14 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 w-full">
-          <div className="flex-1 bg-white border-2 border-[#EBEBEB] rounded-lg shadow-lg lg:w-[50%]">
+          <div className="flex-1 bg-white lg:w-[50%]">
             <Inventory data={inventoryData} />
           </div>
-          <div className="flex-1 bg-white border-2 border-[#EBEBEB] rounded-lg shadow-lg lg:w-[50%]">
+          <div className="flex-1 bg-white lg:w-[50%]">
             <Summary />
           </div>
         </div>
-        <div className="flex gap-4 w-full px-4 py-6 mb-6 sm:px-6 sm:py-8 bg-white border border-white rounded-lg shadow-lg">
+        <div className="flex gap-4 w-full px-4 py-6 mb-6 sm:px-6 sm:py-8 bg-white border border-white rounded-lg shadow-lg custom-box-shadow">
           <div className="bg-white rounded-lg flex items-center gap-2">
             <Image
               src={"/svgs/Forecast.svg"}

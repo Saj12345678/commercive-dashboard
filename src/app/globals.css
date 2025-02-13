@@ -60,3 +60,10 @@ body {
   width: 3px;
   background: #888787;
 }
+
+.custom-box-shadow {
+  border-radius: 20px;
+  background-color: rgb(255, 255, 255);
+  box-shadow: inset 0px 2px 4px 0px rgba(60, 60, 60, 0.11),
+              inset 0px -4px 3px 0px rgba(62, 62, 62, 0.1);
+}

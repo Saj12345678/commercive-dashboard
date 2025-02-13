@@ -460,6 +460,10 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             className={`w-full flex flex-col bg-[#9474E4] border border-[#F4F4F7] rounded-[24px] py-8 px-4 gap-4 ${
               isCollapsed && "hidden"
             }`}
+            style={{
+              borderRadius: "25px",
+              background: "linear-gradient(130deg, rgb(47,13,116) 0%, rgb(126,81,216) 36%, rgb(225,217,248) 100%)",
+            }}
           >
             <div><LogoIcon width={"70%"} height={35} color={'#ffffff'} /></div>
             <p className="text-white text-sm">
@@ -629,6 +633,10 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             {/* Footer Section */}
             {!pathName?.includes("/admin") && <div
               className={`w-full flex flex-col bg-[#9474E4] border border-[#F4F4F7] rounded-[24px] py-8 px-4 gap-4 }`}
+              style={{
+                borderRadius: "25px",
+                background: "linear-gradient(130deg, rgb(47,13,116) 0%, rgb(126,81,216) 36%, rgb(225,217,248) 100%)",
+              }}
             >
               <div><LogoIcon width={"70%"} height={35} color={'#ffffff'} /></div>
               <p className="text-white text-sm">
