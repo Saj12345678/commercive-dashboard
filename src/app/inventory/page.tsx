@@ -164,7 +164,7 @@ export default function Inventory() {
     };
 
     return (
-        <Paper elevation={0} className="w-full px-4 py-6 sm:px-6 sm:py-8" style={{ height: "100%" }}>
+        <Paper elevation={0} className="w-full px-4 py-6 sm:px-6 sm:py-8 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] overflow-y-auto custom-scrollbar" style={{ height: "100%", borderTopLeftRadius: "24px" }}>
             {loading && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="loader"></div>
