@@ -68,6 +68,8 @@ export default function Inventory() {
                     const committed =
                         inventoryQuantities.find((q: any) => q.name === "committed")
                             ?.quantity || 0;
+                            
+                    const backOrders = item.back_orders || 0;
 
                     let stockStatus = "Enough Stock";
                     if (available === 0) stockStatus = "No Stock";
@@ -79,7 +81,7 @@ export default function Inventory() {
                         name: `Product ${item.sku}`,
                         stockMeter: available + committed,
                         stockStatus,
-                        backorders: committed,
+                        backorders: backOrders,
                     };
                 });
 

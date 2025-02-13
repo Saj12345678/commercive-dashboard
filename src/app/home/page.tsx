@@ -1,6 +1,6 @@
 "use client";
-import 'react-date-range/dist/styles.css'; // main style file
-import 'react-date-range/dist/theme/default.css'; // theme css file
+import "react-date-range/dist/styles.css"; // main style file
+import "react-date-range/dist/theme/default.css"; // theme css file
 import { Button } from "@mui/material";
 import { useEffect, useState, useRef } from "react";
 
@@ -33,7 +33,7 @@ export default function Home() {
 
   const getSundayOfWeek = (date: Date) => {
     const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
-    const diff = day === 0 ? 0 : - day; // Adjust when today is Sunday
+    const diff = day === 0 ? 0 : -day; // Adjust when today is Sunday
     return new Date(date.setDate(date.getDate() + diff));
   };
 
@@ -50,7 +50,8 @@ export default function Home() {
     const lastSunday = getSundayOfLastWeek(new Date(date));
     return new Date(lastSunday.setDate(lastSunday.getDate() + 6)); // Move forward 6 days
   };
-  const [showCurrentDateRange, setShowCurrentDateRange] = useState<boolean>(false);
+  const [showCurrentDateRange, setShowCurrentDateRange] =
+    useState<boolean>(false);
   const [currentDateRange, setCurrentDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
@@ -58,7 +59,8 @@ export default function Home() {
       key: "selection",
     },
   ]);
-  const [showCompareDateRange, setShowCompareDateRange] = useState<boolean>(false);
+  const [showCompareDateRange, setShowCompareDateRange] =
+    useState<boolean>(false);
   const [compareDateRange, setCompareDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
@@ -104,7 +106,10 @@ export default function Home() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (currentPickerRef.current && !currentPickerRef.current.contains(event.target as Node)) {
+      if (
+        currentPickerRef.current &&
+        !currentPickerRef.current.contains(event.target as Node)
+      ) {
         setShowCurrentDateRange(false);
       }
     };
@@ -120,7 +125,10 @@ export default function Home() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (comparePickerRef.current && !comparePickerRef.current.contains(event.target as Node)) {
+      if (
+        comparePickerRef.current &&
+        !comparePickerRef.current.contains(event.target as Node)
+      ) {
         setShowCompareDateRange(false);
       }
     };
@@ -251,8 +259,10 @@ export default function Home() {
 
     const formattedStartDate = formatDateForQuery(currentDateRange.startDate);
     const formattedEndDate = formatDateForQuery(currentDateRange.endDate);
-    
-    const formattedStartDatePast = formatDateForQuery(compareDateRange.startDate);
+
+    const formattedStartDatePast = formatDateForQuery(
+      compareDateRange.startDate
+    );
     const formattedEndDatePast = formatDateForQuery(compareDateRange.endDate);
 
     setLoading(true);
@@ -308,16 +318,18 @@ export default function Home() {
           (data) => data.financial_status.trim().toLowerCase() === "paid"
         );
 
-        const pastWeekPaidRecords = pastWeekOrders?.filter((data) => data.financial_status.trim().toLowerCase() === "paid");
+        const pastWeekPaidRecords = pastWeekOrders?.filter(
+          (data) => data.financial_status.trim().toLowerCase() === "paid"
+        );
 
         const fulfillRecords = orderData.filter(
-            (data) => data.fulfillment_status === "fulfilled"
-          );
+          (data) => data.fulfillment_status === "fulfilled"
+        );
 
         const pastWeekFulfillRecords = pastWeekOrders?.filter(
           (data) => data.fulfillment_status === "fulfilled"
         );
-        
+
         const totalEarningsChart = groupAndSumByDate(paidRecords);
         const totalEarning = getTotalsBetweenDates({
           chartData: totalEarningsChart,
@@ -360,9 +372,9 @@ export default function Home() {
           return acc;
         }, {});
 
-        const groupedCountsTotalSale = Object.values(groupedByDateTotalSale).map(
-          (group: any) => group.length
-        );
+        const groupedCountsTotalSale = Object.values(
+          groupedByDateTotalSale
+        ).map((group: any) => group.length);
 
         const groupedByDateFulfillOrder = fulfillRecords.reduce((acc, item) => {
           const date = item.created_at.split("T")[0];
@@ -373,11 +385,10 @@ export default function Home() {
           return acc;
         }, {});
 
-        const groupedCountsFulfillOrder= Object.values(groupedByDateFulfillOrder).map(
-          (group: any) => group.length
-        );
+        const groupedCountsFulfillOrder = Object.values(
+          groupedByDateFulfillOrder
+        ).map((group: any) => group.length);
 
-      
         setChartData((prevData: any) => {
           return prevData.map((item: any) => {
             if (item.name === "Unfulfilled Orders") {
@@ -396,12 +407,12 @@ export default function Home() {
               return {
                 ...item,
                 amount: currentWeekCount,
-                series: groupedCounts.length > 0 ? groupedCounts : [0,0,0,0,0],
+                series:
+                  groupedCounts.length > 0 ? groupedCounts : [0, 0, 0, 0, 0],
                 percentage: percentage,
               };
             }
             if (item.name === "Total Sales") {
-
               const currentWeekCount = paidRecords?.length || 0;
               const pastWeekCount = pastWeekPaidRecords?.length || 0;
               let percentage;
@@ -417,7 +428,10 @@ export default function Home() {
               return {
                 ...item,
                 amount: currentWeekCount,
-                series: groupedCountsTotalSale.length > 0 ? groupedCountsTotalSale : [0,0,0,0,0],
+                series:
+                  groupedCountsTotalSale.length > 0
+                    ? groupedCountsTotalSale
+                    : [0, 0, 0, 0, 0],
                 percentage: percentage,
               };
             }
@@ -425,12 +439,12 @@ export default function Home() {
               return {
                 ...item,
                 amount: totalEarnings.toFixed(2),
-                series: totalEarning.length > 0 ? totalEarning : [0,0,0,0,0],
+                series:
+                  totalEarning.length > 0 ? totalEarning : [0, 0, 0, 0, 0],
                 percentage: totalEarningsChange,
               };
             }
             if (item.name === "Fulfilled Orders") {
-
               const currentWeekCount = fulfillRecords?.length || 0;
               const pastWeekCount = pastWeekFulfillRecords?.length || 0;
               let percentage;
@@ -446,7 +460,10 @@ export default function Home() {
               return {
                 ...item,
                 amount: currentWeekCount,
-                series: groupedCountsFulfillOrder.length > 0 ? groupedCountsFulfillOrder : [0,0,0,0,0],
+                series:
+                  groupedCountsFulfillOrder.length > 0
+                    ? groupedCountsFulfillOrder
+                    : [0, 0, 0, 0, 0],
                 percentage: percentage,
               };
             }
@@ -463,18 +480,17 @@ export default function Home() {
           const committed =
             inventoryQuantities.find((q: any) => q.name === "committed")
               ?.quantity || 0;
-
+          const backOrders = item.back_orders || 0;
           let stockStatus = "Enough Stock";
           if (available === 0) stockStatus = "No Stock";
           else if (available < 50) stockStatus = "Low Stock";
-
           return {
             image: "",
             color: "#" + Math.floor(Math.random() * 16777215).toString(16),
             name: `Product ${item.sku}`,
             stockMeter: available + committed,
             stockStatus,
-            backorders: committed,
+            backorders: backOrders,
           };
         });
 
@@ -533,12 +549,14 @@ export default function Home() {
   };
 
   const toggleFullScreen = () => {
-    if(!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().then(() => setIsFullScreen(true));
+    if (!document.fullscreenElement) {
+      document.documentElement
+        .requestFullscreen()
+        .then(() => setIsFullScreen(true));
     } else if (document.exitFullscreen) {
       document.exitFullscreen().then(() => setIsFullScreen(false));
     }
-  }
+  };
   return (
     <>
       <main
@@ -584,13 +602,19 @@ export default function Home() {
                 type="text"
                 value={
                   currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
-                    ? `${currentDateRange[0].startDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })} - ${currentDateRange[0].endDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })}`
+                    ? `${currentDateRange[0].startDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )} - ${currentDateRange[0].endDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCurrentDateRange(true)} // Show on focus
@@ -631,13 +655,19 @@ export default function Home() {
                 type="text"
                 value={
                   compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
-                    ? `${compareDateRange[0].startDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })} - ${compareDateRange[0].endDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })}`
+                    ? `${compareDateRange[0].startDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )} - ${compareDateRange[0].endDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCompareDateRange(true)} // Show on focus
@@ -692,7 +722,7 @@ export default function Home() {
         </div>
 
         <div className="flex min-h-[165px] flex-row overflow-auto whitespace-nowrap custom-scrollbar">
-          <FeatureCard data={chartData} page={"home"}/>
+          <FeatureCard data={chartData} page={"home"} />
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 w-full">
