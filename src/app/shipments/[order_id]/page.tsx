@@ -75,7 +75,6 @@ const color = {
     color: "white",
   },
 };
-
 const generateArcPath = (start: [number, number], end: [number, number]) => {
   const startLngLat: [number, number] = [start[1], start[0]];
   const endLngLat: [number, number] = [end[1], end[0]];
