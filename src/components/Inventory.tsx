@@ -79,9 +79,9 @@ export default function Inventory({ data }: InventoryProps) {
 
   // Filter data based on the selected tab
   const filteredData =
-    selectedTab === "All"
-      ? data
-      : data.filter((item) => item.stockStatus === selectedTab);
+  selectedTab === "All"
+    ? data
+    : data.filter((item) => item.stockStatus === `${selectedTab} Stock`);
 
   return (
     <Paper elevation={2} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8" sx={{borderRadius: "20px", boxShadow: "inset 0px 2px 4px 0px rgba(60, 60, 60, 0.11),inset 0px -4px 3px 0px rgba(62, 62, 62, 0.1)"}}>
