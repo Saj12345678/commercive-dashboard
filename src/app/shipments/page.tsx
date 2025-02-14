@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import OrderIcon from "../../components/images/order";
 import Image from "next/image";
-import { DateRange } from "react-date-range";
+import { DateRangePicker, Range } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { useStoreContext } from "@/context/StoreContext";
@@ -233,85 +233,93 @@ export default function Shipment() {
               Order Statistics
             </Typography>
           </Box>
-          <Button
-            variant="outlined"
-            type="button"
-            className="!hidden !px-4 !py-1 !rounded-md !font-semibold gap-2 !capitalize md:!flex"
-            onClick={toggleFullScreen}
-            sx={{
-              border: "3px solid #EBEBEB",
-              boxShadow: "none",
-              backgroundColor: "transparent",
-              color: "#454545",
-            }}
-          >
-            <FullScreen />
-            {isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
-          </Button>
-        </Box>
-
-        <Box
-          style={{ position: "relative" }}
-          className="flex flex-col md:flex-row gap-2"
-        >
-          <input
-            type="text"
-            value={
-              dateRange[0]?.startDate && dateRange[0]?.endDate
-                ? `${dateRange[0].startDate.toLocaleDateString("en-GB", {
-                  day: "2-digit",
-                  month: "short",
-                })} - ${dateRange[0].endDate.toLocaleDateString("en-GB", {
-                  day: "2-digit",
-                  month: "short",
-                })}`
-                : "Select a date range"
-            }
-            onFocus={() => setShowDatePicker(true)}
-            readOnly
-            className="border p-2 pl-8 text-sm cursor-pointer focus-within:outline-none"
-          />
-          <CiCalendar
-            style={{
-              position: "absolute",
-              left: "10px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              zIndex: 1,
-            }}
-          />
-          {showDatePicker && (
-            <div
-              ref={datePickerRef}
-              style={{
-                position: "absolute",
-                zIndex: 1000,
-                background: "white",
-                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                top: "100%",
-                left: 0,
+          <Box className="flex flex-row gap-1">
+            <Box
+              style={{ position: "relative" }}
+              className="flex flex-col md:flex-row gap-2"
+            >
+              <input
+                style={{
+                  border: "3px solid #EBEBEB",
+                  boxShadow: "none",
+                  borderRadius: "5px",
+                  backgroundColor: "transparent",
+                  color: "#454545",
+                }}
+                type="text"
+                value={
+                  dateRange[0]?.startDate && dateRange[0]?.endDate
+                    ? `${dateRange[0].startDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })} - ${dateRange[0].endDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })}`
+                    : "Select a date range"
+                }
+                onFocus={() => setShowDatePicker(true)}
+                readOnly
+                className="border p-2 pl-8 text-sm cursor-pointer focus-within:outline-none"
+              />
+              <CiCalendar
+                style={{
+                  position: "absolute",
+                  left: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  zIndex: 1,
+                }}
+              />
+              {showDatePicker && (
+                <div
+                  ref={datePickerRef}
+                  style={{
+                    position: "absolute",
+                    zIndex: 1000,
+                    background: "white",
+                    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                    top: "100%",
+                    left: 0,
+                  }}
+                >
+                  <DateRangePicker
+                    ranges={tmpCurrentDateRange}
+                    onChange={handleTmpSelect}
+                    moveRangeOnFirstSelection={false}
+                    maxDate={new Date()}
+                  />
+                  <div className="flex w-100 justify-end gap-3 p-2">
+                    <Button
+                      onClick={() => setShowDatePicker(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleApplyTmpDateRange}
+                    >
+                      Apply
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </Box>
+            <Button
+              variant="outlined"
+              type="button"
+              className="!hidden !px-4 !py-1 !rounded-md !font-semibold gap-2 !capitalize md:!flex"
+              onClick={toggleFullScreen}
+              sx={{
+                border: "3px solid #EBEBEB",
+                boxShadow: "none",
+                backgroundColor: "transparent",
+                color: "#454545",
               }}
             >
-              <DateRange
-                ranges={tmpCurrentDateRange}
-                onChange={handleTmpSelect}
-                moveRangeOnFirstSelection={false}
-                maxDate={new Date()}
-              />
-              <div className="flex w-100 justify-end gap-3 p-2">
-                <Button
-                  onClick={() => setShowDatePicker(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleApplyTmpDateRange}
-                >
-                  Apply
-                </Button>
-              </div>
-            </div>
-          )}
+              <FullScreen />
+              {isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
+            </Button>
+          </Box>
         </Box>
         <Box className="flex gap-4 text-center justify-between overflow-auto mt-3 border-b-4 border-[#F4F4F7]">
           {dateLabels.map((day, index) => (

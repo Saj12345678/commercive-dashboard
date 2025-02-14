@@ -134,10 +134,6 @@ const Dropdown = ({ userEmail, handleLogout,dropdownRef }: DropdownProps) => {
         </div>
         <div className="mt-2">
           <Link href="#" className="flex items-center mt-1 hover:underline">
-            <BiWallet size={14} />
-            <p className="ml-2">Wallet</p>
-          </Link>
-          <Link href="#" className="flex items-center mt-1 hover:underline">
             <LuUserRound size={14} />
             <p className="ml-2">Profile</p>
           </Link>

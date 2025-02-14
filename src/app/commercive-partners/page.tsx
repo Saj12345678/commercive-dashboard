@@ -629,6 +629,13 @@ export default function CommercivePartners() {
             <div style={{ position: "relative" }}>
               {/* Input Field */}
               <input
+                style={{
+                  border: "3px solid #EBEBEB",
+                  boxShadow: "none",
+                  borderRadius: "5px",
+                  backgroundColor: "transparent",
+                  color: "#454545",
+                }}
                 type="text"
                 value={
                   currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
@@ -695,6 +702,13 @@ export default function CommercivePartners() {
             <div style={{ position: "relative" }}>
               {/* Input Field */}
               <input
+                style={{
+                  border: "3px solid #EBEBEB",
+                  boxShadow: "none",
+                  borderRadius: "5px",
+                  backgroundColor: "transparent",
+                  color: "#454545",
+                }}
                 type="text"
                 value={
                   compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
@@ -762,7 +776,7 @@ export default function CommercivePartners() {
         </div>
 
         <div className="flex flex-row overflow-auto whitespace-nowrap custom-scrollbar">
-          <FeatureCard data={chartData} page={"commercive"} dateRange = {compareDateRange}/>
+          <FeatureCard data={chartData} page={"commercive"} dateRange={compareDateRange} />
         </div>
 
         <div className="flex w-full flex-col gap-3 py-2">

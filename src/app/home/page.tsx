@@ -623,6 +623,13 @@ export default function Home() {
               {/* Input Field */}
               <input
                 type="text"
+                style={{
+                  border: "3px solid #EBEBEB",
+                  boxShadow: "none",
+                  borderRadius: "5px",
+                  backgroundColor: "transparent",
+                  color: "#454545",
+                }}
                 value={
                   currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
                     ? `${currentDateRange[0].startDate.toLocaleDateString(
@@ -671,12 +678,12 @@ export default function Home() {
                   />
                   <div className="flex w-100 justify-end gap-3 p-2">
                     <Button
-                    onClick={() => setShowCurrentDateRange(false)}
+                      onClick={() => setShowCurrentDateRange(false)}
                     >
                       Cancel
                     </Button>
                     <Button
-                    onClick={handleApplyCurrentDateRange}
+                      onClick={handleApplyCurrentDateRange}
                     >
                       Apply
                     </Button>
@@ -688,6 +695,13 @@ export default function Home() {
               {/* Input Field */}
               <input
                 type="text"
+                style={{
+                  border: "3px solid #EBEBEB",
+                  boxShadow: "none",
+                  borderRadius: "5px",
+                  backgroundColor: "transparent",
+                  color: "#454545",
+                }}
                 value={
                   compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
                     ? `${compareDateRange[0].startDate.toLocaleDateString(
@@ -736,12 +750,12 @@ export default function Home() {
                   />
                   <div className="flex w-100 justify-end gap-3 p-2">
                     <Button
-                    onClick={() => setShowCompareDateRange(false)}
+                      onClick={() => setShowCompareDateRange(false)}
                     >
                       Cancel
                     </Button>
                     <Button
-                    onClick={handleApplyTmpDateRange}
+                      onClick={handleApplyTmpDateRange}
                     >
                       Apply
                     </Button>
@@ -769,7 +783,7 @@ export default function Home() {
         </div>
 
         <div className="flex min-h-[165px] flex-row overflow-auto whitespace-nowrap custom-scrollbar">
-          <FeatureCard data={chartData} page={"home"} dateRange = {compareDateRange} />
+          <FeatureCard data={chartData} page={"home"} dateRange={compareDateRange} />
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 w-full">
