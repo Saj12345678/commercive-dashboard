@@ -11,6 +11,7 @@ import {
   Typography,
   LinearProgress,
   Box,
+  Tooltip,
 } from "@mui/material";
 import { GoArrowUpRight } from "react-icons/go";
 import { IoCloseCircleOutline } from "react-icons/io5";
@@ -89,7 +90,7 @@ export default function Inventory({ data }: InventoryProps) {
           variant="h5"
           fontWeight="bold"
           className="flex items-center gap-3"
-          sx={{ 
+          sx={{
             fontSize: {
               xs: '1rem', 
               sm: '1.2rem', 
@@ -115,9 +116,9 @@ export default function Inventory({ data }: InventoryProps) {
         <div className="flex w-full flex-wrap gap-2 sm:gap-4">
           {[
             { label: "All", color: "gray" },
-            { label: "Enough Stock", color: "green" },
-            { label: "Low Stock", color: "orange" },
-            { label: "No Stock", color: "red" },
+            { label: "Enough", color: "green" },
+            { label: "Low", color: "orange" },
+            { label: "No", color: "red" },
           ].map((tab: any) => (
             <button
               type="button"
@@ -131,7 +132,12 @@ export default function Inventory({ data }: InventoryProps) {
               }`}
               onClick={() => setSelectedTab(tab.label)}
             >
-              <span>{getStatusIcon(tab.label)}</span> {tab.label}
+              <span>
+                {getStatusIcon(
+                  tab.label === "All" ? "All" : `${tab.label} Stock`
+                )}
+              </span>{" "}
+              {tab.label}
             </button>
           ))}
         </div>
@@ -164,9 +170,13 @@ export default function Inventory({ data }: InventoryProps) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {item.name}
-                    </Typography>
+                    <Tooltip title={`Product ${item.name}`} placement="top">
+                      <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                        {item.name.length > 10
+                          ? item.name.slice(0, 7) + "..."
+                          : item.name}
+                      </Typography>
+                    </Tooltip>
                     <Typography variant="body2" color="textSecondary">
                       {item.color}
                     </Typography>
@@ -185,7 +195,7 @@ export default function Inventory({ data }: InventoryProps) {
                         value={Math.min(
                           100,
                           Math.max(0, (item.stockMeter / 1000) * 100)
-                        )} 
+                        )}
                         color={getColorPalette(item.stockStatus)}
                         sx={{ height: 10, borderRadius: 10, flex: 1 }}
                       />

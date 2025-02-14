@@ -487,7 +487,7 @@ export default function Home() {
           return {
             image: "",
             color: "#" + Math.floor(Math.random() * 16777215).toString(16),
-            name: `Product ${item.sku}`,
+            name: `${item.sku}`,
             stockMeter: available + committed,
             stockStatus,
             backorders: backOrders,
