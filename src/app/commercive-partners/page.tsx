@@ -52,6 +52,13 @@ export default function CommercivePartners() {
     return new Date(lastSunday.setDate(lastSunday.getDate() + 6)); // Move forward 6 days
   };
   const [showCurrentDateRange, setShowCurrentDateRange] = useState<boolean>(false);
+  const [tmpCurrentDateRange, setTmpCurrentDateRange] = useState<Range[]>([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
   const [currentDateRange, setCurrentDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
@@ -60,6 +67,13 @@ export default function CommercivePartners() {
     },
   ]);
   const [showCompareDateRange, setShowCompareDateRange] = useState<boolean>(false);
+  const [tmpCompareDateRange, setTmpCompareDateRange] = useState<Range[]>([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
   const [compareDateRange, setCompareDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
@@ -67,13 +81,21 @@ export default function CommercivePartners() {
       key: "selection",
     },
   ]);
+  const handleApplyCurrentDateRange = () => {
+    setCurrentDateRange(tmpCurrentDateRange);
+    setShowCurrentDateRange(false);
+  }
   const handleCurrentDateSelect = (ranges: any) => {
-    setCurrentDateRange([ranges.selection]);
-    setShowCurrentDateRange(false); // Hide after selection
+    setTmpCurrentDateRange([ranges.selection]);
+    // setShowCurrentDateRange(false); // Hide after selection
   };
+
+  const handleApplyTmpDateRange = () => {
+    setCompareDateRange(tmpCurrentDateRange);
+    setShowCompareDateRange(false);
+  }
   const handleCompareDateSelect = (ranges: any) => {
-    setCompareDateRange([ranges.selection]);
-    setShowCompareDateRange(false); // Hide after selection
+    setTmpCompareDateRange([ranges.selection]);
   };
 
   useEffect(() => {
@@ -470,7 +492,7 @@ export default function CommercivePartners() {
               return {
                 ...item,
                 amount: totalEarnings.toFixed(2),
-                series: totalEarning.length > 0 ? totalEarning : [0,0,0,0,0],
+                series: totalEarning.length > 0 ? totalEarning : [0, 0, 0, 0, 0],
                 percentage: totalEarningsChange
               };
             }
@@ -478,7 +500,7 @@ export default function CommercivePartners() {
               return {
                 ...item,
                 amount: pendingEarnings.toFixed(2),
-                series: pendingEarning.length > 0 ? pendingEarning : [0,0,0,0,0],
+                series: pendingEarning.length > 0 ? pendingEarning : [0, 0, 0, 0, 0],
                 percentage: pendingEarningsChange
               };
             }
@@ -496,7 +518,7 @@ export default function CommercivePartners() {
               return {
                 ...item,
                 amount: currentWeekCount,
-                series: groupedCounts.length > 0 ? groupedCounts : [0,0,0,0,0],
+                series: groupedCounts.length > 0 ? groupedCounts : [0, 0, 0, 0, 0],
                 percentage: percentage,
               };
             }
@@ -611,18 +633,18 @@ export default function CommercivePartners() {
                 value={
                   currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
                     ? `${currentDateRange[0].startDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )} - ${currentDateRange[0].endDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )}`
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )} - ${currentDateRange[0].endDate.toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCurrentDateRange(true)} // Show on focus
@@ -651,10 +673,22 @@ export default function CommercivePartners() {
                   }}
                 >
                   <DateRangePicker
-                    ranges={currentDateRange}
+                    ranges={tmpCurrentDateRange}
                     onChange={handleCurrentDateSelect}
                     moveRangeOnFirstSelection={false}
                   />
+                  <div className="flex w-100 justify-end gap-3 p-2">
+                    <Button
+                      onClick={() => setShowCurrentDateRange(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleApplyCurrentDateRange}
+                    >
+                      Apply
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -665,18 +699,18 @@ export default function CommercivePartners() {
                 value={
                   compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
                     ? `${compareDateRange[0].startDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )} - ${compareDateRange[0].endDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )}`
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )} - ${compareDateRange[0].endDate.toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCompareDateRange(true)} // Show on focus
@@ -705,10 +739,22 @@ export default function CommercivePartners() {
                   }}
                 >
                   <DateRangePicker
-                    ranges={compareDateRange}
+                    ranges={tmpCompareDateRange}
                     onChange={handleCompareDateSelect}
                     moveRangeOnFirstSelection={false}
                   />
+                  <div className="flex w-100 justify-end gap-3 p-2">
+                    <Button
+                      onClick={() => setShowCompareDateRange(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleApplyTmpDateRange}
+                    >
+                      Apply
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -716,7 +762,7 @@ export default function CommercivePartners() {
         </div>
 
         <div className="flex flex-row overflow-auto whitespace-nowrap custom-scrollbar">
-          <FeatureCard data={chartData} page={"commercive"} />
+          <FeatureCard data={chartData} page={"commercive"} dateRange = {compareDateRange}/>
         </div>
 
         <div className="flex w-full flex-col gap-3 py-2">

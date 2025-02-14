@@ -52,6 +52,13 @@ export default function Home() {
   };
   const [showCurrentDateRange, setShowCurrentDateRange] =
     useState<boolean>(false);
+  const [tmpCurrentDateRange, setTmpCurrentDateRange] = useState<Range[]>([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
   const [currentDateRange, setCurrentDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
@@ -61,6 +68,14 @@ export default function Home() {
   ]);
   const [showCompareDateRange, setShowCompareDateRange] =
     useState<boolean>(false);
+
+  const [tmpCompareDateRange, setTmpCompareDateRange] = useState<Range[]>([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
   const [compareDateRange, setCompareDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
@@ -68,13 +83,21 @@ export default function Home() {
       key: "selection",
     },
   ]);
+  const handleApplyCurrentDateRange = () => {
+    setCurrentDateRange(tmpCurrentDateRange);
+    setShowCurrentDateRange(false);
+  }
   const handleCurrentDateSelect = (ranges: any) => {
-    setCurrentDateRange([ranges.selection]);
-    setShowCurrentDateRange(false); // Hide after selection
+    setTmpCurrentDateRange([ranges.selection]);
+    // setShowCurrentDateRange(false); // Hide after selection
   };
+
+  const handleApplyTmpDateRange = () => {
+    setCompareDateRange(tmpCurrentDateRange);
+    setShowCompareDateRange(false);
+  }
   const handleCompareDateSelect = (ranges: any) => {
-    setCompareDateRange([ranges.selection]);
-    setShowCompareDateRange(false); // Hide after selection
+    setTmpCompareDateRange([ranges.selection]);
   };
 
   useEffect(() => {
@@ -603,18 +626,18 @@ export default function Home() {
                 value={
                   currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
                     ? `${currentDateRange[0].startDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )} - ${currentDateRange[0].endDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )}`
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )} - ${currentDateRange[0].endDate.toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCurrentDateRange(true)} // Show on focus
@@ -642,10 +665,22 @@ export default function Home() {
                   }}
                 >
                   <DateRangePicker
-                    ranges={currentDateRange}
+                    ranges={tmpCurrentDateRange}
                     onChange={handleCurrentDateSelect}
                     moveRangeOnFirstSelection={false}
                   />
+                  <div className="flex w-100 justify-end gap-3 p-2">
+                    <Button
+                    onClick={() => setShowCurrentDateRange(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                    onClick={handleApplyCurrentDateRange}
+                    >
+                      Apply
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -656,18 +691,18 @@ export default function Home() {
                 value={
                   compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
                     ? `${compareDateRange[0].startDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )} - ${compareDateRange[0].endDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )}`
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )} - ${compareDateRange[0].endDate.toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCompareDateRange(true)} // Show on focus
@@ -695,10 +730,22 @@ export default function Home() {
                   }}
                 >
                   <DateRangePicker
-                    ranges={compareDateRange}
+                    ranges={tmpCompareDateRange}
                     onChange={handleCompareDateSelect}
                     moveRangeOnFirstSelection={false}
                   />
+                  <div className="flex w-100 justify-end gap-3 p-2">
+                    <Button
+                    onClick={() => setShowCompareDateRange(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                    onClick={handleApplyTmpDateRange}
+                    >
+                      Apply
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -722,7 +769,7 @@ export default function Home() {
         </div>
 
         <div className="flex min-h-[165px] flex-row overflow-auto whitespace-nowrap custom-scrollbar">
-          <FeatureCard data={chartData} page={"home"} />
+          <FeatureCard data={chartData} page={"home"} dateRange = {compareDateRange} />
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 w-full">
@@ -730,7 +777,7 @@ export default function Home() {
             <Inventory data={inventoryData} />
           </div>
           <div className="flex-1 bg-white lg:w-[50%]">
-            <Summary />
+            <Summary selectedRange={currentDateRange} />
           </div>
         </div>
         <div className="flex gap-4 w-full px-4 py-6 mb-6 sm:px-6 sm:py-8 bg-white border border-white rounded-lg shadow-lg custom-box-shadow">

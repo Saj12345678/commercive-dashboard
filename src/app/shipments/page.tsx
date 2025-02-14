@@ -46,6 +46,15 @@ export default function Shipment() {
     endOfWeek.setDate(startOfWeek.getDate() + 9);
     return endOfWeek;
   };
+
+  const [tmpCurrentDateRange, setTmpCurrentDateRange] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
+
   const [dateRange, setDateRange] = useState([
     {
       startDate: getStartOfWeek(),
@@ -85,13 +94,13 @@ export default function Shipment() {
     while (currentDate <= end) {
       const day = currentDate.getDate().toString().padStart(2, '0');
       const weekday = currentDate.toLocaleDateString('en-US', { weekday: 'short' });
-      labels.push(`${day} ${weekday}`);   
+      labels.push(`${day} ${weekday}`);
       currentDate.setDate(currentDate.getDate() + 1);
     }
     return labels;
   };
 
-  const handleSelect = (ranges: any) => {
+  const handleTmpSelect = (ranges: any) => {
     const { startDate, endDate } = ranges.selection;
     const diffInDays = Math.round(
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
@@ -101,9 +110,13 @@ export default function Shipment() {
       return;
     }
 
-    setDateRange([ranges.selection]);
-    setShowDatePicker(false);
+    setTmpCurrentDateRange([ranges.selection]);
   };
+
+  const handleApplyTmpDateRange = () => {
+    setDateRange(tmpCurrentDateRange);
+    setShowDatePicker(false);
+  }
 
   const formatDateForQuery = (date: Date) => date.toISOString().split("Z")[0];
 
@@ -246,12 +259,12 @@ export default function Shipment() {
             value={
               dateRange[0]?.startDate && dateRange[0]?.endDate
                 ? `${dateRange[0].startDate.toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                  })} - ${dateRange[0].endDate.toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                  })}`
+                  day: "2-digit",
+                  month: "short",
+                })} - ${dateRange[0].endDate.toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                })}`
                 : "Select a date range"
             }
             onFocus={() => setShowDatePicker(true)}
@@ -280,11 +293,23 @@ export default function Shipment() {
               }}
             >
               <DateRange
-                ranges={dateRange}
-                onChange={handleSelect}
+                ranges={tmpCurrentDateRange}
+                onChange={handleTmpSelect}
                 moveRangeOnFirstSelection={false}
                 maxDate={new Date()}
               />
+              <div className="flex w-100 justify-end gap-3 p-2">
+                <Button
+                  onClick={() => setShowDatePicker(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleApplyTmpDateRange}
+                >
+                  Apply
+                </Button>
+              </div>
             </div>
           )}
         </Box>
@@ -338,11 +363,10 @@ export default function Shipment() {
                   <Tooltip title={tooltipContent} placement="top" arrow>
                     <Box
                       key={data.id}
-                      className={`px-3 pt-1 ${
-                        data.status === "PENDING"
-                          ? "bg-[#FFECD6]"
-                          : "bg-[#E8ECFE]"
-                      } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
+                      className={`px-3 pt-1 ${data.status === "PENDING"
+                        ? "bg-[#FFECD6]"
+                        : "bg-[#E8ECFE]"
+                        } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
                       style={{
                         top: `${i * 55}px`,
                         left: `${(createdIndex / dateLabels.length) * 100}%`,
@@ -419,14 +443,14 @@ export default function Shipment() {
                           "YANWEN",
                           "Yun Express",
                         ].includes(data.tracking_company) && (
-                          <Image
-                            src="/icons/Layer.png"
-                            alt="default-logo"
-                            width={24}
-                            height={22}
-                            className="w-[24px] h-[24px]"
-                          />
-                        )}
+                            <Image
+                              src="/icons/Layer.png"
+                              alt="default-logo"
+                              width={24}
+                              height={22}
+                              className="w-[24px] h-[24px]"
+                            />
+                          )}
                         <Chip
                           label={data.tracking_company}
                           size="small"
@@ -441,30 +465,29 @@ export default function Shipment() {
                         •
                       </Typography>
                       <Typography
-                        className={`text-sm ml-2 ${
-                          data.status === "SUCCESS"
-                            ? "text-green-600"
-                            : data.status === "PENDING" ||
-                              data.status === "OPEN"
+                        className={`text-sm ml-2 ${data.status === "SUCCESS"
+                          ? "text-green-600"
+                          : data.status === "PENDING" ||
+                            data.status === "OPEN"
                             ? "text-yellow-600"
                             : data.status === "CANCELLED" ||
                               data.status === "ERROR" ||
                               data.status === "FAILURE"
-                            ? "text-red-600"
-                            : "text-gray-600"
-                        }`}
+                              ? "text-red-600"
+                              : "text-gray-600"
+                          }`}
                       >
                         {data.status === "SUCCESS"
                           ? "On-Time"
                           : data.status === "PENDING" || data.status === "OPEN"
-                          ? "Pending"
-                          : data.status === "CANCELLED"
-                          ? "Cancelled"
-                          : data.status === "ERROR"
-                          ? "Error"
-                          : data.status === "FAILURE"
-                          ? "Failed"
-                          : "Unknown"}
+                            ? "Pending"
+                            : data.status === "CANCELLED"
+                              ? "Cancelled"
+                              : data.status === "ERROR"
+                                ? "Error"
+                                : data.status === "FAILURE"
+                                  ? "Failed"
+                                  : "Unknown"}
                       </Typography>
                     </Box>
                   </Tooltip>

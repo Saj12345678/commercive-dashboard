@@ -22,12 +22,12 @@ type TransactionItem = {
   store_location: string;
 };
 
-export default function Summary() {
+export default function Summary({ selectedRange }: any) {
+  console.log(selectedRange)
   const supabase = createClient();
   const { selectedStore } = useStoreContext();
   const [trackingData, setTrackingData] = useState<TransactionItem[]>([]);
   const storeName = selectedStore ? selectedStore.label : null;
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
 
   const getStartOfWeek = () => {
@@ -42,14 +42,7 @@ export default function Summary() {
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     return endOfWeek;
   };
-  const [dateRange, setDateRange] = useState([
-    {
-      startDate: getStartOfWeek(),
-      endDate: getEndOfWeek(getStartOfWeek()),
-      key: "selection",
-    },
-  ]);
-
+  
   const formatDateForLabels = (date: Date) => {
     const options: Intl.DateTimeFormatOptions = { weekday: 'short', day: '2-digit', timeZone: 'UTC' };
     return new Date(date).toLocaleDateString('en-US', options);
@@ -70,26 +63,12 @@ export default function Summary() {
     return dateLabels;
   };
 
-  const handleSelect = (ranges: any) => {
-    const { startDate, endDate } = ranges.selection;
-    const diffInDays = Math.round(
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    if (diffInDays > 6) {
-      return;
-    }
-    setDateRange([ranges.selection]);
-    setShowDatePicker(false);
-  };
-
   const formatDateForQuery = (date: Date) => date.toISOString().split("Z")[0];
 
   const fetchTrackings = async () => {
-    if (!dateRange[0].startDate || !dateRange[0].endDate || !storeName) return;
 
-    const formattedStartDate = formatDateForQuery(dateRange[0].startDate);
-    const formattedEndDate = formatDateForQuery(dateRange[0].endDate);
+    const formattedStartDate = formatDateForQuery(selectedRange[0].startDate);
+    const formattedEndDate = formatDateForQuery(selectedRange[0].endDate);
 
     const { data: trackingsData, error: trackingsError } = await supabase
       .from("trackings")
@@ -107,25 +86,11 @@ export default function Summary() {
 
   useEffect(() => {
     fetchTrackings();
-  }, [dateRange, storeName]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        datePickerRef.current &&
-        !datePickerRef.current.contains(event.target as Node)
-      ) {
-        setShowDatePicker(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [selectedRange, storeName]);
 
   const dateLabels = generateDateLabels(
-    dateRange[0].startDate,
-    dateRange[0].endDate,
+    selectedRange[0].startDate,
+    selectedRange[0].endDate,
   );
   const trackingsByDate: { [key: string]: any[] } = {};
   trackingData.forEach((tracking) => {
@@ -179,7 +144,7 @@ export default function Summary() {
           <OrderIcon width={24} height={24} color={"#4f11c9"} />
           Order Statistics
         </Typography>
-        <div
+        {/* <div
           style={{ position: "relative" }}
           className="flex flex-col md:flex-row gap-2"
         >
@@ -229,7 +194,7 @@ export default function Summary() {
               />
             </div>
           )}
-        </div>
+        </div> */}
         <Link href={"/shipments"}>
           {" "}
           <Button
