@@ -97,7 +97,9 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
     label: string;
   } | null>(null);
   const [showDisconnect, setShowDisconnect] = useState(false);
-  const [stores, setStores] = useState<{ id: string; store_name: string }[]>([]);
+  const [stores, setStores] = useState<{ id: string; store_name: string, is_store_listed: boolean }[]>(
+    []
+  );
   const [showList, setShowList] = useState(false);
 
   const sidebarData = pathName?.includes("/admin") ? adminData : data
@@ -121,7 +123,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
     const handleClickOutside = (event: { target: any }) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowStoreData(false);
-        setShowDisconnect(false); 
+        setShowDisconnect(false);
       }
     };
 
@@ -169,7 +171,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
           return;
         }
         window.location.reload();
-        setShowDisconnect(false); 
+        setShowDisconnect(false);
       } catch (error) {
         console.error("Unexpected error while disconnecting store:", error);
       }
@@ -180,9 +182,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
     setLoading(true);
     const { data, error } = await supabase
       .from("stores")
-      .select("id, store_name")
-      .eq("is_store_listed", false);
-
+      .select("id, store_name, is_store_listed")
     if (error) {
       console.error("Error fetching stores:", error.message);
     } else {
@@ -275,36 +275,36 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
     }
   };
 
-    const closeModal = () => {
-      setModalOpen(false);
-    };
-  
-    const handleReferralLinkChange = (event: any) => {
-      setReferralLink(event.target.value);
-    };
-  
-    const handleReferralLinkCopy = () => {
-      if (referralLink) {
-        navigator.clipboard
-          .writeText(referralLink)
-          .then(() => {
-            setTooltipMessage("Copied!");
-            setIsTooltipOpen(true);
-            setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
-          })
-          .catch(() => {
-            setTooltipMessage("Failed to copy.");
-            setIsTooltipOpen(true);
-            setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
-          });
-      } else {
-        setTooltipMessage("No referral link to copy.");
-        setIsTooltipOpen(true);
-        setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
-      }
-    };
-    const handleLinkInfoCopy = () => {
-      const textToCopy = `Hey! I just started using this fantastic Order Tracking App that keeps me updated on all my deliveries. It’s super convenient and saves me so much time! If you sign up with my link, we both get exclusive discounts on our next orders. Check it out!
+  const closeModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleReferralLinkChange = (event: any) => {
+    setReferralLink(event.target.value);
+  };
+
+  const handleReferralLinkCopy = () => {
+    if (referralLink) {
+      navigator.clipboard
+        .writeText(referralLink)
+        .then(() => {
+          setTooltipMessage("Copied!");
+          setIsTooltipOpen(true);
+          setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+        })
+        .catch(() => {
+          setTooltipMessage("Failed to copy.");
+          setIsTooltipOpen(true);
+          setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+        });
+    } else {
+      setTooltipMessage("No referral link to copy.");
+      setIsTooltipOpen(true);
+      setTimeout(() => setIsTooltipOpen(false), 2000); // Hide tooltip after 2 seconds
+    }
+  };
+  const handleLinkInfoCopy = () => {
+    const textToCopy = `Hey! I just started using this fantastic Order Tracking App that keeps me updated on all my deliveries. It’s super convenient and saves me so much time! If you sign up with my link, we both get exclusive discounts on our next orders. Check it out!
       ${referralLink}`;
     if (textToCopy) {
       navigator.clipboard
@@ -476,8 +476,13 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                       </span>{" "}
                       Connect new store
                     </p>
-                    {showList && (
-                      <div className="mt-3 border p-3 rounded-lg shadow-lg">
+                  </div>
+                  {showList && (
+                    <CustomModal
+                      onClose={() => setShowList(false)}
+                      maxWidth={"max-w-[400px]"}
+                    >
+                      <div className="bg-white mt-1 p-3 rounded-lg">
                         <h3 className="font-semibold text-lg">
                           Available Stores
                         </h3>
@@ -486,26 +491,38 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                         ) : stores.length === 0 ? (
                           <p>No stores available to connect.</p>
                         ) : (
-                          <ul>
+                          <div>
                             {stores.map((store) => (
-                              <li
+                              <div
+                                className="flex flex-row justify-between items-center gap-4 py-2"
                                 key={store.id}
-                                className="flex justify-between items-center p-2 border-b"
                               >
-                                <span>{store.store_name}</span>
+                                <p className="flex-1">{store.store_name}</p>
+                                <p
+                                  className={`w-3 h-3 rounded-full ${
+                                    store.is_store_listed
+                                      ? "bg-green-500"
+                                      : "bg-red-500"
+                                  }`}
+                                ></p>
                                 <button
                                   onClick={() => connectStore(store.id)}
-                                  className="bg-[#4F12CA] text-white px-3 py-1 rounded-lg"
+                                  className={`px-3 py-1 ml-4 rounded-lg ${
+                                    store.is_store_listed
+                                      ? "bg-gray-200 text-white cursor-not-allowed"
+                                      : "bg-[#4710B5] text-white"
+                                  }`}
+                                  disabled={store.is_store_listed}
                                 >
                                   Connect store
                                 </button>
-                              </li>
+                              </div>
                             ))}
-                          </ul>
+                          </div>
                         )}
                       </div>
-                    )}
-                  </div>
+                    </CustomModal>
+                  )}
                 </div>
               )}
             </div>
@@ -719,7 +736,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     className="p-3 cursor-pointer bg-white hover:bg-[#f9f9ff] border-t"
                     onClick={() => handleAddStore()} // Call function to add a store
                   >
-                  <p
+                    <p
                       className="flex items-center gap-1 text-[#4F12CA]"
                       onClick={() => setShowList(!showList)}
                     >
@@ -729,7 +746,11 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                       Connect new store
                     </p>
                     {showList && (
-                      <div className="mt-3 border p-3 rounded-lg shadow-lg">
+                    <CustomModal
+                      onClose={() => setShowList(false)}
+                      maxWidth={"max-w-[350px]"}
+                    >
+                      <div className="bg-white mt-1 rounded-lg">
                         <h3 className="font-semibold text-lg">
                           Available Stores
                         </h3>
@@ -738,25 +759,38 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                         ) : stores.length === 0 ? (
                           <p>No stores available to connect.</p>
                         ) : (
-                          <ul>
+                          <div>
                             {stores.map((store) => (
-                              <li
+                              <div
+                                className="flex flex-row justify-between items-center gap-4 py-2"
                                 key={store.id}
-                                className="flex justify-between items-center p-2 border-b"
                               >
-                                <span>{store.store_name}</span>
+                                <p className="flex-1">{store.store_name}</p>
+                                <p
+                                  className={`w-3 h-3 rounded-full ${
+                                    store.is_store_listed
+                                      ? "bg-green-500"
+                                      : "bg-red-500"
+                                  }`}
+                                ></p>
                                 <button
                                   onClick={() => connectStore(store.id)}
-                                  className="bg-blue-500 text-white px-3 py-1 rounded-lg"
+                                  className={`px-3 py-1 rounded-lg ${
+                                    store.is_store_listed
+                                      ? "bg-gray-200 text-white cursor-not-allowed"
+                                      : "bg-[#4710B5] text-white"
+                                  }`}
+                                  disabled={store.is_store_listed}
                                 >
-                                  Add
+                                  Connect store
                                 </button>
-                              </li>
+                              </div>
                             ))}
-                          </ul>
+                          </div>
                         )}
                       </div>
-                    )}
+                    </CustomModal>
+                  )}
                   </div>
                 </div>
               )}
