@@ -23,7 +23,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [selectedStore, setSelectedStore] = useState<any | null>(null);
 
   const fetchStoreData = async () => {
-    const { data, error } = await supabase.from("stores").select("*");
+    const { data, error } = await supabase.from("stores").select("*").eq("is_store_listed", true);;
 
     if (error) {
       console.error("Error fetching stores:", error.message);
