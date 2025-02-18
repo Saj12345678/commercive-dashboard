@@ -103,7 +103,6 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
     </div>
   );
 };
-
 export default Header;
 
 interface DropdownProps {
