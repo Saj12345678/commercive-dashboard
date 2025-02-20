@@ -988,7 +988,6 @@ export default function CommercivePartners() {
                   disableHoverListener
                   disableTouchListener
                 >
-                  
                   <div>
                     <CustomButton
                       label="Copy"
