@@ -585,7 +585,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             </div>
           </div>
 
-        {!pathName?.includes("/admin") &&  <div className="flex flex-col w-full gap-2 cursor-pointer">
+        {!pathName?.includes("/admin") &&  <div className="flex flex-col w-full gap-2 cursor-pointer" onClick={() => { router.push('/profile')}}>
               <div
                 className={`flex ${isCollapsed && "justify-center"} ${
                   pathName === "setting"
@@ -835,7 +835,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             </div>
 
             {/* Bottom Section */}
-            {!pathName?.includes("/admin") &&  <div className="flex flex-col w-full gap-2 cursor-pointer bg-white">
+            {!pathName?.includes("/admin") &&  <div className="flex flex-col w-full gap-2 cursor-pointer bg-white" onClick={() => { router.push('/profile')}}>
                 <div
                   className={`flex ${
                     pathName === "setting"

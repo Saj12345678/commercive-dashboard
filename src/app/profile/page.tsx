@@ -49,7 +49,14 @@ export default function Profile() {
         return;
       }
 
-      setUserData(data);
+      setUserData({
+        email: data.email || "",
+        first_name: data.first_name || "",
+        last_name: data.last_name || "",
+        user_name: data.user_name || "",
+        phone_number: data.phone_number || "",
+      });
+
     } finally {
       setLoading(false);
     }
@@ -65,17 +72,24 @@ export default function Profile() {
         return;
       }
 
+      const phoneRegex = /^[\+]?[0-9]{1,15}$/;
+      if (!phoneRegex.test(userData.phone_number)) {
+        toast.error("Invalid phone number.");
+        return;
+      }
+
       const { error } = await supabase
         .from("user")
         .update({
           first_name: userData.first_name,
           last_name: userData.last_name,
           user_name: userData.user_name,
-          // phone_number: userData.phone_number,
+          phone_number: userData.phone_number,
         })
         .eq("id", user.id);
 
       if (error) {
+        console.log(error, "vdvdv")
         toast.error("Failed to update user data.");
         return;
       }
@@ -134,7 +148,7 @@ export default function Profile() {
             type="text"
             className="mt-[8px]"
             label="Phone"
-            // value={userData.phone_number}
+            value={userData.phone_number}
             onChange={handleInputChange}
           />
         </div>

@@ -7,9 +7,11 @@ import { useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { ActionResponse } from "@/components/type-identifiers";
 import LogoIcon from "@/components/images/full-logo";
+import { createClient } from "../utils/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
+  const supabase = createClient();
   const [state, formAction] = useActionState<ActionResponse<void>, FormData>(login, null);
 
   useEffect(() => {
@@ -36,6 +38,22 @@ export default function LoginPage() {
       router.push('/commercive-partners')
     }
   }, [state]);
+
+  useEffect(() => {
+
+    const checkUser = async () => {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        router.push("/login"); 
+        return;
+      } else {
+        router.push('/home')
+      }
+    };
+
+    checkUser();
+  }, [supabase])
 
   return (
     <div className="flex items-center justify-center w-full h-screen">

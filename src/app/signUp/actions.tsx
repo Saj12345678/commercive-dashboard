@@ -14,9 +14,9 @@ export const signup = async (prevState: any, formData: FormData): Promise<Action
   const firstName = formData.get('firstName') as string;
   const lastName = formData.get('lastName') as string;
   const userName = formData.get('userName') as string;
-  const phoneNumber = formData.get('phoneNumber');
+  const phoneNumber = formData.get('phoneNumber') as string;
 
-  if (!email || !password || !firstName || !lastName || !userName) {
+  if (!email || !password || !firstName || !lastName || !userName || !phoneNumber) {
     console.error("Email, password, first name, last name, username and phone number is missing");
     return {
       success: false,
