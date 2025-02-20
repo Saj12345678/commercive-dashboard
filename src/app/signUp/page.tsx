@@ -44,7 +44,7 @@ function SignupForm() {
       toast.success("SignUp successfully!", {
         toastId: "signup-success",
       });
-      router.push('/')
+      router.push('/login')
     }
   }, [state]);
 

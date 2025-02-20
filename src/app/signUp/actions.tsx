@@ -82,5 +82,5 @@ export const signup = async (prevState: any, formData: FormData): Promise<Action
   }
 
   revalidatePath('/', 'layout');
-  return redirect('/');
+  return redirect('/login');
 }
