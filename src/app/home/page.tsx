@@ -537,7 +537,10 @@ export default function Home() {
       handleFetchData();
     }
   }, [currentDateRange, compareDateRange, selectedStore]);
-
+  const customColors = {
+    color: "#4CAF50", // Range start and end date color
+    backgroundColor: "#DFF0D8", // Background color for the selected range
+  };
   const Data = [
     {
       image: "",
@@ -584,7 +587,7 @@ export default function Home() {
     <>
       <main
         // style={{ height: "calc(100vh - 70px)" }}
-        className="flex flex-col h-full max-h-full w-full gap-5 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
+        className="flex flex-col h-full max-h-full w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
         {loading && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -606,7 +609,7 @@ export default function Home() {
             className="!hidden !px-4 !py-1 !rounded-md !font-semibold gap-2 !capitalize md:!flex"
             onClick={toggleFullScreen}
             sx={{
-              border: "3px solid #EBEBEB",
+              border: "2px solid #EBEBEB",
               boxShadow: "none",
               backgroundColor: "transparent",
               color: "#454545",
@@ -624,7 +627,8 @@ export default function Home() {
               <input
                 type="text"
                 style={{
-                  border: "3px solid #EBEBEB",
+                  width: "160px",
+                  border: "2px solid #EBEBEB",
                   boxShadow: "none",
                   borderRadius: "5px",
                   backgroundColor: "transparent",
@@ -696,7 +700,8 @@ export default function Home() {
               <input
                 type="text"
                 style={{
-                  border: "3px solid #EBEBEB",
+                  width: "160px",
+                  border: "2px solid #EBEBEB",
                   boxShadow: "none",
                   borderRadius: "5px",
                   backgroundColor: "transparent",

@@ -64,6 +64,11 @@ body {
 .custom-box-shadow {
   border-radius: 20px;
   background-color: rgb(255, 255, 255);
-  box-shadow: inset 0px 2px 4px 0px rgba(60, 60, 60, 0.11),
-              inset 0px -4px 3px 0px rgba(62, 62, 62, 0.1);
+  box-shadow: inset 0 2px 2px 0 rgba(60,60,60,.11),
+              inset 0px -3px 3px 0px rgba(62, 62, 62, 0.1);
+}
+
+.drop-down-shadow{
+  --tw-shadow: 0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
+  --tw-shadow-colored: 0 10px 15px -3px #15151500, 0 4px 6px -4px #1515156b;
 }

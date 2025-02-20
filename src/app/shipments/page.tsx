@@ -240,7 +240,8 @@ export default function Shipment() {
             >
               <input
                 style={{
-                  border: "3px solid #EBEBEB",
+                  width : "160px",
+                  border: "2px solid #EBEBEB",
                   boxShadow: "none",
                   borderRadius: "5px",
                   backgroundColor: "transparent",
@@ -310,7 +311,7 @@ export default function Shipment() {
               className="!hidden !px-4 !py-1 !rounded-md !font-semibold gap-2 !capitalize md:!flex"
               onClick={toggleFullScreen}
               sx={{
-                border: "3px solid #EBEBEB",
+                border: "2px solid #EBEBEB",
                 boxShadow: "none",
                 backgroundColor: "transparent",
                 color: "#454545",

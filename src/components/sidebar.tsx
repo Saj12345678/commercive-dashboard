@@ -364,7 +364,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
           >
             <div className="flex flex-col gap-2 relative">
             {!pathName?.includes("/admin") && <div
-                  className={`w-full flex justify-between border-4 border-[#F4F4F7] rounded-md py-2 px-4 ${
+                  className={`w-full flex justify-between border-2 border-[#F4F4F7] rounded-md py-2 px-4 ${
                     isCollapsed && "!px-1"
                   }`}
                 >
@@ -646,7 +646,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             >
               {/* User Section */}
               {!pathName?.includes("/admin") && <div
-                  className={`w-full flex justify-between border-4 border-[#F4F4F7] rounded-md p-2 bg-white`}
+                  className={`w-full flex justify-between border-2 border-[#F4F4F7] rounded-md p-2 bg-white`}
                 >
                   <div
                     className={`flex w-full`}

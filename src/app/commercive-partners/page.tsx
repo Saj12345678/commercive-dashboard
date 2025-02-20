@@ -630,7 +630,8 @@ export default function CommercivePartners() {
               {/* Input Field */}
               <input
                 style={{
-                  border: "3px solid #EBEBEB",
+                  width : "160px",
+                  border: "2px solid #EBEBEB",
                   boxShadow: "none",
                   borderRadius: "5px",
                   backgroundColor: "transparent",
@@ -703,7 +704,8 @@ export default function CommercivePartners() {
               {/* Input Field */}
               <input
                 style={{
-                  border: "3px solid #EBEBEB",
+                  width : "160px",
+                  border: "2px solid #EBEBEB",
                   boxShadow: "none",
                   borderRadius: "5px",
                   backgroundColor: "transparent",
