@@ -6,6 +6,7 @@ import { login } from "./actions";
 import { useActionState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { ActionResponse } from "@/components/type-identifiers";
+import LogoIcon from "@/components/images/full-logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,19 +16,19 @@ export default function LoginPage() {
     if (!state) {
       return;
     }
-  
+
     if (!state.success && state.errors) {
       const errors = Array.isArray(state.errors)
         ? state.errors
-        : [state.errors]; 
-  
+        : [state.errors];
+
       errors.forEach((error) => {
         toast.error(error, {
           toastId: error,
         });
       });
     }
-  
+
     if (state.success) {
       toast.success("Logged in successfully!", {
         toastId: "login-success",
@@ -39,11 +40,22 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center w-full h-screen">
       <div className="bg-white p-8 rounded-md shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6 text-blue-600">
-          Welcome Back
+        <div className="flex justify-center mb-5">
+          <LogoIcon width={150} height={35} color={"#4F11C9"} />
+        </div>
+        <h1 className="text-2xl font-bold mb-2 text-blue-600">
+          Sign In
         </h1>
-        <p className="text-center mb-6 text-gray-600">
-          Please login to continue
+        <p className="mb-10 text-gray-500">
+          Don’t have an account?{' '}
+          <span
+            className="text-blue-600 cursor-pointer hover:underline"
+            onClick={() => {
+              router.push("/signUp");
+            }}
+          >
+            Sign up
+          </span>
         </p>
         <form action={formAction}>
           <div className="space-y-4">
@@ -74,23 +86,12 @@ export default function LoginPage() {
               />
             </div>
             <CustomButton
-                type="submit"
-                label={'Log in'}
-                className="w-full whitespace-nowrap px-6 text-xl lg:h-full"
-              />
+              type="submit"
+              label={'Sign In'}
+              className="w-full whitespace-nowrap px-6 text-md lg:h-full"
+            />
           </div>
         </form>
-        <p className="mt-4 text-center text-gray-500">
-          Don’t have an account?{' '}
-          <span
-            className="text-blue-600 cursor-pointer hover:underline"
-            onClick={() => {
-              router.push("/signUp");
-            }}
-          >
-            Sign up
-          </span>
-        </p>
       </div>
     </div>
   );

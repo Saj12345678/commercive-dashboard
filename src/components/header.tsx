@@ -54,7 +54,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [setShowDropdown,dropdownRef,avatarRef]);
+  }, [setShowDropdown, dropdownRef, avatarRef]);
 
   const handleLogout = async () => {
     const { error } = await supabase?.auth?.signOut();
@@ -67,7 +67,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
     <div className={`w-full flex justify-between py-4 px-6 h-[70px] bg-white`}>
       <div className="flex">
         <button className="md:hidden mr-4 flex" onClick={toggleSidebar}>
-          <Logo width={24} height={35}/>
+          <Logo width={24} height={35} />
         </button>
         <div className="hidden md:flex items-center justify-center">
           <LogoIcon width={150} height={35} color={"#4F11C9"} />
@@ -97,7 +97,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
         </div>
         {
           showDropdown &&
-          <Dropdown userEmail={userEmail} handleLogout={handleLogout} dropdownRef={dropdownRef}/>
+          <Dropdown userEmail={userEmail} handleLogout={handleLogout} dropdownRef={dropdownRef} />
         }
       </div>
     </div>
@@ -112,32 +112,32 @@ interface DropdownProps {
   dropdownRef: React.RefObject<HTMLDivElement | null>;
 }
 
-const Dropdown = ({ userEmail, handleLogout,dropdownRef }: DropdownProps) => {
+const Dropdown = ({ userEmail, handleLogout, dropdownRef }: DropdownProps) => {
   return (
     <div className="top-16 absolute right-4 bg-white border border-custom-border-2 rounded-md text-sm text-custom-text-2 z-50 drop-down-shadow" ref={dropdownRef}>
       <div className="p-3 pt-2 border-b border-custom-border-1">
         <div className="flex items-center border-b border-custom-border-1 pb-2">
           <div className="bg-violet-300 w-7 h-7 flex justify-center items-center rounded-full overflow-hidden mr-1">
-          <Avatar
-            alt="User Avatar"
-            sx={{
-              width: 28,
-              height: 28,
-              backgroundColor: "#D7C9F7",
-              color: "#4F12CA",
-            }}
-          />
+            <Avatar
+              alt="User Avatar"
+              sx={{
+                width: 28,
+                height: 28,
+                backgroundColor: "#D7C9F7",
+                color: "#4F12CA",
+              }}
+            />
           </div>
           <div className="ml-1">
             <p className="text-xs text-custom-text-3">{userEmail}</p>
           </div>
         </div>
         <div className="mt-2">
-          <Link href="#" className="flex items-center mt-1 hover:underline">
+          <Link href="/profile" className="flex items-center mt-1 hover:underline">
             <LuUserRound size={14} />
             <p className="ml-2">Profile</p>
           </Link>
-          <Link href="#" className="flex items-center mt-1 hover:underline">
+          <Link href="/reset-password" className="flex items-center mt-1 hover:underline">
             <PiLockKey size={14} />
             <p className="ml-2">Change Password</p>
           </Link>
