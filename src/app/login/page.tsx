@@ -45,7 +45,7 @@ export default function LoginPage() {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        router.push("/login"); 
+        router.push("/login");
         return;
       } else {
         router.push('/home')
@@ -87,7 +87,7 @@ export default function LoginPage() {
                 type="email"
                 placeholder="Enter your email"
                 required
-                className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border-2 border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
                 type="password"
                 placeholder="Enter your password"
                 required
-                className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border-2 border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <CustomButton

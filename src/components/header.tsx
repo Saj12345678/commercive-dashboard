@@ -114,9 +114,9 @@ interface DropdownProps {
 
 const Dropdown = ({ userEmail, handleLogout, dropdownRef }: DropdownProps) => {
   return (
-    <div className="top-16 absolute right-4 bg-white border border-custom-border-2 rounded-md text-sm text-custom-text-2 z-50 drop-down-shadow" ref={dropdownRef}>
-      <div className="p-3 pt-2 border-b border-custom-border-1">
-        <div className="flex items-center border-b border-custom-border-1 pb-2">
+    <div className="top-16 absolute right-4 bg-white border-2 border-custom-border-2 rounded-md text-sm text-custom-text-2 z-50 drop-down-shadow" ref={dropdownRef}>
+      <div className="p-3 pt-2 border-b border-custom-border-2">
+        <div className="flex items-center border-b border-custom-border-2 pb-2">
           <div className="bg-violet-300 w-7 h-7 flex justify-center items-center rounded-full overflow-hidden mr-1">
             <Avatar
               alt="User Avatar"

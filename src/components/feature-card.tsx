@@ -14,7 +14,7 @@ const amount = ["$100", "$500", "$100", "Max"];
 
 export default function FeatureCard({ data, page, dateRange }: FeatureCardProps) {
   const [isModalOpen, setModalOpen] = useState(false);
-  console.log(dateRange)
+
   const handleWithdrawalClick = () => {
     setModalOpen(true);
   };
@@ -39,7 +39,7 @@ export default function FeatureCard({ data, page, dateRange }: FeatureCardProps)
                 {data.name === "Wallet" && (
                   <div
                     onClick={handleWithdrawalClick}
-                    className="flex border bg-[#F4F4F7] text-[#3D3C3C] font-semibold rounded-md p-2 cursor-pointer"
+                    className="flex border-2 bg-[#F4F4F7] text-[#3D3C3C] font-semibold rounded-md p-2 cursor-pointer"
                   >
                     Withdraw
                   </div>
@@ -122,7 +122,7 @@ export default function FeatureCard({ data, page, dateRange }: FeatureCardProps)
                   </div>
                   <div className="w-full">
                     <p>To</p>
-                    <div className="border rounded p-2">
+                    <div className="border-2 rounded p-2">
                       <input placeholder="Enter your paypal address" />
                     </div>
                   </div>
@@ -144,5 +144,44 @@ export default function FeatureCard({ data, page, dateRange }: FeatureCardProps)
         </div>
       ))}
     </>
+  );
+}
+
+export function FeatureCardSkeleton({ page }: { page: string }) {
+  return (
+    <div className="flex">
+      {Array(4)
+        .fill(null)
+        .map((_, index) => (
+          <div
+            key={index}
+            className={`flex flex-col w-full bg-[#ffffff] ${index === 3 ? "mr-0" : "mr-6"} 
+            pl-6 py-4 pr-4 flex-0 overflow-hidden custom-box-shadow`}
+          >
+            <div className="flex w-full flex-col gap-3">
+              <div className="flex w-full flex-wrap justify-between items-center">
+                <p className="h-[22px] w-[135px] mt-1 bg-gray-200 rounded-md animate-pulse"></p>
+                {page === "commercive" && index === 3 && (
+                  <div className="h-[30px] w-[100px] bg-gray-200 rounded-md animate-pulse"></div>
+                )}
+              </div>
+              <div className="flex gap-2 items-end">
+                <div className="flex flex-1 flex-col gap-2">
+                  <div className="flex gap-2 items-center">
+                    <p className="h-[22px] w-[80px] bg-gray-200 rounded-md animate-pulse"></p>
+                    {page === "commercive" && (
+                      <div className="w-[28px] h-[28px] bg-gray-200 rounded-full animate-pulse"></div>
+                    )}
+                    <p className="h-[20px] w-[30px] bg-gray-200 rounded-md animate-pulse"></p>
+                  </div>
+                  <p className="h-[18px] w-[100px] bg-gray-200 rounded-md animate-pulse"></p>
+                  <p className="h-[18px] w-[110px] bg-gray-200 rounded-md animate-pulse"></p>
+                </div>
+                <div className="h-[50px] w-[181px] bg-gray-200 rounded-md animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+    </div>
   );
 }

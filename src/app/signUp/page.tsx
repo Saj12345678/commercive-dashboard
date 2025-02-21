@@ -70,7 +70,7 @@ function SignupForm() {
                   type="text"
                   placeholder="Enter your first name"
                   required
-                  className="w-full border p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -83,7 +83,7 @@ function SignupForm() {
                   type="text"
                   placeholder="Enter your last name"
                   required
-                  className="w-full border p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -99,7 +99,7 @@ function SignupForm() {
                   type="text"
                   placeholder="Enter your user name"
                   required
-                  className="w-full border p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -112,7 +112,7 @@ function SignupForm() {
                   type="number"
                   placeholder="Enter your phone number"
                   required
-                  className="w-full border p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -127,7 +127,7 @@ function SignupForm() {
                 type="email"
                 placeholder="Enter your email"
                 required
-                className="w-full border p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
@@ -140,7 +140,7 @@ function SignupForm() {
                 type="password"
                 placeholder="Enter your password"
                 required
-                className="w-full border p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             {referralCode && (

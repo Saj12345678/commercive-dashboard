@@ -68,7 +68,7 @@ export default function Inventory() {
                     const committed =
                         inventoryQuantities.find((q: any) => q.name === "committed")
                             ?.quantity || 0;
-                            
+
                     const backOrders = item.back_orders || 0;
 
                     let stockStatus = "Enough Stock";
@@ -166,7 +166,7 @@ export default function Inventory() {
     };
 
     return (
-        <Paper elevation={0} className="w-full px-4 py-6 sm:px-6 sm:py-8 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] overflow-y-auto custom-scrollbar" style={{ height: "100%", borderTopLeftRadius: "24px" }}>
+        <Paper elevation={0} className="w-full px-4 py-6 sm:px-6 sm:py-8 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] overflow-y-auto custom-scrollbar" style={{ height: "100%", borderTopLeftRadius: "24px" }}>
             {loading && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="loader"></div>
@@ -204,7 +204,7 @@ export default function Inventory() {
                             key={tab.label}
                             className={`flex items-center gap-2 w-max px-4 py-1 rounded-md text-${tab.color
                                 }-700 bg-${tab.color}-100 ${selectedTab === tab.label
-                                    ? `border border-${tab.color}-700`
+                                    ? `border-2 border-${tab.color}-700`
                                     : ""
                                 }`}
                             onClick={() => setSelectedTab(tab.label)}
@@ -294,7 +294,7 @@ export default function Inventory() {
 
             {/* Pagination UI */}
             <div className="flex justify-between items-center mt-4">
-                <select value={itemsPerPage} onChange={handleItemsPerPageChange} className="border rounded p-1">
+                <select value={itemsPerPage} onChange={handleItemsPerPageChange} className="border-2 rounded p-1">
                     <option value={5}>5</option>
                     <option value={10}>10</option>
                     <option value={20}>20</option>

@@ -1,9 +1,9 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
-import { MdOutlineCalendarToday, MdOutlineClose } from "react-icons/md";
+import { MdOutlineClose } from "react-icons/md";
 import { toast } from "react-toastify";
-import FeatureCard from "@/components/feature-card";
+import FeatureCard, { FeatureCardSkeleton } from "@/components/feature-card";
 import CustomModal from "@/components/ui/modal";
 import { createClient } from "../utils/supabase/client";
 import {
@@ -203,6 +203,7 @@ export default function CommercivePartners() {
     { image: "", name: "", email: "", amount: "", commission: "" },
   ]);
   const [isModalOpen, setModalOpen] = useState(false);
+  const [loadingCard, setLoadingCard] = useState(true);
 
   const handleAffiliateClick = async () => {
     setLoading(true);
@@ -572,11 +573,18 @@ export default function CommercivePartners() {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoadingCard(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
       <main
         // style={{ height: "calc(100vh - 70px)" }}
-        className="flex flex-col w-full gap-5 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
+        className="flex flex-col w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
         {loading && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -613,7 +621,7 @@ export default function CommercivePartners() {
               backgroundColor: "#4F12CA",
               boxShadow: "none",
               textTransform: "capitalize",
-              border: "1px solid #4F12CA",
+              border: "2px solid #4F12CA",
               "&:hover": {
                 backgroundColor: "#4F12CA",
               },
@@ -630,7 +638,7 @@ export default function CommercivePartners() {
               {/* Input Field */}
               <input
                 style={{
-                  width : "160px",
+                  width: "160px",
                   border: "2px solid #EBEBEB",
                   boxShadow: "none",
                   borderRadius: "5px",
@@ -657,7 +665,7 @@ export default function CommercivePartners() {
                 }
                 onFocus={() => setShowCurrentDateRange(true)} // Show on focus
                 readOnly
-                className="border p-2 pl-8 w-full text-sm cursor-pointer"
+                className="border-2 p-2 pl-8 w-full text-sm cursor-pointer"
               />
               <CiCalendar
                 style={{
@@ -704,7 +712,7 @@ export default function CommercivePartners() {
               {/* Input Field */}
               <input
                 style={{
-                  width : "160px",
+                  width: "160px",
                   border: "2px solid #EBEBEB",
                   boxShadow: "none",
                   borderRadius: "5px",
@@ -731,7 +739,7 @@ export default function CommercivePartners() {
                 }
                 onFocus={() => setShowCompareDateRange(true)} // Show on focus
                 readOnly
-                className="border p-2 pl-8 w-full text-sm cursor-pointer"
+                className="border-2 p-2 pl-8 w-full text-sm cursor-pointer"
               />
               <CiCalendar
                 style={{
@@ -778,7 +786,11 @@ export default function CommercivePartners() {
         </div>
 
         <div className="flex flex-row overflow-auto whitespace-nowrap custom-scrollbar">
-          <FeatureCard data={chartData} page={"commercive"} dateRange={compareDateRange} />
+          {loadingCard ? (
+            <FeatureCardSkeleton page="commercive" />
+          ) : (
+            <FeatureCard data={chartData} page={"commercive"} dateRange={compareDateRange} />
+          )}
         </div>
 
         <div className="flex w-full flex-col gap-3 py-2">
@@ -888,7 +900,7 @@ export default function CommercivePartners() {
                       paginatedData.map((item, index) => (
                         <TableRow
                           key={index}
-                          style={{ border: "1px solid #F4F4F7" }}
+                          style={{ border: "2px solid #F4F4F7" }}
                         >
                           <TableCell>
                             <div style={{ display: "flex", gap: "16px" }}>
@@ -997,7 +1009,7 @@ export default function CommercivePartners() {
                   </div>
                 </Tooltip>
               </div>
-              <div className="flex flex-col bg-[#F5F5F5] border px-4 py-6 rounded-lg gap-3">
+              <div className="flex flex-col bg-[#F5F5F5] border-2 px-4 py-6 rounded-lg gap-3">
                 <div className="flex justify-between items-center">
                   <p className="font-bold">Text Preview</p>
                   <Tooltip

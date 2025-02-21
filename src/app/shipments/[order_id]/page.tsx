@@ -298,7 +298,7 @@ export default function OrderDetails() {
   ];
   return (
     <Box
-      className="w-full px-4 py-6 sm:px-6 sm:py-8 border-l-none md:border-l-4 border-t-4 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px]"
+      className="w-full px-4 py-6 sm:px-6 sm:py-8 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px]"
       style={{ height: "100%" }}
     >
       {loading && (
@@ -310,7 +310,7 @@ export default function OrderDetails() {
       <div className="mb-4">
         <label className="text-sm font-semibold">Select Map Style:</label>
         <select
-          className="ml-2 p-1 border rounded"
+          className="ml-2 p-1 border-2 rounded"
           value={mapStyle}
           onChange={(e) =>
             setMapStyle(e.target.value as keyof typeof mapStyles)
@@ -397,9 +397,9 @@ export default function OrderDetails() {
               Started on{" "}
               {orderData.created_at
                 ? format(
-                    new Date(orderData.created_at),
-                    "dd/MM/yyyy h:mm a"
-                  ).toLowerCase()
+                  new Date(orderData.created_at),
+                  "dd/MM/yyyy h:mm a"
+                ).toLowerCase()
                 : "—"}
             </Typography>
           </Box>
@@ -407,7 +407,7 @@ export default function OrderDetails() {
         <Box
           className="absolute top-4 right-4 h-[80vh] bg-white shadow-lg rounded-xl p-6 w-[400px]"
           sx={{
-            border: "1px solid #E5E7EB",
+            border: "2px solid #E5E7EB",
             zIndex: 1000,
             width: { xs: "90%", sm: "60%", md: "460px" },
             left: { xs: "50%", sm: "65%", md: "auto" },

@@ -5,7 +5,7 @@ import { Button } from "@mui/material";
 import { useEffect, useState, useRef } from "react";
 
 import { DateRangePicker, Range } from "react-date-range";
-import FeatureCard from "@/components/feature-card";
+import FeatureCard, { FeatureCardSkeleton } from "@/components/feature-card";
 import { createClient } from "../utils/supabase/client";
 import Inventory from "@/components/Inventory";
 import FullScreen from "@/components/images/full-screen";
@@ -202,6 +202,7 @@ export default function Home() {
   ]);
   const [inventoryData, setInventoryData] = useState<InventoryData[]>([]);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [loadingCard, setLoadingCard] = useState(true);
 
   // Function to calculate total earnings
   const calculateEarnings = (orders: any, weekOffset = 0, status = "paid") => {
@@ -583,6 +584,14 @@ export default function Home() {
       document.exitFullscreen().then(() => setIsFullScreen(false));
     }
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoadingCard(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <>
       <main
@@ -653,7 +662,7 @@ export default function Home() {
                 }
                 onFocus={() => setShowCurrentDateRange(true)} // Show on focus
                 readOnly
-                className="border p-2 pl-8 w-full text-sm cursor-pointer"
+                className="border-2 p-2 pl-8 w-full text-sm cursor-pointer"
               />
               <CiCalendar
                 style={{
@@ -726,7 +735,7 @@ export default function Home() {
                 }
                 onFocus={() => setShowCompareDateRange(true)} // Show on focus
                 readOnly
-                className="border p-2 pl-8 w-full text-sm cursor-pointer"
+                className="border-2 p-2 pl-8 w-full text-sm cursor-pointer"
               />
               <CiCalendar
                 style={{
@@ -788,7 +797,11 @@ export default function Home() {
         </div>
 
         <div className="flex min-h-[165px] flex-row overflow-auto whitespace-nowrap custom-scrollbar">
-          <FeatureCard data={chartData} page={"home"} dateRange={compareDateRange} />
+          {loadingCard ? (
+            <FeatureCardSkeleton page="home" />
+          ) : (
+            <FeatureCard data={chartData} page="home" dateRange={compareDateRange} />
+          )}
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 w-full">
@@ -799,7 +812,7 @@ export default function Home() {
             <Summary selectedRange={currentDateRange} />
           </div>
         </div>
-        <div className="flex gap-4 w-full px-4 py-6 mb-6 sm:px-6 sm:py-8 bg-white border border-white rounded-lg shadow-lg custom-box-shadow">
+        <div className="flex gap-4 w-full px-4 py-6 mb-6 sm:px-6 sm:py-8 bg-white border-2 border-white rounded-lg shadow-lg custom-box-shadow">
           <div className="bg-white rounded-lg flex items-center gap-2">
             <Image
               src={"/svgs/Forecast.svg"}

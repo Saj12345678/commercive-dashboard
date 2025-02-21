@@ -1,5 +1,5 @@
 "use client";
-import { Box, Typography, Chip, Paper, Tooltip, Button } from "@mui/material";
+import { Box, Typography, Chip, Paper, Tooltip, Button, useMediaQuery } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import OrderIcon from "../../components/images/order";
@@ -212,8 +212,10 @@ export default function Shipment() {
 
     return `${Math.max(0, daysGap)} days`;
   };
+  const isLargeScreen = useMediaQuery("(min-width: 640px)");
+
   return (
-    <Paper elevation={3} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8">
+    <Paper elevation={3} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8 overflow-auto custom-scrollbar">
       <div className="bg-white">
         <Box className="flex flex-col gap-2 md:gap-2 sm:flex-row justify-between sm:items-center mb-4">
           <Box className="flex gap-2 items-center">
@@ -240,7 +242,7 @@ export default function Shipment() {
             >
               <input
                 style={{
-                  width : "160px",
+                  width: "160px",
                   border: "2px solid #EBEBEB",
                   boxShadow: "none",
                   borderRadius: "5px",
@@ -261,7 +263,7 @@ export default function Shipment() {
                 }
                 onFocus={() => setShowDatePicker(true)}
                 readOnly
-                className="border p-2 pl-8 text-sm cursor-pointer focus-within:outline-none"
+                className="border-2 p-2 pl-8 text-sm cursor-pointer focus-within:outline-none"
               />
               <CiCalendar
                 style={{
@@ -281,7 +283,7 @@ export default function Shipment() {
                     background: "white",
                     boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
                     top: "100%",
-                    left: 0,
+                    left: isLargeScreen ? -270 : 0,
                   }}
                 >
                   <DateRangePicker
