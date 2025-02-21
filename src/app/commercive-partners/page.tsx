@@ -959,6 +959,7 @@ export default function CommercivePartners() {
                             color: "#A8A8A9",
                           }}
                         >
+                          
                           No data available
                         </TableCell>
                       </TableRow>
