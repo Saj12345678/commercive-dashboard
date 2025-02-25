@@ -34,7 +34,7 @@ export default function CommercivePartners() {
   const router = useRouter();
   const getSundayOfWeek = (date: Date) => {
     const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
-    const diff = day === 0 ? 0 : - day; // Adjust when today is Sunday
+    const diff = day === 0 ? 0 : -day; // Adjust when today is Sunday
     return new Date(date.setDate(date.getDate() + diff));
   };
 
@@ -51,7 +51,8 @@ export default function CommercivePartners() {
     const lastSunday = getSundayOfLastWeek(new Date(date));
     return new Date(lastSunday.setDate(lastSunday.getDate() + 6)); // Move forward 6 days
   };
-  const [showCurrentDateRange, setShowCurrentDateRange] = useState<boolean>(false);
+  const [showCurrentDateRange, setShowCurrentDateRange] =
+    useState<boolean>(false);
   const [tmpCurrentDateRange, setTmpCurrentDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
@@ -66,7 +67,8 @@ export default function CommercivePartners() {
       key: "selection",
     },
   ]);
-  const [showCompareDateRange, setShowCompareDateRange] = useState<boolean>(false);
+  const [showCompareDateRange, setShowCompareDateRange] =
+    useState<boolean>(false);
   const [tmpCompareDateRange, setTmpCompareDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
@@ -84,7 +86,7 @@ export default function CommercivePartners() {
   const handleApplyCurrentDateRange = () => {
     setCurrentDateRange(tmpCurrentDateRange);
     setShowCurrentDateRange(false);
-  }
+  };
   const handleCurrentDateSelect = (ranges: any) => {
     setTmpCurrentDateRange([ranges.selection]);
     // setShowCurrentDateRange(false); // Hide after selection
@@ -93,7 +95,7 @@ export default function CommercivePartners() {
   const handleApplyTmpDateRange = () => {
     setCompareDateRange(tmpCurrentDateRange);
     setShowCompareDateRange(false);
-  }
+  };
   const handleCompareDateSelect = (ranges: any) => {
     setTmpCompareDateRange([ranges.selection]);
   };
@@ -127,7 +129,10 @@ export default function CommercivePartners() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (currentPickerRef.current && !currentPickerRef.current.contains(event.target as Node)) {
+      if (
+        currentPickerRef.current &&
+        !currentPickerRef.current.contains(event.target as Node)
+      ) {
         setShowCurrentDateRange(false);
       }
     };
@@ -143,7 +148,10 @@ export default function CommercivePartners() {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (comparePickerRef.current && !comparePickerRef.current.contains(event.target as Node)) {
+      if (
+        comparePickerRef.current &&
+        !comparePickerRef.current.contains(event.target as Node)
+      ) {
         setShowCompareDateRange(false);
       }
     };
@@ -289,7 +297,11 @@ export default function CommercivePartners() {
     }
   };
 
-  const calculateEarnings = (orders: any, weekOffset = 0, status: string): number => {
+  const calculateEarnings = (
+    orders: any,
+    weekOffset = 0,
+    status: string
+  ): number => {
     const totalEarning = orders.reduce((total: number, order: any) => {
       const financialStatus = order.financial_status.trim();
       const subTotal = parseFloat(order.sub_total_price);
@@ -358,7 +370,10 @@ export default function CommercivePartners() {
     return totalsArray;
   }
 
-  const calculatePercentageChange = (currentWeek: number, pastWeek: number): string => {
+  const calculatePercentageChange = (
+    currentWeek: number,
+    pastWeek: number
+  ): string => {
     // Handle cases where the past week's earnings are zero to avoid division by zero
     if (pastWeek === 0) {
       return currentWeek > 0 ? "100%" : "0%";
@@ -379,7 +394,9 @@ export default function CommercivePartners() {
     const formattedStartDate = formatDateForQuery(currentDateRange.startDate);
     const formattedEndDate = formatDateForQuery(currentDateRange.endDate);
 
-    const formattedStartDatePast = formatDateForQuery(compareDateRange.startDate);
+    const formattedStartDatePast = formatDateForQuery(
+      compareDateRange.startDate
+    );
     const formattedEndDatePast = formatDateForQuery(compareDateRange.endDate);
 
     setLoading(true);
@@ -397,19 +414,18 @@ export default function CommercivePartners() {
         .gte("created_at", formattedStartDatePast)
         .lt("created_at", formattedEndDatePast);
 
-
       const { data: referral, error: referralsError } = await supabase
         .from("referrals")
         .select("*")
         .gte("created_at", formattedStartDate)
         .lte("created_at", formattedEndDate);
 
-      const { data: pastWeekReferral, error: pastWeekReferralsError } = await supabase
-        .from("referrals")
-        .select("*")
-        .gte("created_at", formattedStartDatePast)
-        .lte("created_at", formattedEndDatePast);
-
+      const { data: pastWeekReferral, error: pastWeekReferralsError } =
+        await supabase
+          .from("referrals")
+          .select("*")
+          .gte("created_at", formattedStartDatePast)
+          .lte("created_at", formattedEndDatePast);
 
       if (orderError || referralsError) {
         console.error("Error fetching orders:", orderError, referralsError);
@@ -417,11 +433,25 @@ export default function CommercivePartners() {
       } else {
         const totalEarnings = calculateEarnings(orderData, 0, "paid");
         const pendingEarnings = calculateEarnings(orderData, 0, "pending");
-        const totalEarningsPastWeek = calculateEarnings(pastWeekOrders, 0, "paid");
-        const pendingEarningsPastWeek = calculateEarnings(pastWeekOrders, 0, "pending");
+        const totalEarningsPastWeek = calculateEarnings(
+          pastWeekOrders,
+          0,
+          "paid"
+        );
+        const pendingEarningsPastWeek = calculateEarnings(
+          pastWeekOrders,
+          0,
+          "pending"
+        );
 
-        const totalEarningsChange = calculatePercentageChange(totalEarnings, totalEarningsPastWeek);
-        const pendingEarningsChange = calculatePercentageChange(pendingEarnings, pendingEarningsPastWeek);
+        const totalEarningsChange = calculatePercentageChange(
+          totalEarnings,
+          totalEarningsPastWeek
+        );
+        const pendingEarningsChange = calculatePercentageChange(
+          pendingEarnings,
+          pendingEarningsPastWeek
+        );
 
         const groupedOrders = orderData.reduce((acc, order) => {
           if (order.customer_email) {
@@ -463,7 +493,7 @@ export default function CommercivePartners() {
 
         const groupedByDate = referral.reduce((acc, item) => {
           // Extract date part (YYYY-MM-DD) from created_at
-          const date = item.created_at.split('T')[0];
+          const date = item.created_at.split("T")[0];
           if (!acc[date]) {
             acc[date] = []; // Initialize an array for this date
           }
@@ -472,7 +502,9 @@ export default function CommercivePartners() {
         }, {});
 
         // Convert the grouped data into counts
-        const groupedCounts = Object.values(groupedByDate).map((group: any) => group.length);
+        const groupedCounts = Object.values(groupedByDate).map(
+          (group: any) => group.length
+        );
 
         const totalEarningsChart = groupAndSumByDate(pendingRecords);
         const pendingEarningsChart = groupAndSumByDate(paidRecords);
@@ -493,16 +525,18 @@ export default function CommercivePartners() {
               return {
                 ...item,
                 amount: totalEarnings.toFixed(2),
-                series: totalEarning.length > 0 ? totalEarning : [0, 0, 0, 0, 0],
-                percentage: totalEarningsChange
+                series:
+                  totalEarning.length > 0 ? totalEarning : [0, 0, 0, 0, 0],
+                percentage: totalEarningsChange,
               };
             }
             if (item.name === "Pending Earnings") {
               return {
                 ...item,
                 amount: pendingEarnings.toFixed(2),
-                series: pendingEarning.length > 0 ? pendingEarning : [0, 0, 0, 0, 0],
-                percentage: pendingEarningsChange
+                series:
+                  pendingEarning.length > 0 ? pendingEarning : [0, 0, 0, 0, 0],
+                percentage: pendingEarningsChange,
               };
             }
             if (item.name === "Total Referrals") {
@@ -512,14 +546,15 @@ export default function CommercivePartners() {
               const percentage =
                 pastWeekCount === 0
                   ? currentWeekCount > 0
-                    ? '100%' // If past week is 0 and current week has data
-                    : '0%' // If both past week and current week have no data
+                    ? "100%" // If past week is 0 and current week has data
+                    : "0%" // If both past week and current week have no data
                   : ((currentWeekCount - pastWeekCount) / pastWeekCount) * 100;
 
               return {
                 ...item,
                 amount: currentWeekCount,
-                series: groupedCounts.length > 0 ? groupedCounts : [0, 0, 0, 0, 0],
+                series:
+                  groupedCounts.length > 0 ? groupedCounts : [0, 0, 0, 0, 0],
                 percentage: percentage,
               };
             }
@@ -586,11 +621,11 @@ export default function CommercivePartners() {
         // style={{ height: "calc(100vh - 70px)" }}
         className="flex flex-col w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
-        {loading && (
+        {/* {loading && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="loader"></div>
           </div>
-        )}
+        )} */}
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col gap-1">
             <div className="flex gap-2 items-center justify-center">
@@ -649,18 +684,18 @@ export default function CommercivePartners() {
                 value={
                   currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
                     ? `${currentDateRange[0].startDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )} - ${currentDateRange[0].endDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )}`
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )} - ${currentDateRange[0].endDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCurrentDateRange(true)} // Show on focus
@@ -694,16 +729,10 @@ export default function CommercivePartners() {
                     moveRangeOnFirstSelection={false}
                   />
                   <div className="flex w-100 justify-end gap-3 p-2">
-                    <Button
-                      onClick={() => setShowCurrentDateRange(false)}
-                    >
+                    <Button onClick={() => setShowCurrentDateRange(false)}>
                       Cancel
                     </Button>
-                    <Button
-                      onClick={handleApplyCurrentDateRange}
-                    >
-                      Apply
-                    </Button>
+                    <Button onClick={handleApplyCurrentDateRange}>Apply</Button>
                   </div>
                 </div>
               )}
@@ -723,18 +752,18 @@ export default function CommercivePartners() {
                 value={
                   compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
                     ? `${compareDateRange[0].startDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )} - ${compareDateRange[0].endDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )}`
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )} - ${compareDateRange[0].endDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCompareDateRange(true)} // Show on focus
@@ -768,16 +797,10 @@ export default function CommercivePartners() {
                     moveRangeOnFirstSelection={false}
                   />
                   <div className="flex w-100 justify-end gap-3 p-2">
-                    <Button
-                      onClick={() => setShowCompareDateRange(false)}
-                    >
+                    <Button onClick={() => setShowCompareDateRange(false)}>
                       Cancel
                     </Button>
-                    <Button
-                      onClick={handleApplyTmpDateRange}
-                    >
-                      Apply
-                    </Button>
+                    <Button onClick={handleApplyTmpDateRange}>Apply</Button>
                   </div>
                 </div>
               )}
@@ -789,7 +812,11 @@ export default function CommercivePartners() {
           {loadingCard ? (
             <FeatureCardSkeleton page="commercive" />
           ) : (
-            <FeatureCard data={chartData} page={"commercive"} dateRange={compareDateRange} />
+            <FeatureCard
+              data={chartData}
+              page={"commercive"}
+              dateRange={compareDateRange}
+            />
           )}
         </div>
 
@@ -959,7 +986,6 @@ export default function CommercivePartners() {
                             color: "#A8A8A9",
                           }}
                         >
-                          
                           No data available
                         </TableCell>
                       </TableRow>

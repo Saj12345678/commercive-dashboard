@@ -86,7 +86,7 @@ export default function Home() {
   const handleApplyCurrentDateRange = () => {
     setCurrentDateRange(tmpCurrentDateRange);
     setShowCurrentDateRange(false);
-  }
+  };
   const handleCurrentDateSelect = (ranges: any) => {
     setTmpCurrentDateRange([ranges.selection]);
     // setShowCurrentDateRange(false); // Hide after selection
@@ -95,7 +95,7 @@ export default function Home() {
   const handleApplyTmpDateRange = () => {
     setCompareDateRange(tmpCurrentDateRange);
     setShowCompareDateRange(false);
-  }
+  };
   const handleCompareDateSelect = (ranges: any) => {
     setTmpCompareDateRange([ranges.selection]);
   };
@@ -598,11 +598,11 @@ export default function Home() {
         // style={{ height: "calc(100vh - 70px)" }}
         className="flex flex-col h-full max-h-full w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
-        {loading && (
+        {/* {loading && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="loader"></div>
           </div>
-        )}
+        )} */}
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col sm:flex-row gap-1">
             <h1 className="flex w-full text-[#454545] text-4xl font-bold">
@@ -646,18 +646,18 @@ export default function Home() {
                 value={
                   currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
                     ? `${currentDateRange[0].startDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )} - ${currentDateRange[0].endDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )}`
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )} - ${currentDateRange[0].endDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCurrentDateRange(true)} // Show on focus
@@ -690,16 +690,10 @@ export default function Home() {
                     moveRangeOnFirstSelection={false}
                   />
                   <div className="flex w-100 justify-end gap-3 p-2">
-                    <Button
-                      onClick={() => setShowCurrentDateRange(false)}
-                    >
+                    <Button onClick={() => setShowCurrentDateRange(false)}>
                       Cancel
                     </Button>
-                    <Button
-                      onClick={handleApplyCurrentDateRange}
-                    >
-                      Apply
-                    </Button>
+                    <Button onClick={handleApplyCurrentDateRange}>Apply</Button>
                   </div>
                 </div>
               )}
@@ -719,18 +713,18 @@ export default function Home() {
                 value={
                   compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
                     ? `${compareDateRange[0].startDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )} - ${compareDateRange[0].endDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )}`
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )} - ${compareDateRange[0].endDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCompareDateRange(true)} // Show on focus
@@ -763,16 +757,10 @@ export default function Home() {
                     moveRangeOnFirstSelection={false}
                   />
                   <div className="flex w-100 justify-end gap-3 p-2">
-                    <Button
-                      onClick={() => setShowCompareDateRange(false)}
-                    >
+                    <Button onClick={() => setShowCompareDateRange(false)}>
                       Cancel
                     </Button>
-                    <Button
-                      onClick={handleApplyTmpDateRange}
-                    >
-                      Apply
-                    </Button>
+                    <Button onClick={handleApplyTmpDateRange}>Apply</Button>
                   </div>
                 </div>
               )}
@@ -800,7 +788,11 @@ export default function Home() {
           {loadingCard ? (
             <FeatureCardSkeleton page="home" />
           ) : (
-            <FeatureCard data={chartData} page="home" dateRange={compareDateRange} />
+            <FeatureCard
+              data={chartData}
+              page="home"
+              dateRange={compareDateRange}
+            />
           )}
         </div>
 

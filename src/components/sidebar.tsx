@@ -70,7 +70,7 @@ const adminData = [
   {
     title: "Roles & Permissions",
     href: "/admin/roles",
-    icon: <ShipmentIcon width={20} height={20} color={"#000000"} />
+    icon: <ShipmentIcon width={20} height={20} color={"#000000"} />,
   },
 ];
 
@@ -97,12 +97,12 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
     label: string;
   } | null>(null);
   const [showDisconnect, setShowDisconnect] = useState(false);
-  const [stores, setStores] = useState<{ id: string; store_name: string, is_store_listed: boolean }[]>(
-    []
-  );
+  const [stores, setStores] = useState<
+    { id: string; store_name: string; is_store_listed: boolean }[]
+  >([]);
   const [showList, setShowList] = useState(false);
 
-  const sidebarData = pathName?.includes("/admin") ? adminData : data
+  const sidebarData = pathName?.includes("/admin") ? adminData : data;
 
   // const handleClick = (event: React.MouseEvent<HTMLElement>) => {
   //   setAnchorEl(event.currentTarget);
@@ -127,10 +127,10 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -146,7 +146,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   };
 
   const handleAddStore = () => {
-    console.log('Add Store');
+    console.log("Add Store");
   };
   const handleMoreClick = (store: { value: string; label: string } | null) => {
     setShowStoreData(true);
@@ -182,7 +182,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
     setLoading(true);
     const { data, error } = await supabase
       .from("stores")
-      .select("id, store_name, is_store_listed")
+      .select("id, store_name, is_store_listed");
     if (error) {
       console.error("Error fetching stores:", error.message);
     } else {
@@ -229,7 +229,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   // };
 
   const generateNameFromEmail = (email: string) => {
-    if (!email || typeof email !== 'string') {
+    if (!email || typeof email !== "string") {
       return "Anonymous";
     }
     const localPart = email.split("@")[0];
@@ -342,30 +342,84 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   return (
     <>
       {/* Sidebar for larger screens */}
-      {loading && (
+      {/* {loading && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="loader"></div>
         </div>
-      )}
+      )} */}
       <div
-        className={`hidden md:flex flex-col ${isCollapsed ? "w-24" : "w-[360px]"
-          } transition-all duration-500 ${pathName?.includes("/admin") ? 'bg-[#1b1838]' : 'bg-white'} h-full pb-6`}
+        className={`hidden md:flex flex-col ${
+          isCollapsed ? "w-24" : "w-[360px]"
+        } transition-all duration-500 ${
+          pathName?.includes("/admin") ? "bg-[#1b1838]" : "bg-white"
+        } h-full pb-6`}
       >
         <div
-          className={`flex flex-col ${isCollapsed ? "gap-5" : "gap-8"
-            } justify-between h-full px-3 pb-3`}
+          className={`flex flex-col ${
+            isCollapsed ? "gap-5" : "gap-8"
+          } justify-between h-full px-3 pb-3`}
         >
           <div
-            className={`flex flex-col ${isCollapsed ? "gap-5" : "gap-8"
-              } h-full`}
+            className={`flex flex-col ${
+              isCollapsed ? "gap-5" : "gap-8"
+            } h-full`}
           >
             <div className="flex flex-col gap-2 relative">
-              {!pathName?.includes("/admin") && <div
-                className={`w-full flex justify-between border-2 border-[#F4F4F7] rounded-md py-2 px-4 ${isCollapsed && "!px-1"
+              {!pathName?.includes("/admin") && (
+                <div
+                  className={`w-full flex justify-between border-2 border-[#F4F4F7] rounded-md py-2 px-4 ${
+                    isCollapsed && "!px-1"
                   }`}
-              >
-                <div className={`flex w-full ${isCollapsed && "hidden"}`}>
-                  <div className="flex w-full gap-2 items-center cursor-pointer" onClick={toggleSidebar}>
+                >
+                  <div className={`flex w-full ${isCollapsed && "hidden"}`}>
+                    <div
+                      className="flex w-full gap-2 items-center cursor-pointer"
+                      onClick={toggleSidebar}
+                    >
+                      <Avatar
+                        alt="User Avatar"
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          backgroundColor: "#D7C9F7",
+                          color: "#4F12CA",
+                        }}
+                      />
+                      <div className="flex flex-col">
+                        <h2>
+                          {storeName == "satish-dev" ? "Golf Pro" : storeName}
+                        </h2>
+                        <p className="text-[#B1B0B0]">Connected</p>
+                      </div>
+                    </div>
+                    <div className="flex">
+                      <div
+                        onClick={handleClick}
+                        className="flex gap-2 items-center cursor-pointer"
+                      >
+                        <Image
+                          src="/svgs/DownArrow.svg"
+                          width={14}
+                          height={14}
+                          alt="down-arrow"
+                          // className={`transition-transform duration-300 ${showStoreData ? 'rotate-180' : ''}`}
+                        />
+                      </div>
+                      {/* <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                  >
+                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </Menu> */}
+                    </div>
+                  </div>
+                  <div
+                    className={`${
+                      !isCollapsed && "hidden"
+                    } flex w-full cursor-pointer justify-center`}
+                    onClick={toggleSidebar}
+                  >
                     <Avatar
                       alt="User Avatar"
                       sx={{
@@ -375,57 +429,24 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                         color: "#4F12CA",
                       }}
                     />
-                    <div className="flex flex-col">
-                      <h2>{storeName == "satish-dev" ? "Golf Pro" : storeName}</h2>
-                      <p className="text-[#B1B0B0]">Connected</p>
-                    </div>
-                  </div>
-                  <div className="flex">
-                    <div
-                      onClick={handleClick}
-                      className="flex gap-2 items-center cursor-pointer"
-                    >
-                      <Image
-                        src="/svgs/DownArrow.svg"
-                        width={14}
-                        height={14}
-                        alt="down-arrow"
-                      // className={`transition-transform duration-300 ${showStoreData ? 'rotate-180' : ''}`}
-                      />
-                    </div>
-                    {/* <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                  >
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                  </Menu> */}
                   </div>
                 </div>
-                <div
-                  className={`${!isCollapsed && "hidden"
-                    } flex w-full cursor-pointer justify-center`}
-                  onClick={toggleSidebar}
-                >
-                  <Avatar
-                    alt="User Avatar"
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      backgroundColor: "#D7C9F7",
-                      color: "#4F12CA",
-                    }}
-                  />
-                </div>
-              </div>}
+              )}
               {showStoreData && !isCollapsed && (
-                <div ref={dropdownRef} className="w-full border-2 rounded shadow-lg absolute top-[78px] ">
+                <div
+                  ref={dropdownRef}
+                  className="w-full border-2 rounded shadow-lg absolute top-[78px] "
+                >
                   <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar cursor-pointer">
                     {storeData && storeData.length > 0 ? (
                       storeData.map((store, index) => (
                         <div
                           key={index}
-                          className={`flex justify-between items-center p-3 border-b ${store.label === storeName ? 'bg-[#F3E8FF] hover:bg-none' : 'bg-[#F9F9FF] hover:bg-[#F9F9FF]'}`}
+                          className={`flex justify-between items-center p-3 border-b ${
+                            store.label === storeName
+                              ? "bg-[#F3E8FF] hover:bg-none"
+                              : "bg-[#F9F9FF] hover:bg-[#F9F9FF]"
+                          }`}
                           onClick={() => handleStoreSelect(store)} // Select store on click
                         >
                           <p>
@@ -494,17 +515,19 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                               >
                                 <p className="flex-1">{store.store_name}</p>
                                 <p
-                                  className={`w-3 h-3 rounded-full ${store.is_store_listed
-                                    ? "bg-green-500"
-                                    : "bg-red-500"
-                                    }`}
+                                  className={`w-3 h-3 rounded-full ${
+                                    store.is_store_listed
+                                      ? "bg-green-500"
+                                      : "bg-red-500"
+                                  }`}
                                 ></p>
                                 <button
                                   onClick={() => connectStore(store.id)}
-                                  className={`px-3 py-1 ml-4 rounded-lg ${store.is_store_listed
-                                    ? "bg-gray-200 text-white cursor-not-allowed"
-                                    : "bg-[#4710B5] text-white"
-                                    }`}
+                                  className={`px-3 py-1 ml-4 rounded-lg ${
+                                    store.is_store_listed
+                                      ? "bg-gray-200 text-white cursor-not-allowed"
+                                      : "bg-[#4710B5] text-white"
+                                  }`}
                                   disabled={store.is_store_listed}
                                 >
                                   Connect store
@@ -521,7 +544,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             </div>
             {pathName?.includes("/admin") && (
               <div className="p-3">
-                <LogoIcon width={150} height={35} color={'#ffffff'} />
+                <LogoIcon width={150} height={35} color={"#ffffff"} />
               </div>
             )}
 
@@ -544,14 +567,15 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                       key={index}
                       prefetch={false}
                       className={`flex items-center rounded-md gap-3 p-3 
-                       ${pathName?.includes("/admin")
-                          ? pathName === link.href
-                            ? "text-white bg-[#231e45]"
-                            : "text-white bg-[#1b1838] hover:bg-[#231e45]"
-                          : pathName === link.href
-                            ? "text-black bg-[#F9F9FF]"
-                            : "text-black bg-[#FFF] hover:bg-purple-100"
-                        } 
+                       ${
+                         pathName?.includes("/admin")
+                           ? pathName === link.href
+                             ? "text-white bg-[#231e45]"
+                             : "text-white bg-[#1b1838] hover:bg-[#231e45]"
+                           : pathName === link.href
+                           ? "text-black bg-[#F9F9FF]"
+                           : "text-black bg-[#FFF] hover:bg-purple-100"
+                       } 
                       ${isCollapsed && "justify-center"}`}
                     >
                       <span className={`${isCollapsed && "justify-center"}`}>
@@ -561,8 +585,8 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                               ? "white"
                               : "white"
                             : pathName === link.href
-                              ? "#4F11C9"
-                              : "#000000",
+                            ? "#4F11C9"
+                            : "#000000",
                         })}
                       </span>
                       {!isCollapsed && (
@@ -574,45 +598,62 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                       )}
                     </Link>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
 
-          {!pathName?.includes("/admin") && <div className="flex flex-col w-full gap-2 cursor-pointer" onClick={() => { router.push('/profile') }}>
+          {!pathName?.includes("/admin") && (
             <div
-              className={`flex ${isCollapsed && "justify-center"} ${pathName === "setting"
-                ? "text-black bg-[#F9F9FF]"
-                : "text-black bg-[#FFF] hover:bg-purple-100"
-                } items-center w-full gap-3 p-3`}
+              className="flex flex-col w-full gap-2 cursor-pointer"
+              onClick={() => {
+                router.push("/profile");
+              }}
             >
-              <SettingIcon
-                width={20}
-                height={20}
-                color={pathName === "setting" ? "#4F11C9" : "#000000"}
-              />
-              {!isCollapsed && (
-                <p className="text-black text-sm tracking-wider">Settings</p>
-              )}
+              <div
+                className={`flex ${isCollapsed && "justify-center"} ${
+                  pathName === "setting"
+                    ? "text-black bg-[#F9F9FF]"
+                    : "text-black bg-[#FFF] hover:bg-purple-100"
+                } items-center w-full gap-3 p-3`}
+              >
+                <SettingIcon
+                  width={20}
+                  height={20}
+                  color={pathName === "setting" ? "#4F11C9" : "#000000"}
+                />
+                {!isCollapsed && (
+                  <p className="text-black text-sm tracking-wider">Settings</p>
+                )}
+              </div>
             </div>
-          </div>}
-          {!pathName?.includes("/admin") && <div
-            className={`w-full flex flex-col bg-[#9474E4] border-2 border-[#F4F4F7] rounded-[24px] py-8 px-4 gap-4 ${isCollapsed && "hidden"
+          )}
+          {!pathName?.includes("/admin") && (
+            <div
+              className={`w-full flex flex-col bg-[#9474E4] border-2 border-[#F4F4F7] rounded-[24px] py-8 px-4 gap-4 ${
+                isCollapsed && "hidden"
               }`}
-            style={{
-              borderRadius: "25px",
-              background: "linear-gradient(130deg, rgb(47,13,116) 0%, rgb(126,81,216) 36%, rgb(225,217,248) 100%)",
-            }}
-          >
-            <div><LogoIcon width={"70%"} height={35} color={'#ffffff'} /></div>
-            <p className="text-white text-sm">
-              Refer new members to commercive and unlock up to 1% commision on
-              all orders placed through us
-            </p>
-            <Button className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3" onClick={handleAffiliateClick}>
-              + Invite People
-            </Button>
-          </div>}
+              style={{
+                borderRadius: "25px",
+                background:
+                  "linear-gradient(130deg, rgb(47,13,116) 0%, rgb(126,81,216) 36%, rgb(225,217,248) 100%)",
+              }}
+            >
+              <div>
+                <LogoIcon width={"70%"} height={35} color={"#ffffff"} />
+              </div>
+              <p className="text-white text-sm">
+                Refer new members to commercive and unlock up to 1% commision on
+                all orders placed through us
+              </p>
+              <Button
+                className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3"
+                onClick={handleAffiliateClick}
+              >
+                + Invite People
+              </Button>
+            </div>
+          )}
         </div>
       </div>
       {/* for mobile screen */}
@@ -626,63 +667,67 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
 
           {/* Sidebar Container */}
           <div
-            className={`flex w-[300px] bg-white h-full z-50 flex-col ${isCollapsed ? "gap-5" : "gap-8"
-              } justify-between p-3`}
+            className={`flex w-[300px] bg-white h-full z-50 flex-col ${
+              isCollapsed ? "gap-5" : "gap-8"
+            } justify-between p-3`}
           >
             {/* Top Section */}
             <div
-              className={`flex flex-col ${isCollapsed ? "gap-5" : "gap-8"
-                } h-full`}
+              className={`flex flex-col ${
+                isCollapsed ? "gap-5" : "gap-8"
+              } h-full`}
             >
               {/* User Section */}
-              {!pathName?.includes("/admin") && <div
-                className={`w-full flex justify-between border-2 border-[#F4F4F7] rounded-md p-2 bg-white`}
-              >
+              {!pathName?.includes("/admin") && (
                 <div
-                  className={`flex w-full`}
-                  onClick={() => {
-                    setIsCollapsed(false);
-                  }}
+                  className={`w-full flex justify-between border-2 border-[#F4F4F7] rounded-md p-2 bg-white`}
                 >
-                  <div className="flex w-full gap-2">
-                    <div className="flex items-center">
-                      <Avatar
-                        alt="User Avatar"
-                        sx={{
-                          width: 40,
-                          height: 40,
-                          backgroundColor: "#D7C9F7",
-                          color: "#4F12CA",
-                        }}
-                      />
+                  <div
+                    className={`flex w-full`}
+                    onClick={() => {
+                      setIsCollapsed(false);
+                    }}
+                  >
+                    <div className="flex w-full gap-2">
+                      <div className="flex items-center">
+                        <Avatar
+                          alt="User Avatar"
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            backgroundColor: "#D7C9F7",
+                            color: "#4F12CA",
+                          }}
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <h2>{storeName}</h2>
+                        <p className="text-[#B1B0B0]">Connected</p>
+                      </div>
                     </div>
-                    <div className="flex flex-col">
-                      <h2>{storeName}</h2>
-                      <p className="text-[#B1B0B0]">Connected</p>
-                    </div>
-                  </div>
-                  <div className="flex">
-                    <div
-                      onClick={handleClick}
-                      className="flex gap-2 items-center cursor-pointer"
-                    >
-                      <Image
-                        src="/svgs/DownArrow.svg"
-                        width={14}
-                        height={14}
-                        alt="down-arrow"
-                      />
-                    </div>
-                    {/* <Menu
+                    <div className="flex">
+                      <div
+                        onClick={handleClick}
+                        className="flex gap-2 items-center cursor-pointer"
+                      >
+                        <Image
+                          src="/svgs/DownArrow.svg"
+                          width={14}
+                          height={14}
+                          alt="down-arrow"
+                        />
+                      </div>
+                      {/* <Menu
                       anchorEl={anchorEl}
                       open={Boolean(anchorEl)}
                       onClose={handleClose}
                     >
                       <MenuItem onClick={handleLogout}>Logout</MenuItem>
                     </Menu> */}
+                    </div>
                   </div>
                 </div>
-              </div>}
+              )}
               {showStoreData && !isCollapsed && (
                 <div
                   ref={dropdownRef}
@@ -693,7 +738,11 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                       storeData.map((store, index) => (
                         <div
                           key={index}
-                          className={`flex justify-between items-center p-3 border-b ${store.label === storeName ? 'bg-[#F3E8FF] hover:bg-none' : 'bg-[#F9F9FF] hover:bg-[#F9F9FF]'}`}
+                          className={`flex justify-between items-center p-3 border-b ${
+                            store.label === storeName
+                              ? "bg-[#F3E8FF] hover:bg-none"
+                              : "bg-[#F9F9FF] hover:bg-[#F9F9FF]"
+                          }`}
                           onClick={() => handleStoreSelect(store)} // Select store on click
                         >
                           <p>{store.label}</p>
@@ -757,17 +806,19 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                                 >
                                   <p className="flex-1">{store.store_name}</p>
                                   <p
-                                    className={`w-3 h-3 rounded-full ${store.is_store_listed
-                                      ? "bg-green-500"
-                                      : "bg-red-500"
-                                      }`}
+                                    className={`w-3 h-3 rounded-full ${
+                                      store.is_store_listed
+                                        ? "bg-green-500"
+                                        : "bg-red-500"
+                                    }`}
                                   ></p>
                                   <button
                                     onClick={() => connectStore(store.id)}
-                                    className={`px-3 py-1 rounded-lg ${store.is_store_listed
-                                      ? "bg-gray-200 text-white cursor-not-allowed"
-                                      : "bg-[#4710B5] text-white"
-                                      }`}
+                                    className={`px-3 py-1 rounded-lg ${
+                                      store.is_store_listed
+                                        ? "bg-gray-200 text-white cursor-not-allowed"
+                                        : "bg-[#4710B5] text-white"
+                                    }`}
                                     disabled={store.is_store_listed}
                                   >
                                     Connect store
@@ -800,10 +851,11 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                       href={link.href}
                       key={index}
                       prefetch={false}
-                      className={`flex items-center rounded-md gap-3 p-3 ${pathName === link.href
-                        ? "text-black bg-[#F9F9FF]"
-                        : "text-black bg-[#FFF] hover:bg-purple-100"
-                        } `}
+                      className={`flex items-center rounded-md gap-3 p-3 ${
+                        pathName === link.href
+                          ? "text-black bg-[#F9F9FF]"
+                          : "text-black bg-[#FFF] hover:bg-purple-100"
+                      } `}
                     >
                       <span className={`${isCollapsed && "justify-center"}`}>
                         {React.cloneElement(link.icon, {
@@ -822,40 +874,55 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             </div>
 
             {/* Bottom Section */}
-            {!pathName?.includes("/admin") && <div className="flex flex-col w-full gap-2 cursor-pointer bg-white" onClick={() => { router.push('/profile') }}>
+            {!pathName?.includes("/admin") && (
               <div
-                className={`flex ${pathName === "setting"
-                  ? "text-black bg-[#F9F9FF]"
-                  : "text-black bg-[#FFF] hover:bg-purple-100"
-                  } items-center w-full gap-3 p-3`}
+                className="flex flex-col w-full gap-2 cursor-pointer bg-white"
+                onClick={() => {
+                  router.push("/profile");
+                }}
               >
-                <SettingIcon
-                  width={20}
-                  height={20}
-                  color={pathName === "setting" ? "#4F11C9" : "#000000"}
-                />
-                <p className="text-black text-sm tracking-wider">Settings</p>
+                <div
+                  className={`flex ${
+                    pathName === "setting"
+                      ? "text-black bg-[#F9F9FF]"
+                      : "text-black bg-[#FFF] hover:bg-purple-100"
+                  } items-center w-full gap-3 p-3`}
+                >
+                  <SettingIcon
+                    width={20}
+                    height={20}
+                    color={pathName === "setting" ? "#4F11C9" : "#000000"}
+                  />
+                  <p className="text-black text-sm tracking-wider">Settings</p>
+                </div>
               </div>
-            </div>}
+            )}
 
             {/* Footer Section */}
-            {!pathName?.includes("/admin") && <div
-              className={`w-full flex flex-col bg-[#9474E4] border-2 border-[#F4F4F7] rounded-[24px] py-8 px-4 gap-4 }`}
-              style={{
-                borderRadius: "25px",
-                background: "linear-gradient(130deg, rgb(47,13,116) 0%, rgb(126,81,216) 36%, rgb(225,217,248) 100%)",
-              }}
-            >
-              <div><LogoIcon width={"70%"} height={35} color={'#ffffff'} /></div>
-              <p className="text-white text-sm">
-                Refer new members to commercive and unlock up to 1% commission
-                on all orders placed through us
-              </p>
-              <Button className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3" onClick={handleAffiliateClick}>
-                + Invite People
-              </Button>
-            </div>}
-
+            {!pathName?.includes("/admin") && (
+              <div
+                className={`w-full flex flex-col bg-[#9474E4] border-2 border-[#F4F4F7] rounded-[24px] py-8 px-4 gap-4 }`}
+                style={{
+                  borderRadius: "25px",
+                  background:
+                    "linear-gradient(130deg, rgb(47,13,116) 0%, rgb(126,81,216) 36%, rgb(225,217,248) 100%)",
+                }}
+              >
+                <div>
+                  <LogoIcon width={"70%"} height={35} color={"#ffffff"} />
+                </div>
+                <p className="text-white text-sm">
+                  Refer new members to commercive and unlock up to 1% commission
+                  on all orders placed through us
+                </p>
+                <Button
+                  className="!w-[140px] !capitalize !text-sm !text-nowrap !bg-white !text-[#454545] !font-bold !rounded-md !mt-3"
+                  onClick={handleAffiliateClick}
+                >
+                  + Invite People
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -920,8 +987,13 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   </div>
                 </Tooltip>
               </div>
-              <p className="max-w-[500px] text-sm">Hey! I just started using this fantastic Order Tracking App that keeps me updated on all my deliveries. It’s super convenient and saves me so much time! If you sign up with my link, we both get exclusive discounts on our next orders. Check it out!
-                <br />{referralLink}
+              <p className="max-w-[500px] text-sm">
+                Hey! I just started using this fantastic Order Tracking App that
+                keeps me updated on all my deliveries. It’s super convenient and
+                saves me so much time! If you sign up with my link, we both get
+                exclusive discounts on our next orders. Check it out!
+                <br />
+                {referralLink}
               </p>
             </div>
           </div>
