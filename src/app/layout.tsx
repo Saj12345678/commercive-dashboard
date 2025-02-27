@@ -1,15 +1,17 @@
 "use client";
+
+import { useEffect, useState } from "react";
+import { Flip, ToastContainer } from "react-toastify";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { usePathname, useRouter } from "next/navigation";
 import Header from "@/components/header";
 import Sidebar from "@/components/sidebar";
-import { usePathname, useRouter } from "next/navigation";
-import { Flip, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useEffect, useState } from "react";
 import LabelBottomNavigation from "@/components/bottom-navigation";
+import Chat from "@/components/chat";
 import { StoreProvider } from "@/context/StoreContext";
 import { createClient } from "./utils/supabase/client";
+import "react-toastify/dist/ReactToastify.css";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,18 +39,20 @@ export default function RootLayout({
   };
 
   useEffect(() => {
-  
-      const checkUser = async () => {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-  
-        if (userError || !user) {
-          router.push("/login"); 
-          return;
-        }
-      };
-  
-      checkUser();
-    }, [supabase])
+    const checkUser = async () => {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        router.push("/login");
+        return;
+      }
+    };
+
+    checkUser();
+  }, [supabase]);
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -90,6 +94,7 @@ export default function RootLayout({
             </div>
           </div>
           <ToastContainer position="top-right" transition={Flip} />
+          <Chat />
         </StoreProvider>
       </body>
     </html>

@@ -72,3 +72,9 @@ body {
   --tw-shadow: 0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);
   --tw-shadow-colored: 0 10px 15px -3px #15151500, 0 4px 6px -4px #1515156b;
 }
+
+.chat-bg {
+  background-image: -moz-linear-gradient( -140deg, rgb(68,34,144) 0%, rgb(211,200,245) 100%);
+  background-image: -webkit-linear-gradient( -140deg, rgb(68,34,144) 0%, rgb(211,200,245) 100%);
+  background-image: -ms-linear-gradient( -140deg, rgb(68,34,144) 0%, rgb(211,200,245) 100%);
+}
