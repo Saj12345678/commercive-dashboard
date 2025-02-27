@@ -1,5 +1,13 @@
 "use client";
-import { Box, Typography, Chip, Paper, Tooltip, Button, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Chip,
+  Paper,
+  Tooltip,
+  Button,
+  useMediaQuery,
+} from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import OrderIcon from "../../components/images/order";
@@ -23,7 +31,6 @@ type TransactionItem = {
   updated_at: string;
   store_location: string;
 };
-
 
 export default function Shipment() {
   const supabase = createClient();
@@ -92,8 +99,10 @@ export default function Shipment() {
     const finalEndDate = maxUpdatedDate > end ? maxUpdatedDate : end;
 
     while (currentDate <= end) {
-      const day = currentDate.getDate().toString().padStart(2, '0');
-      const weekday = currentDate.toLocaleDateString('en-US', { weekday: 'short' });
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const weekday = currentDate.toLocaleDateString("en-US", {
+        weekday: "short",
+      });
       labels.push(`${day} ${weekday}`);
       currentDate.setDate(currentDate.getDate() + 1);
     }
@@ -106,9 +115,9 @@ export default function Shipment() {
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
     );
 
-    if (diffInDays > 9) {
-      return;
-    }
+    // if (diffInDays > 9) {
+    //   return;
+    // }
 
     setTmpCurrentDateRange([ranges.selection]);
   };
@@ -116,7 +125,7 @@ export default function Shipment() {
   const handleApplyTmpDateRange = () => {
     setDateRange(tmpCurrentDateRange);
     setShowDatePicker(false);
-  }
+  };
 
   const formatDateForQuery = (date: Date) => date.toISOString().split("Z")[0];
 
@@ -215,7 +224,10 @@ export default function Shipment() {
   const isLargeScreen = useMediaQuery("(min-width: 640px)");
 
   return (
-    <Paper elevation={3} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8 overflow-auto custom-scrollbar">
+    <Paper
+      elevation={3}
+      className="w-full h-full px-4 py-6 sm:px-6 sm:py-8 overflow-auto custom-scrollbar"
+    >
       <div className="bg-white">
         <Box className="flex flex-col gap-2 md:gap-2 sm:flex-row justify-between sm:items-center mb-4">
           <Box className="flex gap-2 items-center">
@@ -253,12 +265,12 @@ export default function Shipment() {
                 value={
                   dateRange[0]?.startDate && dateRange[0]?.endDate
                     ? `${dateRange[0].startDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })} - ${dateRange[0].endDate.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                    })}`
+                        day: "2-digit",
+                        month: "short",
+                      })} - ${dateRange[0].endDate.toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                      })}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowDatePicker(true)}
@@ -293,16 +305,10 @@ export default function Shipment() {
                     maxDate={new Date()}
                   />
                   <div className="flex w-100 justify-end gap-3 p-2">
-                    <Button
-                      onClick={() => setShowDatePicker(false)}
-                    >
+                    <Button onClick={() => setShowDatePicker(false)}>
                       Cancel
                     </Button>
-                    <Button
-                      onClick={handleApplyTmpDateRange}
-                    >
-                      Apply
-                    </Button>
+                    <Button onClick={handleApplyTmpDateRange}>Apply</Button>
                   </div>
                 </div>
               )}
@@ -374,10 +380,11 @@ export default function Shipment() {
                   <Tooltip title={tooltipContent} placement="top" arrow>
                     <Box
                       key={data.id}
-                      className={`px-3 pt-1 ${data.status === "PENDING"
-                        ? "bg-[#FFECD6]"
-                        : "bg-[#E8ECFE]"
-                        } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
+                      className={`px-3 pt-1 ${
+                        data.status === "PENDING"
+                          ? "bg-[#FFECD6]"
+                          : "bg-[#E8ECFE]"
+                      } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
                       style={{
                         top: `${i * 55}px`,
                         left: `${(createdIndex / dateLabels.length) * 100}%`,
@@ -454,14 +461,14 @@ export default function Shipment() {
                           "YANWEN",
                           "Yun Express",
                         ].includes(data.tracking_company) && (
-                            <Image
-                              src="/icons/Layer.png"
-                              alt="default-logo"
-                              width={24}
-                              height={22}
-                              className="w-[24px] h-[24px]"
-                            />
-                          )}
+                          <Image
+                            src="/icons/Layer.png"
+                            alt="default-logo"
+                            width={24}
+                            height={22}
+                            className="w-[24px] h-[24px]"
+                          />
+                        )}
                         <Chip
                           label={data.tracking_company}
                           size="small"
@@ -476,29 +483,30 @@ export default function Shipment() {
                         •
                       </Typography>
                       <Typography
-                        className={`text-sm ml-2 ${data.status === "SUCCESS"
-                          ? "text-green-600"
-                          : data.status === "PENDING" ||
-                            data.status === "OPEN"
+                        className={`text-sm ml-2 ${
+                          data.status === "SUCCESS"
+                            ? "text-green-600"
+                            : data.status === "PENDING" ||
+                              data.status === "OPEN"
                             ? "text-yellow-600"
                             : data.status === "CANCELLED" ||
                               data.status === "ERROR" ||
                               data.status === "FAILURE"
-                              ? "text-red-600"
-                              : "text-gray-600"
-                          }`}
+                            ? "text-red-600"
+                            : "text-gray-600"
+                        }`}
                       >
                         {data.status === "SUCCESS"
                           ? "On-Time"
                           : data.status === "PENDING" || data.status === "OPEN"
-                            ? "Pending"
-                            : data.status === "CANCELLED"
-                              ? "Cancelled"
-                              : data.status === "ERROR"
-                                ? "Error"
-                                : data.status === "FAILURE"
-                                  ? "Failed"
-                                  : "Unknown"}
+                          ? "Pending"
+                          : data.status === "CANCELLED"
+                          ? "Cancelled"
+                          : data.status === "ERROR"
+                          ? "Error"
+                          : data.status === "FAILURE"
+                          ? "Failed"
+                          : "Unknown"}
                       </Typography>
                     </Box>
                   </Tooltip>

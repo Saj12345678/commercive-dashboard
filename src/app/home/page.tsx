@@ -1,19 +1,19 @@
 "use client";
-import "react-date-range/dist/styles.css"; // main style file
-import "react-date-range/dist/theme/default.css"; // theme css file
-import { Button } from "@mui/material";
-import { useEffect, useState, useRef } from "react";
 
+import { useEffect, useRef, useState } from "react";
 import { DateRangePicker, Range } from "react-date-range";
+import { CiCalendar } from "react-icons/ci";
+import Image from "next/image";
+import { Button } from "@mui/material";
 import FeatureCard, { FeatureCardSkeleton } from "@/components/feature-card";
-import { createClient } from "../utils/supabase/client";
-import Inventory from "@/components/Inventory";
 import FullScreen from "@/components/images/full-screen";
-import "./home.css";
+import Inventory from "@/components/Inventory";
 import Summary from "@/components/Summary";
 import { useStoreContext } from "@/context/StoreContext";
-import Image from "next/image";
-import { CiCalendar } from "react-icons/ci";
+import { createClient } from "../utils/supabase/client";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
+import "./home.css";
 
 interface InventoryData {
   image: string;
@@ -628,9 +628,8 @@ export default function Home() {
             {isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
           </Button>
         </div>
-
         <div className="flex flex-col sm:flex-row justify-between">
-          <div className="flex flex-col md:flex-row gap-2">
+          <div className="flex flex-col md:flex-row items-center gap-2">
             <div style={{ position: "relative" }}>
               {/* Input Field */}
               <input
@@ -698,6 +697,8 @@ export default function Home() {
                 </div>
               )}
             </div>
+            <p>Compare to</p>
+
             <div style={{ position: "relative" }}>
               {/* Input Field */}
               <input
