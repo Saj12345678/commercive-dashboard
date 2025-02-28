@@ -3,19 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import { DateRangePicker, Range } from "react-date-range";
 import { CiCalendar } from "react-icons/ci";
-import Image from "next/image";
 import { Button } from "@mui/material";
 import FeatureCard, { FeatureCardSkeleton } from "@/components/feature-card";
 import FullScreen from "@/components/images/full-screen";
 import Inventory from "@/components/Inventory";
 import Summary from "@/components/Summary";
+import Forecast from "@/components/Forecast";
 import { useStoreContext } from "@/context/StoreContext";
 import { createClient } from "../utils/supabase/client";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./home.css";
 
-interface InventoryData {
+export interface InventoryData {
   image: string;
   color: string;
   name: string;
@@ -46,12 +46,15 @@ export default function Home() {
     const sunday = getSundayOfWeek(new Date(date));
     return new Date(sunday.setDate(sunday.getDate() - 7)); // Go back 7 days
   };
+
   const getSaturdayOfLastWeek = (date: Date): Date => {
     const lastSunday = getSundayOfLastWeek(new Date(date));
     return new Date(lastSunday.setDate(lastSunday.getDate() + 6)); // Move forward 6 days
   };
+
   const [showCurrentDateRange, setShowCurrentDateRange] =
     useState<boolean>(false);
+
   const [tmpCurrentDateRange, setTmpCurrentDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
@@ -59,6 +62,7 @@ export default function Home() {
       key: "selection",
     },
   ]);
+
   const [currentDateRange, setCurrentDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
@@ -66,6 +70,7 @@ export default function Home() {
       key: "selection",
     },
   ]);
+
   const [showCompareDateRange, setShowCompareDateRange] =
     useState<boolean>(false);
 
@@ -76,6 +81,7 @@ export default function Home() {
       key: "selection",
     },
   ]);
+
   const [compareDateRange, setCompareDateRange] = useState<Range[]>([
     {
       startDate: new Date(),
@@ -83,10 +89,12 @@ export default function Home() {
       key: "selection",
     },
   ]);
+
   const handleApplyCurrentDateRange = () => {
     setCurrentDateRange(tmpCurrentDateRange);
     setShowCurrentDateRange(false);
   };
+
   const handleCurrentDateSelect = (ranges: any) => {
     setTmpCurrentDateRange([ranges.selection]);
     // setShowCurrentDateRange(false); // Hide after selection
@@ -96,6 +104,7 @@ export default function Home() {
     setCompareDateRange(tmpCurrentDateRange);
     setShowCompareDateRange(false);
   };
+
   const handleCompareDateSelect = (ranges: any) => {
     setTmpCompareDateRange([ranges.selection]);
   };
@@ -110,6 +119,7 @@ export default function Home() {
     // Last week (Sunday to Saturday)
     const lastSunday = getSundayOfLastWeek(new Date());
     const lastSaturday = getSaturdayOfLastWeek(new Date());
+
     setCurrentDateRange([
       {
         startDate: thisSunday,
@@ -201,32 +211,9 @@ export default function Home() {
     },
   ]);
   const [inventoryData, setInventoryData] = useState<InventoryData[]>([]);
-  const [forecastData, setForecastData] = useState<any[]>([]);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [loadingCard, setLoadingCard] = useState(true);
-  useEffect(() => {
-    if (inventoryData?.length) {
-      fetchForecast();
-    }
-  }, [inventoryData]);
 
-  const fetchForecast = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/forecast", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ inventoryData }),
-      });
-      const result = await response.json();
-      setForecastData(result.forecast);
-    } catch (error) {
-      console.error("Error fetching forecast:", error);
-    }
-    setLoading(false);
-  };
   // Function to calculate total earnings
   const calculateEarnings = (orders: any, weekOffset = 0, status = "paid") => {
     const totalEarning = orders.reduce((total: number, order: any) => {
@@ -268,6 +255,7 @@ export default function Home() {
     );
 
     const totalsArray = [];
+
     for (
       let date = new Date(startDate);
       date <= endDate;
@@ -306,7 +294,6 @@ export default function Home() {
 
     const formattedStartDate = formatDateForQuery(currentDateRange.startDate);
     const formattedEndDate = formatDateForQuery(currentDateRange.endDate);
-
     const formattedStartDatePast = formatDateForQuery(
       compareDateRange.startDate
     );
@@ -562,10 +549,12 @@ export default function Home() {
       handleFetchData();
     }
   }, [currentDateRange, compareDateRange, selectedStore]);
+
   const customColors = {
     color: "#4CAF50", // Range start and end date color
     backgroundColor: "#DFF0D8", // Background color for the selected range
   };
+
   const Data = [
     {
       image: "",
@@ -669,18 +658,18 @@ export default function Home() {
                 value={
                   currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
                     ? `${currentDateRange[0].startDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )} - ${currentDateRange[0].endDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )}`
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )} - ${currentDateRange[0].endDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCurrentDateRange(true)} // Show on focus
@@ -738,18 +727,18 @@ export default function Home() {
                 value={
                   compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
                     ? `${compareDateRange[0].startDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )} - ${compareDateRange[0].endDate.toLocaleDateString(
-                      "en-GB",
-                      {
-                        day: "2-digit",
-                        month: "short",
-                      }
-                    )}`
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )} - ${compareDateRange[0].endDate.toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                        }
+                      )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCompareDateRange(true)} // Show on focus
@@ -829,37 +818,8 @@ export default function Home() {
             <Summary selectedRange={currentDateRange} />
           </div>
         </div>
-        <div className="flex gap-4 w-full px-4 py-6 mb-6 sm:px-6 sm:py-8 bg-white border-2 border-white rounded-lg shadow-lg custom-box-shadow">
-          <div className="bg-white rounded-lg flex items-center gap-2">
-            <Image
-              src={"/svgs/Forecast.svg"}
-              width={30}
-              height={30}
-              alt="icon"
-              className="text-[#5014ca]"
-            />
 
-            <h3 className="flex w-full text-[#454545] text-2xl font-bold">
-              Stock Forecast
-            </h3>
-          </div>
-          {loading ? (
-            <p>Loading forecast...</p>
-          ) : forecastData ? (
-            <div className="mt-4">
-              {forecastData.map((item: any, index: number) => (
-                <div key={index} className="p-2 border rounded">
-                  <p className="font-bold">{item.product_name}</p>
-                  <p>Current_Stocks:{item.current_stocks}</p>
-                  <p>Predicted Demand: {item.forecasted_demand}</p>
-                  <p>Reorder Suggestion: {item.reorder_suggestion}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No forecast available.</p>
-          )}
-        </div>
+        <Forecast inventoryData={inventoryData} />
       </main>
     </>
   );
