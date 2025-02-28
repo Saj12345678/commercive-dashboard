@@ -201,9 +201,32 @@ export default function Home() {
     },
   ]);
   const [inventoryData, setInventoryData] = useState<InventoryData[]>([]);
+  const [forecastData, setForecastData] = useState<any[]>([]);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [loadingCard, setLoadingCard] = useState(true);
+  useEffect(() => {
+    if (inventoryData?.length) {
+      fetchForecast();
+    }
+  }, [inventoryData]);
 
+  const fetchForecast = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/forecast", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ inventoryData }),
+      });
+      const result = await response.json();
+      setForecastData(result.forecast);
+    } catch (error) {
+      console.error("Error fetching forecast:", error);
+    }
+    setLoading(false);
+  };
   // Function to calculate total earnings
   const calculateEarnings = (orders: any, weekOffset = 0, status = "paid") => {
     const totalEarning = orders.reduce((total: number, order: any) => {
@@ -512,6 +535,7 @@ export default function Home() {
             image: "",
             color: "#" + Math.floor(Math.random() * 16777215).toString(16),
             name: `${item.sku}`,
+            product_id: item.product_id,
             stockMeter: available + committed,
             stockStatus,
             backorders: backOrders,
@@ -645,18 +669,18 @@ export default function Home() {
                 value={
                   currentDateRange[0]?.startDate && currentDateRange[0]?.endDate
                     ? `${currentDateRange[0].startDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )} - ${currentDateRange[0].endDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )}`
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )} - ${currentDateRange[0].endDate.toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCurrentDateRange(true)} // Show on focus
@@ -714,18 +738,18 @@ export default function Home() {
                 value={
                   compareDateRange[0]?.startDate && compareDateRange[0]?.endDate
                     ? `${compareDateRange[0].startDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )} - ${compareDateRange[0].endDate.toLocaleDateString(
-                        "en-GB",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )}`
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )} - ${compareDateRange[0].endDate.toLocaleDateString(
+                      "en-GB",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                      }
+                    )}`
                     : "Select a date range"
                 }
                 onFocus={() => setShowCompareDateRange(true)} // Show on focus
@@ -819,6 +843,22 @@ export default function Home() {
               Stock Forecast
             </h3>
           </div>
+          {loading ? (
+            <p>Loading forecast...</p>
+          ) : forecastData ? (
+            <div className="mt-4">
+              {forecastData.map((item: any, index: number) => (
+                <div key={index} className="p-2 border rounded">
+                  <p className="font-bold">{item.product_name}</p>
+                  <p>Current_Stocks:{item.current_stocks}</p>
+                  <p>Predicted Demand: {item.forecasted_demand}</p>
+                  <p>Reorder Suggestion: {item.reorder_suggestion}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>No forecast available.</p>
+          )}
         </div>
       </main>
     </>
