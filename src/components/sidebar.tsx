@@ -72,6 +72,11 @@ const adminData = [
     href: "/admin/roles",
     icon: <ShipmentIcon width={20} height={20} color={"#000000"} />,
   },
+  {
+    title: "Tickets",
+    href: "/admin/tickets",
+    icon: <Union width={20} height={20} color={"#000000"} />,
+  },
 ];
 
 export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
