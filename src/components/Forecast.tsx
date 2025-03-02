@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { TypeAnimation } from "react-type-animation";
 import Image from "next/image";
-import { Button, CircularProgress } from "@mui/material";
+import { Button } from "@mui/material";
 import EastIcon from "@mui/icons-material/East";
 import SearchIcon from "@mui/icons-material/Search";
 
@@ -63,7 +64,9 @@ export default function Forecast({ inventoryData }: InventoryProps) {
 
         <Button
           variant="contained"
-          className={`!ml-auto ${loading ? "bg-gray-300" : "!bg-[#4F12CA]"}`}
+          className={`!ml-auto !capitalize font-semibold ${
+            loading ? "bg-gray-300" : "!bg-[#4F12CA]"
+          }`}
           loading={loading}
           onClick={fetchForecast}
         >
@@ -72,16 +75,20 @@ export default function Forecast({ inventoryData }: InventoryProps) {
       </div>
 
       {loading ? (
-        <div className="p-3 text-center">
-          <CircularProgress color="secondary" />
-        </div>
+        <span className="blink-dot"></span>
       ) : forecastData ? (
         <div className="flex flex-col gap-3">
           <p className="flex items-center gap-1">
             <SearchIcon className="text-xl" />
-            <span className="font-bold">
-              Based on your recnet sales trends, here's what we recommend:
-            </span>
+            <TypeAnimation
+              sequence={[
+                "Based on your recnet sales trends, here's what we recommend:",
+                1000,
+              ]}
+              cursor={false}
+              speed={60}
+              style={{ fontWeight: 700 }}
+            />
           </p>
 
           {forecastData.map((item: any, index: number) => (
