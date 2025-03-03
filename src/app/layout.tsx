@@ -33,6 +33,7 @@ export default function RootLayout({
   const router = useRouter();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -67,7 +68,10 @@ export default function RootLayout({
                 !pathName?.includes("/signUp") &&
                 !pathName?.includes("/error") &&
                 !pathName?.includes("/admin") && (
-                  <Header toggleSidebar={toggleSidebar} />
+                  <Header
+                    toggleSidebar={toggleSidebar}
+                    openChat={() => setChatOpen(true)}
+                  />
                 )}
             </div>
             <div className="flex flex-col h-screen max-h-screen overflow-hidden">
@@ -94,7 +98,7 @@ export default function RootLayout({
             </div>
           </div>
           <ToastContainer position="top-right" transition={Flip} />
-          <Chat />
+          <Chat open={chatOpen} setOpen={setChatOpen} />
         </StoreProvider>
       </body>
     </html>

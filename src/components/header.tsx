@@ -13,9 +13,10 @@ import { PiLockKey } from "react-icons/pi";
 
 export interface HeaderProps {
   toggleSidebar?: any;
+  openChat: any;
 }
 
-const Header = ({ toggleSidebar }: HeaderProps) => {
+const Header = ({ toggleSidebar, openChat }: HeaderProps) => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -95,10 +96,15 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
             alt="down-arrow"
           />
         </div>
-        {
-          showDropdown &&
-          <Dropdown userEmail={userEmail} handleLogout={handleLogout} dropdownRef={dropdownRef} />
-        }
+        {showDropdown && (
+          <Dropdown
+            userEmail={userEmail}
+            handleLogout={handleLogout}
+            dropdownRef={dropdownRef}
+            openChat={openChat}
+            closeDropdown={() => setShowDropdown(false)}
+          />
+        )}
       </div>
     </div>
   );
@@ -110,11 +116,22 @@ interface DropdownProps {
   userEmail: string | null;
   handleLogout: (event: React.MouseEvent<HTMLElement>) => void;
   dropdownRef: React.RefObject<HTMLDivElement | null>;
+  openChat: any;
+  closeDropdown: any;
 }
 
-const Dropdown = ({ userEmail, handleLogout, dropdownRef }: DropdownProps) => {
+const Dropdown = ({
+  userEmail,
+  handleLogout,
+  dropdownRef,
+  openChat,
+  closeDropdown,
+}: DropdownProps) => {
   return (
-    <div className="top-16 absolute right-4 bg-white border-2 border-custom-border-2 rounded-md text-sm text-custom-text-2 z-50 drop-down-shadow" ref={dropdownRef}>
+    <div
+      className="top-16 absolute right-4 bg-white border-2 border-custom-border-2 rounded-md text-sm text-custom-text-2 z-50 drop-down-shadow"
+      ref={dropdownRef}
+    >
       <div className="p-3 pt-2 border-b border-custom-border-2">
         <div className="flex items-center border-b border-custom-border-2 pb-2">
           <div className="bg-violet-300 w-7 h-7 flex justify-center items-center rounded-full overflow-hidden mr-1">
@@ -133,26 +150,40 @@ const Dropdown = ({ userEmail, handleLogout, dropdownRef }: DropdownProps) => {
           </div>
         </div>
         <div className="mt-2">
-          <Link href="/profile" className="flex items-center mt-1 hover:underline">
+          <Link
+            href="/profile"
+            className="flex items-center mt-1 hover:underline"
+          >
             <LuUserRound size={14} />
             <p className="ml-2">Profile</p>
           </Link>
-          <Link href="/reset-password" className="flex items-center mt-1 hover:underline">
+          <Link
+            href="/reset-password"
+            className="flex items-center mt-1 hover:underline"
+          >
             <PiLockKey size={14} />
             <p className="ml-2">Change Password</p>
           </Link>
-          <Link href="#" className="flex items-center mt-1 hover:underline">
+          <button
+            className="flex items-center mt-1 hover:underline"
+            onClick={() => {
+              openChat();
+              closeDropdown();
+            }}
+          >
             <LuCircleHelp size={14} />
             <p className="ml-2">Help</p>
-          </Link>
+          </button>
         </div>
       </div>
       <div className="px-3 py-2">
         <div className="flex items-center cursor-pointer hover:underline">
           <LuLogOut size={14} />
-          <p className="ml-2" onClick={handleLogout}>Logout</p>
+          <p className="ml-2" onClick={handleLogout}>
+            Logout
+          </p>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

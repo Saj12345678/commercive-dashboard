@@ -1,20 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MdOutlineClose } from "react-icons/md";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { Button, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { createClient } from "@/app/utils/supabase/client";
 
-export default function Chat() {
+export default function Chat({
+  open,
+  setOpen,
+}: {
+  open: boolean;
+  setOpen: any;
+}) {
   const supabase = createClient();
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("John Doe");
-  const [email, setEmail] = useState("example@gmail.com");
-  const [storeUrl, setStoreUrl] = useState("https://store.com/");
-  const [issue, setIssue] = useState("This is my issue.");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [storeUrl, setStoreUrl] = useState("");
+  const [issue, setIssue] = useState("");
   const [isNameValid, setNameValid] = useState(true);
   const [isEmailValid, setEmailValid] = useState(true);
   const [isStoreUrlValid, setStoreUrlValid] = useState(true);
