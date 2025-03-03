@@ -168,10 +168,9 @@ export default function Inventory() {
   };
 
   return (
-    <Paper
-      elevation={0}
-      className="w-full px-4 py-6 sm:px-6 sm:py-8 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] overflow-y-auto custom-scrollbar"
-      style={{ height: "100%", borderTopLeftRadius: "24px" }}
+    <main
+      // style={{ height: "calc(100vh - 70px)" }}
+      className="flex flex-col h-full max-h-full w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
     >
       {/* {loading && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -362,6 +361,6 @@ export default function Inventory() {
           </Button>
         </div>
       </div>
-    </Paper>
+    </main>
   );
 }

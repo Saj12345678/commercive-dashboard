@@ -298,7 +298,7 @@ export default function OrderDetails() {
   ];
   return (
     <Box
-      className="w-full px-4 py-6 sm:px-6 sm:py-8 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px]"
+      className="w-full border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] overflow-hidden"
       style={{ height: "100%" }}
     >
       {loading && (
@@ -307,7 +307,7 @@ export default function OrderDetails() {
         </div>
       )}
       {/* 🌟 Dropdown to Select Map Style */}
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <label className="text-sm font-semibold">Select Map Style:</label>
         <select
           className="ml-2 p-1 border-2 rounded"
@@ -320,7 +320,7 @@ export default function OrderDetails() {
           <option value="dark">Dark Mode</option>
           <option value="satellite">Satellite</option>
         </select>
-      </div>
+      </div> */}
 
       <div style={{ height: "100%", width: "100%", position: "relative" }}>
         <MapContainer
@@ -363,7 +363,7 @@ export default function OrderDetails() {
             weight={1}
           />
         </MapContainer>
-        <Box className="absolute top-4 left-4" sx={{ zIndex: 1000 }}>
+        <Box className="absolute top-10 left-10" sx={{ zIndex: 1000 }}>
           <Breadcrumbs
             separator={<NavigateNextIcon fontSize="small" />}
             className="pb-4"
@@ -397,15 +397,15 @@ export default function OrderDetails() {
               Started on{" "}
               {orderData.created_at
                 ? format(
-                  new Date(orderData.created_at),
-                  "dd/MM/yyyy h:mm a"
-                ).toLowerCase()
+                    new Date(orderData.created_at),
+                    "dd/MM/yyyy h:mm a"
+                  ).toLowerCase()
                 : "—"}
             </Typography>
           </Box>
         </Box>
         <Box
-          className="absolute top-4 right-4 h-[80vh] bg-white shadow-lg rounded-xl p-6 w-[400px]"
+          className="absolute top-[5vh] right-5 h-[80vh] bg-white shadow-lg rounded-xl p-6 w-[400px]"
           sx={{
             border: "2px solid #E5E7EB",
             zIndex: 1000,

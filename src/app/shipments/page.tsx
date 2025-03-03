@@ -224,302 +224,291 @@ export default function Shipment() {
   const isLargeScreen = useMediaQuery("(min-width: 640px)");
 
   return (
-    <Paper
-      elevation={3}
-      className="w-full h-full px-4 py-6 sm:px-6 sm:py-8 overflow-auto custom-scrollbar"
+    <main
+      // style={{ height: "calc(100vh - 70px)" }}
+      className="flex flex-col h-full max-h-full w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
     >
-      <div className="bg-white">
-        <Box className="flex flex-col gap-2 md:gap-2 sm:flex-row justify-between sm:items-center mb-4">
-          <Box className="flex gap-2 items-center">
-            <Typography
-              variant="h5"
-              fontWeight="bold"
-              className="flex items-center gap-3"
-              sx={{
-                fontSize: {
-                  xs: "1rem",
-                  sm: "1.2rem",
-                  md: "1.5rem",
-                },
-              }}
-            >
-              <OrderIcon width={20} height={20} color={"#4f11c9"} />
-              Order Statistics
-            </Typography>
-          </Box>
-          <Box className="flex flex-row gap-1">
-            <Box
-              style={{ position: "relative" }}
-              className="flex flex-col md:flex-row gap-2"
-            >
-              <input
-                style={{
-                  width: "160px",
-                  border: "2px solid #EBEBEB",
-                  boxShadow: "none",
-                  borderRadius: "5px",
-                  backgroundColor: "transparent",
-                  color: "#454545",
-                }}
-                type="text"
-                value={
-                  dateRange[0]?.startDate && dateRange[0]?.endDate
-                    ? `${dateRange[0].startDate.toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                      })} - ${dateRange[0].endDate.toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                      })}`
-                    : "Select a date range"
-                }
-                onFocus={() => setShowDatePicker(true)}
-                readOnly
-                className="border-2 p-2 pl-8 text-sm cursor-pointer focus-within:outline-none"
-              />
-              <CiCalendar
-                style={{
-                  position: "absolute",
-                  left: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  zIndex: 1,
-                }}
-              />
-              {showDatePicker && (
-                <div
-                  ref={datePickerRef}
-                  style={{
-                    position: "absolute",
-                    zIndex: 1000,
-                    background: "white",
-                    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                    top: "100%",
-                    left: isLargeScreen ? -270 : 0,
-                  }}
-                >
-                  <DateRangePicker
-                    ranges={tmpCurrentDateRange}
-                    onChange={handleTmpSelect}
-                    moveRangeOnFirstSelection={false}
-                    maxDate={new Date()}
-                  />
-                  <div className="flex w-100 justify-end gap-3 p-2">
-                    <Button onClick={() => setShowDatePicker(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleApplyTmpDateRange}>Apply</Button>
-                  </div>
-                </div>
-              )}
-            </Box>
-            <Button
-              variant="outlined"
-              type="button"
-              className="!hidden !px-4 !py-1 !rounded-md !font-semibold gap-2 !capitalize md:!flex"
-              onClick={toggleFullScreen}
-              sx={{
+      <Box className="flex flex-col gap-2 md:gap-2 sm:flex-row justify-between sm:items-center mb-4">
+        <Box className="flex gap-2 items-center">
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            className="flex items-center gap-3"
+            sx={{
+              fontSize: {
+                xs: "1rem",
+                sm: "1.2rem",
+                md: "1.5rem",
+              },
+            }}
+          >
+            <OrderIcon width={20} height={20} color={"#4f11c9"} />
+            Order Statistics
+          </Typography>
+        </Box>
+        <Box className="flex flex-row gap-1">
+          <Box
+            style={{ position: "relative" }}
+            className="flex flex-col md:flex-row gap-2"
+          >
+            <input
+              style={{
+                width: "160px",
                 border: "2px solid #EBEBEB",
                 boxShadow: "none",
+                borderRadius: "5px",
                 backgroundColor: "transparent",
                 color: "#454545",
               }}
-            >
-              <FullScreen />
-              {isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
-            </Button>
-          </Box>
-        </Box>
-        <Box className="flex gap-4 text-center justify-between overflow-auto mt-3 border-b-4 border-[#F4F4F7]">
-          {dateLabels.map((day, index) => (
-            <Typography
-              key={index}
-              className="text-sm font-medium text-[#B1B0B2]"
-            >
-              {day}
-            </Typography>
-          ))}
-        </Box>
-        {trackingData.length > 0 ? (
-          <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#F4F4F7_4px,transparent_1px)] bg-[size:10%_100%] overflow-auto custom-scrollbar">
-            {/* Shipment Items */}
-            {trackingData.map((data, i) => {
-              const createdDateStr = data.created_at.split("T")[0];
-              const updatedDateStr = data.updated_at.split("T")[0];
-              const createdIndex = dateLabels.indexOf(
-                formatDateLabel(new Date(createdDateStr))
-              );
-              const updatedIndex = dateLabels.indexOf(
-                formatDateLabel(new Date(updatedDateStr))
-              );
-              let colSpan = updatedIndex - createdIndex + 1;
-              const daysGap = calculateDaysGap(data);
-              const tooltipContent = (
-                <div className="text-left">
-                  <p>
-                    <strong>SKU #:</strong> {data.tracking_number}
-                  </p>
-                  <p>
-                    <strong>Company:</strong> {data.tracking_company}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {data.status}
-                  </p>
-                  <p>
-                    <strong>Days:</strong> {daysGap}
-                  </p>
+              type="text"
+              value={
+                dateRange[0]?.startDate && dateRange[0]?.endDate
+                  ? `${dateRange[0].startDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })} - ${dateRange[0].endDate.toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                    })}`
+                  : "Select a date range"
+              }
+              onFocus={() => setShowDatePicker(true)}
+              readOnly
+              className="border-2 p-2 pl-8 text-sm cursor-pointer focus-within:outline-none"
+            />
+            <CiCalendar
+              style={{
+                position: "absolute",
+                left: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                zIndex: 1,
+              }}
+            />
+            {showDatePicker && (
+              <div
+                ref={datePickerRef}
+                style={{
+                  position: "absolute",
+                  zIndex: 1000,
+                  background: "white",
+                  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                  top: "100%",
+                  left: isLargeScreen ? -270 : 0,
+                }}
+              >
+                <DateRangePicker
+                  ranges={tmpCurrentDateRange}
+                  onChange={handleTmpSelect}
+                  moveRangeOnFirstSelection={false}
+                  maxDate={new Date()}
+                />
+                <div className="flex w-100 justify-end gap-3 p-2">
+                  <Button onClick={() => setShowDatePicker(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleApplyTmpDateRange}>Apply</Button>
                 </div>
-              );
+              </div>
+            )}
+          </Box>
+          <Button
+            variant="outlined"
+            type="button"
+            className="!hidden !px-4 !py-1 !rounded-md !font-semibold gap-2 !capitalize md:!flex"
+            onClick={toggleFullScreen}
+            sx={{
+              border: "2px solid #EBEBEB",
+              boxShadow: "none",
+              backgroundColor: "transparent",
+              color: "#454545",
+            }}
+          >
+            <FullScreen />
+            {isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
+          </Button>
+        </Box>
+      </Box>
 
-              return (
-                <Link
-                  href={`/shipments/${data.order_id}`}
-                  key={data.id}
-                  passHref
-                >
-                  <Tooltip title={tooltipContent} placement="top" arrow>
-                    <Box
-                      key={data.id}
-                      className={`px-3 pt-1 ${
-                        data.status === "PENDING"
-                          ? "bg-[#FFECD6]"
-                          : "bg-[#E8ECFE]"
-                      } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
-                      style={{
-                        top: `${i * 55}px`,
-                        left: `${(createdIndex / dateLabels.length) * 100}%`,
-                        width: `${(colSpan / dateLabels.length) * 100}%`,
-                        gap: "2rem",
-                      }}
-                    >
-                      <Typography className="text-sm text-gray-800">
-                        #{data.tracking_number}
-                      </Typography>
-                      <Typography className="text-sm text-gray-500">
-                        •
-                      </Typography>
-                      <Box className={"flex w-max gap-2"}>
-                        {data.tracking_company === "DHL Express" && (
-                          <Image
-                            src="/icons/dhl.png"
-                            alt="dhl"
-                            width={24}
-                            height={24}
-                            className="w-[24px] h-[24px]"
-                          />
-                        )}
-                        {data.tracking_company === "USPS" && (
-                          <Image
-                            src="/icons/usps.png"
-                            alt="usps"
-                            width={24}
-                            height={22}
-                            className="w-[24px] h-[24px]"
-                          />
-                        )}
-                        {data.tracking_company === "SDH" && (
-                          <Image
-                            src="/icons/sdh.png"
-                            alt="sdh"
-                            width={24}
-                            height={22}
-                            className="w-[24px] h-[24px]"
-                          />
-                        )}
-                        {data.tracking_company === "UPS" && (
-                          <Image
-                            src="/svgs/ups-icon.svg"
-                            alt="ups"
-                            width={24}
-                            height={22}
-                            className="w-[24px] h-[24px]"
-                          />
-                        )}
-                        {data.tracking_company === "YANWEN" && (
-                          <Image
-                            src="/svgs/yanwen.svg"
-                            alt="yanwen"
-                            width={24}
-                            height={22}
-                            className="w-[24px] h-[24px]"
-                          />
-                        )}
-                        {data.tracking_company === "Yun Express" && (
-                          <Image
-                            src="/svgs/yun-express.svg"
-                            alt="yun-express"
-                            width={24}
-                            height={22}
-                            className="w-[24px] h-[24px]"
-                          />
-                        )}
-                        {![
-                          "DHL Express",
-                          "USPS",
-                          "SDH",
-                          "UPS",
-                          "YANWEN",
-                          "Yun Express",
-                        ].includes(data.tracking_company) && (
-                          <Image
-                            src="/icons/Layer.png"
-                            alt="default-logo"
-                            width={24}
-                            height={22}
-                            className="w-[24px] h-[24px]"
-                          />
-                        )}
-                        <Chip
-                          label={data.tracking_company}
-                          size="small"
-                          className="text-sm !bg-transparent text-yellow-600"
+      <Box className="flex gap-4 text-center justify-between overflow-auto py-3 border-b-2 border-[#F4F4F7]">
+        {dateLabels.map((day, index) => (
+          <Typography
+            key={index}
+            className="text-sm font-medium text-[#B1B0B2]"
+          >
+            {day}
+          </Typography>
+        ))}
+      </Box>
+
+      {trackingData.length > 0 ? (
+        <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#F4F4F7_2px,transparent_1px)] bg-[size:10%_100%] overflow-auto custom-scrollbar">
+          {/* Shipment Items */}
+          {trackingData.map((data, i) => {
+            const createdDateStr = data.created_at.split("T")[0];
+            const updatedDateStr = data.updated_at.split("T")[0];
+            const createdIndex = dateLabels.indexOf(
+              formatDateLabel(new Date(createdDateStr))
+            );
+            const updatedIndex = dateLabels.indexOf(
+              formatDateLabel(new Date(updatedDateStr))
+            );
+            let colSpan = updatedIndex - createdIndex + 1;
+            const daysGap = calculateDaysGap(data);
+            const tooltipContent = (
+              <div className="text-left">
+                <p>
+                  <strong>SKU #:</strong> {data.tracking_number}
+                </p>
+                <p>
+                  <strong>Company:</strong> {data.tracking_company}
+                </p>
+                <p>
+                  <strong>Status:</strong> {data.status}
+                </p>
+                <p>
+                  <strong>Days:</strong> {daysGap}
+                </p>
+              </div>
+            );
+
+            return (
+              <Link href={`/shipments/${data.order_id}`} key={data.id} passHref>
+                <Tooltip title={tooltipContent} placement="top" arrow>
+                  <Box
+                    key={data.id}
+                    className={`px-3 pt-1 ${
+                      data.status === "PENDING"
+                        ? "bg-[#FFECD6]"
+                        : "bg-[#E8ECFE]"
+                    } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
+                    style={{
+                      top: `${i * 55}px`,
+                      left: `${(createdIndex / dateLabels.length) * 100}%`,
+                      width: `${(colSpan / dateLabels.length) * 100}%`,
+                      gap: "2rem",
+                    }}
+                  >
+                    <Typography className="text-sm text-gray-800">
+                      #{data.tracking_number}
+                    </Typography>
+                    <Typography className="text-sm text-gray-500">•</Typography>
+                    <Box className={"flex w-max gap-2"}>
+                      {data.tracking_company === "DHL Express" && (
+                        <Image
+                          src="/icons/dhl.png"
+                          alt="dhl"
+                          width={24}
+                          height={24}
+                          className="w-[24px] h-[24px]"
                         />
-                      </Box>
-                      <Typography className="text-sm text-gray-500">
-                        •
-                      </Typography>
-                      <Typography>{calculateDaysGap(data)}</Typography>
-                      <Typography className="text-sm text-gray-500">
-                        •
-                      </Typography>
-                      <Typography
-                        className={`text-sm ml-2 ${
-                          data.status === "SUCCESS"
-                            ? "text-green-600"
-                            : data.status === "PENDING" ||
-                              data.status === "OPEN"
-                            ? "text-yellow-600"
-                            : data.status === "CANCELLED" ||
-                              data.status === "ERROR" ||
-                              data.status === "FAILURE"
-                            ? "text-red-600"
-                            : "text-gray-600"
-                        }`}
-                      >
-                        {data.status === "SUCCESS"
-                          ? "On-Time"
-                          : data.status === "PENDING" || data.status === "OPEN"
-                          ? "Pending"
-                          : data.status === "CANCELLED"
-                          ? "Cancelled"
-                          : data.status === "ERROR"
-                          ? "Error"
-                          : data.status === "FAILURE"
-                          ? "Failed"
-                          : "Unknown"}
-                      </Typography>
+                      )}
+                      {data.tracking_company === "USPS" && (
+                        <Image
+                          src="/icons/usps.png"
+                          alt="usps"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      {data.tracking_company === "SDH" && (
+                        <Image
+                          src="/icons/sdh.png"
+                          alt="sdh"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      {data.tracking_company === "UPS" && (
+                        <Image
+                          src="/svgs/ups-icon.svg"
+                          alt="ups"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      {data.tracking_company === "YANWEN" && (
+                        <Image
+                          src="/svgs/yanwen.svg"
+                          alt="yanwen"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      {data.tracking_company === "Yun Express" && (
+                        <Image
+                          src="/svgs/yun-express.svg"
+                          alt="yun-express"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      {![
+                        "DHL Express",
+                        "USPS",
+                        "SDH",
+                        "UPS",
+                        "YANWEN",
+                        "Yun Express",
+                      ].includes(data.tracking_company) && (
+                        <Image
+                          src="/icons/Layer.png"
+                          alt="default-logo"
+                          width={24}
+                          height={22}
+                          className="w-[24px] h-[24px]"
+                        />
+                      )}
+                      <Chip
+                        label={data.tracking_company}
+                        size="small"
+                        className="text-sm !bg-transparent text-yellow-600"
+                      />
                     </Box>
-                  </Tooltip>
-                </Link>
-              );
-            })}
-          </Box>
-        ) : (
-          <Box className="flex items-center justify-center h-80 bg-white text-gray-500">
-            No Data Available
-          </Box>
-        )}
-      </div>
-    </Paper>
+                    <Typography className="text-sm text-gray-500">•</Typography>
+                    <Typography>{calculateDaysGap(data)}</Typography>
+                    <Typography className="text-sm text-gray-500">•</Typography>
+                    <Typography
+                      className={`text-sm ml-2 ${
+                        data.status === "SUCCESS"
+                          ? "text-green-600"
+                          : data.status === "PENDING" || data.status === "OPEN"
+                          ? "text-yellow-600"
+                          : data.status === "CANCELLED" ||
+                            data.status === "ERROR" ||
+                            data.status === "FAILURE"
+                          ? "text-red-600"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {data.status === "SUCCESS"
+                        ? "On-Time"
+                        : data.status === "PENDING" || data.status === "OPEN"
+                        ? "Pending"
+                        : data.status === "CANCELLED"
+                        ? "Cancelled"
+                        : data.status === "ERROR"
+                        ? "Error"
+                        : data.status === "FAILURE"
+                        ? "Failed"
+                        : "Unknown"}
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              </Link>
+            );
+          })}
+        </Box>
+      ) : (
+        <Box className="flex items-center justify-center h-80 bg-white text-gray-500">
+          No Data Available
+        </Box>
+      )}
+    </main>
   );
 }

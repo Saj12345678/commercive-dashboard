@@ -23,7 +23,7 @@ type TransactionItem = {
 };
 
 export default function Summary({ selectedRange }: any) {
-  console.log(selectedRange)
+  console.log(selectedRange);
   const supabase = createClient();
   const { selectedStore } = useStoreContext();
   const [trackingData, setTrackingData] = useState<TransactionItem[]>([]);
@@ -42,31 +42,38 @@ export default function Summary({ selectedRange }: any) {
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     return endOfWeek;
   };
-  
-  const formatDateForLabels = (date: Date) => {
-    const options: Intl.DateTimeFormatOptions = { weekday: 'short', day: '2-digit', timeZone: 'UTC' };
-    return new Date(date).toLocaleDateString('en-US', options);
-  };
-  
 
-  const generateDateLabels = (startDate: string | number | Date, endDate: number | Date) => {
+  const formatDateForLabels = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "short",
+      day: "2-digit",
+      timeZone: "UTC",
+    };
+    return new Date(date).toLocaleDateString("en-US", options);
+  };
+
+  const generateDateLabels = (
+    startDate: string | number | Date,
+    endDate: number | Date
+  ) => {
     const dateLabels = [];
     let currentDate = new Date(startDate);
-  
+
     while (currentDate <= endDate) {
-      const day = currentDate.getDate().toString().padStart(2, '0');
-      const weekday = currentDate.toLocaleDateString('en-US', { weekday: 'short' });
-      dateLabels.push(`${day} ${weekday}`);   
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const weekday = currentDate.toLocaleDateString("en-US", {
+        weekday: "short",
+      });
+      dateLabels.push(`${day} ${weekday}`);
       currentDate.setDate(currentDate.getDate() + 1);
     }
-  
+
     return dateLabels;
   };
 
   const formatDateForQuery = (date: Date) => date.toISOString().split("Z")[0];
 
   const fetchTrackings = async () => {
-
     const formattedStartDate = formatDateForQuery(selectedRange[0].startDate);
     const formattedEndDate = formatDateForQuery(selectedRange[0].endDate);
 
@@ -90,7 +97,7 @@ export default function Summary({ selectedRange }: any) {
 
   const dateLabels = generateDateLabels(
     selectedRange[0].startDate,
-    selectedRange[0].endDate,
+    selectedRange[0].endDate
   );
   const trackingsByDate: { [key: string]: any[] } = {};
   trackingData.forEach((tracking) => {
@@ -105,17 +112,21 @@ export default function Summary({ selectedRange }: any) {
     });
   });
 
-  const calculateDaysGap = (data: { created_at: string; updated_at: string; status: string; }) => {
+  const calculateDaysGap = (data: {
+    created_at: string;
+    updated_at: string;
+    status: string;
+  }) => {
     const createdDateStr = data.created_at.split("T")[0];
     const updatedDateStr = data.updated_at.split("T")[0];
-  
+
     const createdDate = new Date(createdDateStr);
     const updatedDate = new Date(updatedDateStr);
     const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
-  
+
     let daysGap = 0;
-  
+
     if (createdDate.getTime() === updatedDate.getTime()) {
       daysGap = 0;
     } else {
@@ -123,11 +134,19 @@ export default function Summary({ selectedRange }: any) {
         (updatedDate.getTime() - createdDate.getTime()) / (1000 * 3600 * 24)
       );
     }
-  
-    return `${Math.max(0, daysGap)} days`; 
+
+    return `${Math.max(0, daysGap)} days`;
   };
   return (
-    <Paper elevation={3} className="w-full h-full px-4 py-6 sm:px-6 sm:py-8" sx={{borderRadius: "20px", boxShadow: "inset 0px 2px 4px 0px rgba(60, 60, 60, 0.11),inset 0px -4px 3px 0px rgba(62, 62, 62, 0.1)"}}>
+    <Paper
+      elevation={3}
+      className="w-full h-full px-4 py-6 sm:px-6 sm:py-8"
+      sx={{
+        borderRadius: "20px",
+        boxShadow:
+          "inset 0px 2px 4px 0px rgba(60, 60, 60, 0.11),inset 0px -4px 3px 0px rgba(62, 62, 62, 0.1)",
+      }}
+    >
       <div className="w-full flex flex-col gap-2 md:gap-2 sm:flex-row justify-between sm:items-center mb-4">
         <Typography
           variant="h5"
@@ -213,7 +232,7 @@ export default function Summary({ selectedRange }: any) {
         </Link>
       </div>
 
-      <Box className="flex gap-4 text-center justify-between overflow-auto custom-scrollbar mt-3 border-b-4 border-[#F4F4F7]">
+      <Box className="flex gap-4 text-center justify-between overflow-auto custom-scrollbar py-2 border-b-2 border-[#F4F4F7]">
         {dateLabels.map((day, index) => (
           <Typography
             key={index}
@@ -224,7 +243,7 @@ export default function Summary({ selectedRange }: any) {
         ))}
       </Box>
       {trackingData.length > 0 ? (
-        <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#F4F4F7_4px,transparent_1px)] bg-[size:18%_100%] overflow-auto custom-scrollbar">
+        <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#F4F4F7_2px,transparent_1px)] bg-[size:18%_100%] overflow-auto custom-scrollbar">
           {/* Shipment Items */}
           {trackingData.map((data, i) => {
             const createdDateStr = data.created_at.split("T")[0];
@@ -354,9 +373,7 @@ export default function Summary({ selectedRange }: any) {
                       />
                     </Box>
                     <Typography className="text-sm text-gray-500">•</Typography>
-                    <Typography>
-                      {calculateDaysGap(data)}
-                    </Typography>
+                    <Typography>{calculateDaysGap(data)}</Typography>
                     <Typography className="text-sm text-gray-500">•</Typography>
                     <Typography
                       className={`text-sm ml-2 ${
