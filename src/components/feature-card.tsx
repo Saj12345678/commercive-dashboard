@@ -139,9 +139,10 @@ export default function FeatureCard({
                   </div>
                   <div className="w-full">
                     <p>To</p>
-                    <div className="border-2 rounded p-2">
-                      <input placeholder="Enter your paypal address" />
-                    </div>
+                    <input
+                      className="w-full p-2 border-2 rounded"
+                      placeholder="Enter your paypal address"
+                    />
                   </div>
                   <Button
                     sx={{
