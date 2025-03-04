@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import CustomButton from "@/components/ui/custom-button";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,10 @@ import { createClient } from "../utils/supabase/client";
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
-  const [state, formAction] = useActionState<ActionResponse<void>, FormData>(login, null);
+  const [state, formAction] = useActionState<ActionResponse<void>, FormData>(
+    login,
+    null
+  );
 
   useEffect(() => {
     if (!state) {
@@ -35,25 +38,27 @@ export default function LoginPage() {
       toast.success("Logged in successfully!", {
         toastId: "login-success",
       });
-      router.push('/commercive-partners')
+      router.push("/commercive-partners");
     }
   }, [state]);
 
   useEffect(() => {
-
     const checkUser = async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
       if (userError || !user) {
         router.push("/login");
         return;
       } else {
-        router.push('/home')
+        router.push("/home");
       }
     };
 
     checkUser();
-  }, [supabase])
+  }, [supabase]);
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
@@ -61,11 +66,9 @@ export default function LoginPage() {
         <div className="flex justify-center mb-5">
           <LogoIcon width={150} height={35} color={"#4F11C9"} />
         </div>
-        <h1 className="text-2xl font-bold mb-2 text-blue-600">
-          Sign In
-        </h1>
+        <h1 className="text-2xl font-bold mb-2 text-blue-600">Sign In</h1>
         <p className="mb-10 text-gray-500">
-          Don’t have an account?{' '}
+          Don’t have an account?{" "}
           <span
             className="text-blue-600 cursor-pointer hover:underline"
             onClick={() => {
@@ -105,7 +108,7 @@ export default function LoginPage() {
             </div>
             <CustomButton
               type="submit"
-              label={'Sign In'}
+              label={"Sign In"}
               className="w-full whitespace-nowrap px-6 text-md lg:h-full"
             />
           </div>

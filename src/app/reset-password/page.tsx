@@ -9,8 +9,8 @@ import { createClient } from "../utils/supabase/client";
 export default function ResetPassword() {
   const supabase = createClient();
   const [passwords, setPasswords] = useState({
-    password: '',
-    confirmPassword: ''
+    password: "",
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
 

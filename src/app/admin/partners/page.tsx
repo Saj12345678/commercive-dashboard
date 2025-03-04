@@ -1,8 +1,6 @@
-import Partner from '@/components/admin/partner'
-import React from 'react'
+import Partner from "@/components/admin/partner";
+import React from "react";
 
-export default function PartnerPage () {
-  return (
-    <Partner />
-  )
+export default function PartnerPage() {
+  return <Partner />;
 }

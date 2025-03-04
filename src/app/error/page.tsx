@@ -3,7 +3,14 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
-import { Box, Button, CircularProgress, Typography, Grid, Paper } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Typography,
+  Grid,
+  Paper,
+} from "@mui/material";
 import React from "react";
 
 function ErrorContent() {

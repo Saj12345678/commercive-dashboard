@@ -1,4 +1,5 @@
 "use client";
+
 import dynamic from "next/dynamic";
 import * as turf from "@turf/turf";
 import { useParams } from "next/navigation";
@@ -75,6 +76,7 @@ const color = {
     color: "white",
   },
 };
+
 const generateArcPath = (start: [number, number], end: [number, number]) => {
   const startLngLat: [number, number] = [start[1], start[0]];
   const endLngLat: [number, number] = [end[1], end[0]];
@@ -102,7 +104,7 @@ const generateArcPath = (start: [number, number], end: [number, number]) => {
 
 export default function OrderDetails() {
   const supabase = createClient();
-  const { selectedStore } = useStoreContext();
+  const { selectedStore, setChatOpen } = useStoreContext();
   const { order_id } = useParams();
   console.log(order_id);
   const [destination, setDestination] = useState<[number, number]>([0, 0]);
@@ -233,6 +235,7 @@ export default function OrderDetails() {
     () => generateArcPath(storeLocation, destination),
     [storeLocation, destination]
   );
+
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentTime(new Date());
@@ -288,6 +291,7 @@ export default function OrderDetails() {
       });
     }
   };
+
   const breadcrumbs = [
     <Link key="1" color="inherit" href="/shipments" className="text-md">
       Shipments
@@ -296,6 +300,7 @@ export default function OrderDetails() {
       Order #{order_id}
     </Typography>,
   ];
+
   return (
     <Box
       className="w-full border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] overflow-hidden"
@@ -322,7 +327,14 @@ export default function OrderDetails() {
         </select>
       </div> */}
 
-      <div style={{ height: "100%", width: "100%", position: "relative" }}>
+      <div
+        style={{
+          height: "100%",
+          width: "100%",
+          position: "relative",
+          zIndex: 10,
+        }}
+      >
         <MapContainer
           center={storeLocation}
           zoom={2}
@@ -590,6 +602,7 @@ export default function OrderDetails() {
                 color: "#454545",
                 textTransform: "initial",
               }}
+              onClick={() => setChatOpen(true)}
             >
               Create Ticket
             </Button>

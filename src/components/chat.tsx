@@ -6,14 +6,9 @@ import Image from "next/image";
 import { Button, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { createClient } from "@/app/utils/supabase/client";
+import { useStoreContext } from "@/context/StoreContext";
 
-export default function Chat({
-  open,
-  setOpen,
-}: {
-  open: boolean;
-  setOpen: any;
-}) {
+export default function Chat() {
   const supabase = createClient();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,6 +18,7 @@ export default function Chat({
   const [isEmailValid, setEmailValid] = useState(true);
   const [isStoreUrlValid, setStoreUrlValid] = useState(true);
   const [isIssueValid, setIssueValid] = useState(true);
+  const { chatOpen, setChatOpen } = useStoreContext();
 
   const handleSubmit = async () => {
     if (name === "") {
@@ -81,7 +77,7 @@ export default function Chat({
       <div className="relative">
         <button
           className="p-3 border-4 rounded-full border-white chat-bg shadow-sm shadow-[#3E3E3E]"
-          onClick={() => setOpen(!open)}
+          onClick={() => setChatOpen(!chatOpen)}
         >
           <Image
             className="w-5"
@@ -92,13 +88,13 @@ export default function Chat({
           />
         </button>
 
-        {open && (
-          <form className="absolute bottom-16 right-0 w-96 px-6 py-8 rounded-md bg-white shadow-md">
+        {chatOpen && (
+          <form className="absolute z-20 bottom-16 right-0 w-96 px-6 py-8 rounded-md bg-white shadow-md">
             <div className="relative flex flex-col gap-3">
               <IconButton
                 size="small"
                 className="!absolute -top-5 -right-3 !bg-gray-100 hover:!bg-gray-200"
-                onClick={() => setOpen(false)}
+                onClick={() => setChatOpen(false)}
               >
                 <CloseIcon />
               </IconButton>

@@ -11,7 +11,9 @@ interface LabelBottomNavigationProps {
   route?: string;
 }
 
-export default function LabelBottomNavigation({route}:LabelBottomNavigationProps) {
+export default function LabelBottomNavigation({
+  route,
+}: LabelBottomNavigationProps) {
   const router = useRouter();
   const pathName = usePathname();
 
@@ -78,11 +80,7 @@ export default function LabelBottomNavigation({route}:LabelBottomNavigationProps
     {
       value: "/admin/home",
       icon: (
-        <HouseIcon
-          width={20}
-          height={20}
-          color={getIconColor("/admin/home")}
-        />
+        <HouseIcon width={20} height={20} color={getIconColor("/admin/home")} />
       ),
     },
     {
@@ -123,9 +121,7 @@ export default function LabelBottomNavigation({route}:LabelBottomNavigationProps
     <BottomNavigation
       sx={{
         width: "100%",
-        background: pathName?.includes("/admin")
-          ? "#1b1838"
-          : "#ffffff",
+        background: pathName?.includes("/admin") ? "#1b1838" : "#ffffff",
         borderTop: "2px solid #ebebeb",
         paddingX: "18px",
       }}

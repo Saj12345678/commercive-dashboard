@@ -10,18 +10,20 @@ export default function Page() {
   const router = useRouter();
 
   useEffect(() => {
-
     const checkUser = async () => {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        router.push("/login"); 
+        router.push("/login");
         return;
       }
     };
 
     checkUser();
-  }, [supabase])
+  }, [supabase]);
 
   return (
     <>

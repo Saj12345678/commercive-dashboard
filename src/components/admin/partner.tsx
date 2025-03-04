@@ -82,12 +82,11 @@ export default function Partner() {
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-
   // Custom validation
   const validateForm = () => {
     const newErrors: any = {};
 
-    if (!formData.user.trim()) newErrors.user = "User name is required."
+    if (!formData.user.trim()) newErrors.user = "User name is required.";
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
@@ -144,7 +143,6 @@ export default function Partner() {
             })
             .eq("id", id));
         } else {
-
           ({ data, error } = await supabase.from("referrals").insert([
             {
               user_name: formData.user,
@@ -164,9 +162,9 @@ export default function Partner() {
           toast("Failed to save data. Please try again.");
         } else {
           toast(id ? "Data updated successfully:" : "Data added successfully:");
-          fetchReferralsData(page)
+          fetchReferralsData(page);
         }
-        setEditData({})
+        setEditData({});
       } catch (error) {
         console.error("Unexpected error:", error);
       }
@@ -197,7 +195,7 @@ export default function Partner() {
         toast("Failed to upload data to Supabase.");
       } else {
         toast(`Successfully uploaded rows to Supabase.`);
-        fetchReferralsData(page)
+        fetchReferralsData(page);
       }
     } catch (error) {
       toast("An unexpected error occurred.");
@@ -287,7 +285,7 @@ export default function Partner() {
         // Update state after deletion
         setReferralsData((prev) => prev.filter((row: any) => row.id !== id));
         toast("Row deleted successfully.");
-        fetchReferralsData(page)
+        fetchReferralsData(page);
       }
     } catch (error) {
       toast("An unexpected error occurred.");
@@ -327,7 +325,6 @@ export default function Partner() {
         field: "user_name",
         headerName: "User",
         customRender: (row: any) => {
-
           return (
             <div className="flex gap-2">
               <div className="border rounded h-9 w-9"></div>
@@ -575,7 +572,7 @@ export default function Partner() {
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex flex-col relative w-full">
+                  <div className="flex flex-col relative w-full">
                     <InputField
                       name="referred_store_name"
                       placeholder="Enter referred store name"
@@ -584,7 +581,9 @@ export default function Partner() {
                       label={`Referred store name`}
                       value={formData.referred_store_name}
                       onChange={(e: any) =>
-                        handleOnChange(e, { referred_store_name: e.target.value })
+                        handleOnChange(e, {
+                          referred_store_name: e.target.value,
+                        })
                       }
                     />
                     {errors?.referred_store_name && (
@@ -613,23 +612,23 @@ export default function Partner() {
                   </div>
                 </div>
                 <div className="flex flex-col relative w-full">
-                    <InputField
-                      name="commission"
-                      placeholder="Enter commission"
-                      type="text"
-                      className="mt-[8px]"
-                      label={`Commission`}
-                      value={formData.total_commission}
-                      onChange={(e: any) =>
-                        handleOnChange(e, { total_commission: e.target.value })
-                      }
-                    />
-                    {errors?.total_commission && (
-                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.total_commission}
-                      </p>
-                    )}
-                  </div>
+                  <InputField
+                    name="commission"
+                    placeholder="Enter commission"
+                    type="text"
+                    className="mt-[8px]"
+                    label={`Commission`}
+                    value={formData.total_commission}
+                    onChange={(e: any) =>
+                      handleOnChange(e, { total_commission: e.target.value })
+                    }
+                  />
+                  {errors?.total_commission && (
+                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                      {errors?.total_commission}
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="flex justify-end w-full">
                 <CustomButton
@@ -645,8 +644,10 @@ export default function Partner() {
           </CustomModal>
         )}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <p className="text-[#5e568f]">Showing {(page - 1) * limit + 1}-
-            {Math.min(page * limit, totalRecords)} of {totalRecords}</p>
+          <p className="text-[#5e568f]">
+            Showing {(page - 1) * limit + 1}-
+            {Math.min(page * limit, totalRecords)} of {totalRecords}
+          </p>
           <div className="flex items-center gap-3">
             <CustomButton
               label={"Previous"}
@@ -663,7 +664,11 @@ export default function Partner() {
           </div>
         </div>
       </div>
-      <CustomTable tableConfig={tableConfig} isLoading={isLoading} limit={limit} />
+      <CustomTable
+        tableConfig={tableConfig}
+        isLoading={isLoading}
+        limit={limit}
+      />
     </div>
   );
 }

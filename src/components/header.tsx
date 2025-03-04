@@ -10,13 +10,13 @@ import Link from "next/link";
 import { BiWallet } from "react-icons/bi";
 import { LuCircleHelp, LuLogOut, LuUserRound } from "react-icons/lu";
 import { PiLockKey } from "react-icons/pi";
+import { useStoreContext } from "@/context/StoreContext";
 
 export interface HeaderProps {
   toggleSidebar?: any;
-  openChat: any;
 }
 
-const Header = ({ toggleSidebar, openChat }: HeaderProps) => {
+const Header = ({ toggleSidebar }: HeaderProps) => {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -101,7 +101,6 @@ const Header = ({ toggleSidebar, openChat }: HeaderProps) => {
             userEmail={userEmail}
             handleLogout={handleLogout}
             dropdownRef={dropdownRef}
-            openChat={openChat}
             closeDropdown={() => setShowDropdown(false)}
           />
         )}
@@ -116,7 +115,6 @@ interface DropdownProps {
   userEmail: string | null;
   handleLogout: (event: React.MouseEvent<HTMLElement>) => void;
   dropdownRef: React.RefObject<HTMLDivElement | null>;
-  openChat: any;
   closeDropdown: any;
 }
 
@@ -124,9 +122,10 @@ const Dropdown = ({
   userEmail,
   handleLogout,
   dropdownRef,
-  openChat,
   closeDropdown,
 }: DropdownProps) => {
+  const { setChatOpen } = useStoreContext();
+
   return (
     <div
       className="top-16 absolute right-4 bg-white border-2 border-custom-border-2 rounded-md text-sm text-custom-text-2 z-50 drop-down-shadow"
@@ -167,7 +166,7 @@ const Dropdown = ({
           <button
             className="flex items-center mt-1 hover:underline"
             onClick={() => {
-              openChat();
+              setChatOpen(true);
               closeDropdown();
             }}
           >

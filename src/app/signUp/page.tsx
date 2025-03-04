@@ -44,7 +44,7 @@ function SignupForm() {
       toast.success("SignUp successfully!", {
         toastId: "signup-success",
       });
-      router.push('/login')
+      router.push("/login");
     }
   }, [state]);
 
@@ -52,12 +52,10 @@ function SignupForm() {
     <div className="flex items-center justify-center w-full h-screen">
       <div className="bg-white p-8 rounded-md shadow-lg w-full max-w-lg">
         <div className="flex justify-center items-center mb-7">
-          <p className="text-2xl font-semibold mr-2">
-            Get started with
-          </p>
+          <p className="text-2xl font-semibold mr-2">Get started with</p>
           <LogoIcon width={150} height={40} color={"#4F11C9"} />
         </div>
-        <form action={formAction} >
+        <form action={formAction}>
           <div className="space-y-4">
             <div className="flex gap-4 flex-col md:flex-row">
               <div>
@@ -103,7 +101,10 @@ function SignupForm() {
                 />
               </div>
               <div>
-                <label htmlFor="phoneNumber" className="block text-gray-600 mb-2">
+                <label
+                  htmlFor="phoneNumber"
+                  className="block text-gray-600 mb-2"
+                >
                   Phone
                 </label>
                 <input
@@ -148,13 +149,13 @@ function SignupForm() {
             )}
             <CustomButton
               type="submit"
-              label={'Create Account'}
+              label={"Create Account"}
               className="w-full whitespace-nowrap px-6 text-md lg:h-full"
             />
           </div>
         </form>
         <p className="mt-4 text-gray-500">
-          Already have an account? {" "}
+          Already have an account?{" "}
           <span
             className="text-blue-600 cursor-pointer hover:underline"
             onClick={() => router.push("/login")}
@@ -172,5 +173,5 @@ export default function SignupPage() {
     <Suspense fallback={<h1>Loading...</h1>}>
       <SignupForm />
     </Suspense>
-  )
+  );
 }

@@ -1,3 +1,4 @@
+import { da } from "date-fns/locale";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -5,7 +6,10 @@ export async function POST(req: Request) {
     const { inventoryData } = await req.json();
 
     if (!inventoryData || inventoryData.length === 0) {
-      return NextResponse.json({ error: "No inventory data provided" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No inventory data provided" },
+        { status: 400 }
+      );
     }
 
     // Updated prompt to ensure JSON format
@@ -16,34 +20,47 @@ export async function POST(req: Request) {
     
     Inventory Data: ${JSON.stringify(inventoryData)}`;
 
-    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.3,
-        max_tokens: 500,
-      }),
-    });
+    const openaiRes = await fetch(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-3.5-turbo",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.2,
+          max_tokens: 300,
+          stream: true,
+        }),
+      }
+    );
 
     const data = await openaiRes.json();
-
+    console.log(data);
     // Ensure response is valid JSON
     let forecast;
     try {
       forecast = JSON.parse(data.choices[0].message.content);
     } catch (error) {
-      console.error("ChatGPT response is not valid JSON:", data.choices[0].message.content);
-      return NextResponse.json({ error: "Invalid JSON response from AI" }, { status: 500 });
+      console.error(
+        "ChatGPT response is not valid JSON:",
+        data.choices[0].message.content
+      );
+      return NextResponse.json(
+        { error: "Invalid JSON response from AI" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ forecast });
   } catch (error) {
     console.error("Error fetching forecast:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

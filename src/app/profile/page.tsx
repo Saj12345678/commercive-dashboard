@@ -56,7 +56,6 @@ export default function Profile() {
         user_name: data.user_name || "",
         phone_number: data.phone_number || "",
       });
-
     } finally {
       setLoading(false);
     }
@@ -65,7 +64,10 @@ export default function Profile() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
 
       if (userError || !user) {
         toast.error("Unable to fetch user information.");
@@ -89,7 +91,7 @@ export default function Profile() {
         .eq("id", user.id);
 
       if (error) {
-        console.log(error, "vdvdv")
+        console.log(error, "vdvdv");
         toast.error("Failed to update user data.");
         return;
       }
@@ -106,9 +108,7 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col w-full h-screen p-4 md:p-8 max-h-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] overflow-auto custom-scrollbar">
-      <h2 className="text-lg font-semibold pb-4">
-        Personal Information
-      </h2>
+      <h2 className="text-lg font-semibold pb-4">Personal Information</h2>
       <div className="flex flex-col gap-5 max-w-[550px] w-full">
         <div className="flex flex-col md:flex-row gap-4">
           <InputField

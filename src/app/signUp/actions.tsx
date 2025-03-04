@@ -1,39 +1,52 @@
-'use server'
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { createClient } from '../utils/supabase/server';
-import { ActionResponse } from '@/components/type-identifiers';
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { createClient } from "../utils/supabase/server";
+import { ActionResponse } from "@/components/type-identifiers";
 
-export const signup = async (prevState: any, formData: FormData): Promise<ActionResponse<void>> => {
+export const signup = async (
+  prevState: any,
+  formData: FormData
+): Promise<ActionResponse<void>> => {
   const supabase = await createClient();
 
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const referral = formData.get('referral') as string | null;
-  const firstName = formData.get('firstName') as string;
-  const lastName = formData.get('lastName') as string;
-  const userName = formData.get('userName') as string;
-  const phoneNumber = formData.get('phoneNumber') as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const referral = formData.get("referral") as string | null;
+  const firstName = formData.get("firstName") as string;
+  const lastName = formData.get("lastName") as string;
+  const userName = formData.get("userName") as string;
+  const phoneNumber = formData.get("phoneNumber") as string;
 
-  if (!email || !password || !firstName || !lastName || !userName || !phoneNumber) {
-    console.error("Email, password, first name, last name, username and phone number is missing");
+  if (
+    !email ||
+    !password ||
+    !firstName ||
+    !lastName ||
+    !userName ||
+    !phoneNumber
+  ) {
+    console.error(
+      "Email, password, first name, last name, username and phone number is missing"
+    );
     return {
       success: false,
-      errors: 'Email, password, first name, last name, username and phone number is missing'
+      errors:
+        "Email, password, first name, last name, username and phone number is missing",
     };
   }
 
   const { data: existingUser } = await supabase
-    .from('user')
-    .select('id')
-    .eq('email', email)
+    .from("user")
+    .select("id")
+    .eq("email", email)
     .single();
 
   if (existingUser) {
     return {
       success: false,
-      errors: 'User_already_exists'
+      errors: "User_already_exists",
     };
   }
 
@@ -47,40 +60,38 @@ export const signup = async (prevState: any, formData: FormData): Promise<Action
         first_name: firstName,
         last_name: lastName,
         user_name: userName,
-        phone_number: phoneNumber
+        phone_number: phoneNumber,
       },
     },
   });
 
   if (error) {
-    console.error('Error during sign-up:', error.message);
+    console.error("Error during sign-up:", error.message);
     return {
       success: false,
-      errors: error ? error.message : 'Error logging in'
+      errors: error ? error.message : "Error logging in",
     };
   }
 
   if (referral && user?.user?.id) {
-    const { error: referralError } = await supabase
-      .from('referrals')
-      .insert({
-        referred_by: referral,
-        user_id: user.user.id,
-      });
+    const { error: referralError } = await supabase.from("referrals").insert({
+      referred_by: referral,
+      user_id: user.user.id,
+    });
 
     if (referralError) {
-      console.error('Error adding referral:', referralError);
+      console.error("Error adding referral:", referralError);
       return {
         success: false,
-        errors: 'referral_creation_failed'
+        errors: "referral_creation_failed",
       };
     }
 
     if (user) {
-      return { success: true, message: 'SignUp Successfully' };
+      return { success: true, message: "SignUp Successfully" };
     }
   }
 
-  revalidatePath('/', 'layout');
-  return redirect('/login');
-}
+  revalidatePath("/", "layout");
+  return redirect("/login");
+};
