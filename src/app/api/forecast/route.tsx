@@ -33,13 +33,11 @@ export async function POST(req: Request) {
           messages: [{ role: "user", content: prompt }],
           temperature: 0.2,
           max_tokens: 300,
-          stream: true,
         }),
       }
     );
 
     const data = await openaiRes.json();
-    console.log(data);
     // Ensure response is valid JSON
     let forecast;
     try {
@@ -47,7 +45,7 @@ export async function POST(req: Request) {
     } catch (error) {
       console.error(
         "ChatGPT response is not valid JSON:",
-        data.choices[0].message.content
+        data.choices[0].message.content[0]
       );
       return NextResponse.json(
         { error: "Invalid JSON response from AI" },
