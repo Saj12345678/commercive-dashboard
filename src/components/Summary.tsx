@@ -29,6 +29,27 @@ export default function Summary({ selectedRange }: any) {
   const [trackingData, setTrackingData] = useState<TransactionItem[]>([]);
   const storeName = selectedStore ? selectedStore.label : null;
   const datePickerRef = useRef<HTMLDivElement>(null);
+  const dateLabelsRef = useRef<HTMLDivElement>(null);
+  const shipmentItemsRef = useRef<HTMLDivElement>(null);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleScroll = () => {
+    if (dateLabelsRef.current) {
+      const newScrollLeft = dateLabelsRef.current.scrollLeft;
+      setScrollLeft(newScrollLeft);
+    }
+  };
+
+  useEffect(() => {
+    if (dateLabelsRef.current) {
+      dateLabelsRef.current.addEventListener("scroll", handleScroll);
+    }
+    return () => {
+      if (dateLabelsRef.current) {
+        dateLabelsRef.current.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
 
   const getStartOfWeek = () => {
     const now = new Date();
@@ -137,6 +158,9 @@ export default function Summary({ selectedRange }: any) {
 
     return `${Math.max(0, daysGap)} days`;
   };
+  const chunkSize = 7;
+
+  const initialChunk = dateLabels.slice(0, chunkSize);
   return (
     <Paper
       elevation={3}
@@ -231,19 +255,39 @@ export default function Summary({ selectedRange }: any) {
           </Button>
         </Link>
       </div>
-
-      <Box className="flex gap-4 text-center justify-between overflow-auto custom-scrollbar py-2 border-b-2 border-[#F4F4F7]">
-        {dateLabels.map((day, index) => (
+      <Box
+        ref={dateLabelsRef}
+        className="flex gap-7 text-center justify-between py-3 border-b-2 border-[#F4F4F7] overflow-x-auto custom-scrollbar"
+        style={{
+          display: "flex",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {initialChunk.map((day, index) => (
           <Typography
             key={index}
             className="text-sm font-medium text-[#B1B0B2]"
+            style={{ minWidth: "80px" }} // Fixed minWidth
           >
             {day}
           </Typography>
         ))}
+        {dateLabels.length > chunkSize &&
+          dateLabels.slice(chunkSize).map((day, index) => (
+            <Typography
+              key={index + chunkSize}
+              className="text-sm font-medium text-[#B1B0B2]"
+              style={{ minWidth: "80px" }}
+            >
+              {day}
+            </Typography>
+          ))}
       </Box>
       {trackingData.length > 0 ? (
-        <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#F4F4F7_2px,transparent_1px)] bg-[size:18%_100%] overflow-auto custom-scrollbar">
+        <Box
+          ref={shipmentItemsRef}
+          className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#F4F4F7_2px,transparent_1px)] bg-[size:18%_100%] overflow-auto custom-scrollbar"
+        >
           {/* Shipment Items */}
           {trackingData.map((data, i) => {
             const createdDateStr = data.created_at.split("T")[0];
@@ -274,6 +318,9 @@ export default function Summary({ selectedRange }: any) {
                 </p>
               </div>
             );
+            const dateLabelWidth = 80;
+            const initialLeft = createdIndex * dateLabelWidth;
+            const adjustedLeft = initialLeft - scrollLeft;
             return (
               <React.Fragment key={data.id}>
                 <Tooltip title={tooltipContent} placement="top" arrow>
@@ -286,8 +333,8 @@ export default function Summary({ selectedRange }: any) {
                     } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
                     style={{
                       top: `${i * 55}px`,
-                      left: `${(createdIndex / dateLabels.length) * 100}%`,
-                      width: `${(colSpan / dateLabels.length) * 100}%`,
+                      left: `${adjustedLeft}px`,
+                      width: `${colSpan * dateLabelWidth}px`,
                       gap: "2rem",
                     }}
                   >

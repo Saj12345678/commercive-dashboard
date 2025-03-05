@@ -40,6 +40,16 @@ export default function Shipment() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const dateLabelsRef = useRef<HTMLDivElement>(null);
+  const shipmentItemsRef = useRef<HTMLDivElement>(null);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleScroll = () => {
+    if (dateLabelsRef.current) {
+      const newScrollLeft = dateLabelsRef.current.scrollLeft;
+      setScrollLeft(newScrollLeft);
+    }
+  };
 
   const getStartOfWeek = () => {
     const now = new Date();
@@ -167,6 +177,17 @@ export default function Shipment() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (dateLabelsRef.current) {
+      dateLabelsRef.current.addEventListener("scroll", handleScroll);
+    }
+    return () => {
+      if (dateLabelsRef.current) {
+        dateLabelsRef.current.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
+
   const dateLabels = generateDateLabels(
     dateRange[0].startDate,
     dateRange[0].endDate,
@@ -222,7 +243,9 @@ export default function Shipment() {
     return `${Math.max(0, daysGap)} days`;
   };
   const isLargeScreen = useMediaQuery("(min-width: 640px)");
+  const chunkSize = 10;
 
+  const initialChunk = dateLabels.slice(0, chunkSize);
   return (
     <main
       // style={{ height: "calc(100vh - 70px)" }}
@@ -330,19 +353,40 @@ export default function Shipment() {
         </Box>
       </Box>
 
-      <Box className="flex gap-4 text-center justify-between overflow-auto py-3 border-b-2 border-[#F4F4F7]">
-        {dateLabels.map((day, index) => (
+      <Box
+        ref={dateLabelsRef}
+        className="flex gap-20 text-center justify-between py-3 border-b-2 border-[#F4F4F7] overflow-x-auto custom-scrollbar"
+        style={{
+          display: "flex",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {initialChunk.map((day, index) => (
           <Typography
             key={index}
             className="text-sm font-medium text-[#B1B0B2]"
+            style={{ minWidth: "80px" }} // Fixed minWidth
           >
             {day}
           </Typography>
         ))}
+        {dateLabels.length > chunkSize &&
+          dateLabels.slice(chunkSize).map((day, index) => (
+            <Typography
+              key={index + chunkSize}
+              className="text-sm font-medium text-[#B1B0B2]"
+              style={{ minWidth: "80px" }}
+            >
+              {day}
+            </Typography>
+          ))}
       </Box>
 
       {trackingData.length > 0 ? (
-        <Box className="grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#F4F4F7_2px,transparent_1px)] bg-[size:10%_100%] overflow-auto custom-scrollbar">
+        <Box
+          ref={shipmentItemsRef}
+          className="grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#F4F4F7_2px,transparent_1px)] bg-[size:10%_100%] overflow-auto custom-scrollbar"
+        >
           {/* Shipment Items */}
           {trackingData.map((data, i) => {
             const createdDateStr = data.created_at.split("T")[0];
@@ -372,6 +416,10 @@ export default function Shipment() {
               </div>
             );
 
+            const dateLabelWidth = 80;
+            const initialLeft = createdIndex * dateLabelWidth;
+            const adjustedLeft = initialLeft - scrollLeft;
+
             return (
               <Link href={`/shipments/${data.order_id}`} key={data.id} passHref>
                 <Tooltip title={tooltipContent} placement="top" arrow>
@@ -384,8 +432,8 @@ export default function Shipment() {
                     } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
                     style={{
                       top: `${i * 55}px`,
-                      left: `${(createdIndex / dateLabels.length) * 100}%`,
-                      width: `${(colSpan / dateLabels.length) * 100}%`,
+                      left: `${adjustedLeft}px`,
+                      width: `${colSpan * dateLabelWidth}px`,
                       gap: "2rem",
                     }}
                   >
