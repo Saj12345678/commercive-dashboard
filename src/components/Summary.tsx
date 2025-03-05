@@ -286,7 +286,7 @@ export default function Summary({ selectedRange }: any) {
       {trackingData.length > 0 ? (
         <Box
           ref={shipmentItemsRef}
-          className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#F4F4F7_2px,transparent_1px)] bg-[size:18%_100%] overflow-auto custom-scrollbar"
+          className="grid grid-cols-6 gap-0 p-3 text-center relative h-80 bg-white bg-[linear-gradient(to_right,#F4F4F7_2px,transparent_1px)] bg-[size:18%_100%] overflow-hidden"
         >
           {/* Shipment Items */}
           {trackingData.map((data, i) => {
