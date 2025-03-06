@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from "next/link";
 import {
   Button,
   Table,
@@ -109,20 +110,23 @@ export default function Inventory({ data }: InventoryProps) {
           <TotalInventory width={24} height={24} color={"#4F11C9"} />
           Total Inventory
         </Typography>
-        <Button
-          variant="outlined"
-          // color="secondary"
-          endIcon={<GoArrowUpRight size={24} />}
-          className="!rounded-full"
-          sx={{
-            borderColor: "#f0edf5",
-            borderWidth: 2,
-            color: "#9A88BE",
-            textTransform: "initial",
-          }}
-        >
-          View All Inventory
-        </Button>
+
+        <Link href={"/inventory"}>
+          <Button
+            variant="outlined"
+            // color="secondary"
+            endIcon={<GoArrowUpRight size={24} />}
+            className="!rounded-full"
+            sx={{
+              borderColor: "#f0edf5",
+              borderWidth: 2,
+              color: "#9A88BE",
+              textTransform: "initial",
+            }}
+          >
+            View All Inventory
+          </Button>
+        </Link>
       </div>
       <div className="flex flex-col sm:flex-row sm:items-center w-full gap-5 pt-4 pb-8">
         <p className="text-[36px] font-bold ">{filteredData.length}</p>

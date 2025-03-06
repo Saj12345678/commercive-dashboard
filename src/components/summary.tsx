@@ -239,7 +239,6 @@ export default function Summary({ selectedRange }: any) {
           )}
         </div> */}
         <Link href={"/shipments"}>
-          {" "}
           <Button
             variant="outlined"
             endIcon={<GoArrowUpRight size={24} />}
