@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Button } from "@mui/material";
 import EastIcon from "@mui/icons-material/East";
 import SearchIcon from "@mui/icons-material/Search";
+import FadeView from "./fade-view";
 
 type InventoryItem = {
   image: string;
@@ -91,35 +92,37 @@ export default function Forecast({ inventoryData }: InventoryProps) {
             />
           </p>
 
-          {forecastData.map((item: any, index: number) => (
-            <div
-              key={index}
-              className={`px-4 py-2 flex items-center gap-3 rounded ${
-                item.current_stocks === 0
-                  ? "bg-red-100"
-                  : item.current_stocks < 50
-                  ? "bg-orange-100"
-                  : "bg-green-100"
-              }`}
-            >
-              <p className="flex items-center gap-1">
-                <span>{item.product_name}</span>
-                <span className="font-bold">
-                  ({item.current_stocks} in stock)
-                </span>
-                <EastIcon className="text-xl" />
-                <span className="font-bold">Selling 4/day.</span>
-              </p>
-              <p className="flex items-center gap-1">
-                Predicted Demand:
-                <span className="font-bold">{item.forecasted_demand}.</span>
-              </p>
-              <p className="flex items-center gap-1">
-                Reorder Suggestion:
-                <span className="font-bold">{item.reorder_suggestion}.</span>
-              </p>
-            </div>
-          ))}
+          <FadeView
+            componentsArray={forecastData.map((item: any, index: number) => (
+              <div
+                key={index}
+                className={`px-4 py-2 flex items-center gap-3 rounded ${
+                  item.current_stocks === 0
+                    ? "bg-red-100"
+                    : item.current_stocks < 50
+                    ? "bg-orange-100"
+                    : "bg-green-100"
+                }`}
+              >
+                <p className="flex items-center gap-1">
+                  <span>{item.product_name}</span>
+                  <span className="font-bold">
+                    ({item.current_stocks} in stock)
+                  </span>
+                  <EastIcon className="text-xl" />
+                  <span className="font-bold">Selling 4/day.</span>
+                </p>
+                <p className="flex items-center gap-1">
+                  Predicted Demand:
+                  <span className="font-bold">{item.forecasted_demand}.</span>
+                </p>
+                <p className="flex items-center gap-1">
+                  Reorder Suggestion:
+                  <span className="font-bold">{item.reorder_suggestion}.</span>
+                </p>
+              </div>
+            ))}
+          />
         </div>
       ) : (
         <p className="p-6 text-center text-gray-400">No data available.</p>
