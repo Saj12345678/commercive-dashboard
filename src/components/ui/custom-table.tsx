@@ -13,6 +13,7 @@ import {
   TableFooter,
   Menu,
   MenuItem,
+  Checkbox,
 } from "@mui/material";
 import { MdOutlineEdit, MdOutlineMoreVert } from "react-icons/md";
 import { RiDeleteBinLine } from "react-icons/ri";
@@ -34,6 +35,10 @@ interface CustomTableProps<T> {
   fixRow?: boolean;
   pagination?: any;
   limit?: any;
+  showEdit?: boolean;
+  showDelete?: boolean;
+  showCheckbox?: boolean;
+  onCheckboxClick?: (id: number) => void;
 }
 
 export default function CustomTable<T>({
@@ -41,6 +46,10 @@ export default function CustomTable<T>({
   isLoading,
   pagination,
   limit,
+  showEdit = false,
+  showDelete = false,
+  showCheckbox = false,
+  onCheckboxClick,
 }: CustomTableProps<T>) {
   const { columns, rows, handlePagination, fixRow, handleRowLimit } =
     tableConfig;
@@ -72,13 +81,15 @@ export default function CustomTable<T>({
     }
     setPage(newPage);
   };
+  const handleCheckboxClick = (id: number) => {
+    if (onCheckboxClick) {
+      onCheckboxClick(id);
+    }
+  };
 
-  const updatedColumns = [...tableConfig.columns];
-  if (tableConfig.actionPresent) {
-    updatedColumns.push({
-      field: "action",
-      headerName: "Action",
-    });
+  const updatedColumns = [...columns];
+  if (showEdit || showDelete || showCheckbox) {
+    updatedColumns.push({ field: "action", headerName: "Action" });
   }
 
   return (
@@ -112,26 +123,27 @@ export default function CustomTable<T>({
                   {column.headerName === "Action" ? "" : column.headerName}
                 </TableCell>
               ))} */}
-               {updatedColumns.map((column: any) => {
-                  const shouldHideActionColumn =
-                    column.headerName === "Action" && (isLoading || rows.length === 0);
-           
-                  return (
-                    !shouldHideActionColumn && (
-                      <TableCell
-                        key={column.field}
-                        sx={{
-                          color: "#7067aa",
-                          fontSize: "13px",
-                          fontWeight: 500,
-                         borderBottom: "2px solid #403a6b",
-                       }}
-                     >
-                       {column.headerName === "Action" ? "" : column.headerName}
-                     </TableCell>
-                   )
-                 );
-               })}
+              {updatedColumns.map((column: any) => {
+                const shouldHideActionColumn =
+                  column.headerName === "Action" &&
+                  (isLoading || rows.length === 0);
+
+                return (
+                  !shouldHideActionColumn && (
+                    <TableCell
+                      key={column.field}
+                      sx={{
+                        color: "#7067aa",
+                        fontSize: "13px",
+                        fontWeight: 500,
+                        borderBottom: "2px solid #403a6b",
+                      }}
+                    >
+                      {column.headerName === "Action" ? "" : column.headerName}
+                    </TableCell>
+                  )
+                );
+              })}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -190,35 +202,46 @@ export default function CustomTable<T>({
                             borderBottom: "2px solid #403a6b",
                             textAlign: "center", // Optional for alignment
                             background: "#342d5f",
-                            display: column.field === "action" && isLoading
-                              ? "none"
-                              : "table-cell",
+                            display:
+                              column.field === "action" && isLoading
+                                ? "none"
+                                : "table-cell",
                           }}
                         >
-                          <IconButton
-                            onClick={() => {
-                              tableConfig.onActionClick("edit", row);
-                            }}
-                          >
-                            <Image
-                              src="/icons/edit.png"
-                              alt="edit"
-                              width={18}
-                              height={18}
+                          {showEdit && (
+                            <IconButton
+                              onClick={() => {
+                                tableConfig.onActionClick("edit", row);
+                              }}
+                            >
+                              <Image
+                                src="/icons/edit.png"
+                                alt="edit"
+                                width={18}
+                                height={18}
+                              />
+                            </IconButton>
+                          )}
+                          {showDelete && (
+                            <IconButton
+                              onClick={() => {
+                                tableConfig.onActionClick("delete", row);
+                              }}
+                            >
+                              <Image
+                                src="/icons/delete.png"
+                                alt="delete"
+                                width={18}
+                                height={18}
+                              />
+                            </IconButton>
+                          )}
+                          {showCheckbox && (
+                            <Checkbox
+                              checked={row.isSelected}
+                              onClick={() => handleCheckboxClick(row.id)}
                             />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => {
-                              tableConfig.onActionClick("delete", row);
-                            }}
-                          >
-                            <Image
-                              src="/icons/delete.png"
-                              alt="delete"
-                              width={18}
-                              height={18}
-                            />
-                          </IconButton>
+                          )}
                         </TableCell>
                       );
                     } else if (column.customRender) {
