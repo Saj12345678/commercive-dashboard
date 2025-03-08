@@ -1,7 +1,7 @@
 "use client";
 
-import CustomTable from "@/components/ui/custom-table";
 import { useEffect, useState } from "react";
+import CustomTable from "@/components/ui/custom-table";
 import CustomButton from "../ui/custom-button";
 import { createClient } from "@/app/utils/supabase/client";
 import CustomModal from "../ui/modal";
