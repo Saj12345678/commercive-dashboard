@@ -642,7 +642,7 @@ export default function Home() {
           </Button>
         </div>
         <div className="flex flex-col sm:flex-row justify-between">
-          <div className="flex flex-col md:flex-row items-center gap-2">
+          <div className="flex items-center gap-2">
             <div style={{ position: "relative" }}>
               {/* Input Field */}
               <input
@@ -710,7 +710,8 @@ export default function Home() {
                 </div>
               )}
             </div>
-            <p>Compare to</p>
+
+            <p className="hidden md:block">Compare to</p>
 
             <div style={{ position: "relative" }}>
               {/* Input Field */}

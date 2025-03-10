@@ -28,7 +28,7 @@ const FadeView: React.FC<FadeViewProps> = ({ componentsArray }) => {
   return (
     <div
       className="fade-container"
-      style={{ height: componentsArray.length * 50 + "px" }}
+      // style={{ height: componentsArray.length * 50 + "px" }}
     >
       {visibleComponents.map((component, i) => (
         <div

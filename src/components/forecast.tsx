@@ -51,7 +51,7 @@ export default function Forecast({ inventoryData }: InventoryProps) {
   }, [inventoryData]);
 
   return (
-    <div className="px-4 py-6 sm:px-6 sm:py-8 border-2 rounded-lg border-white bg-white shadow-lg custom-box-shadow">
+    <div className="mb-16 px-4 py-6 sm:px-6 sm:py-8 border-2 rounded-lg border-white bg-white shadow-lg custom-box-shadow">
       <div className="mb-5 flex items-center gap-3">
         <Image
           className="text-[#5014ca]"
@@ -61,7 +61,7 @@ export default function Forecast({ inventoryData }: InventoryProps) {
           alt="forecast"
         />
 
-        <h3 className="text-2xl font-bold">Stock Forecast</h3>
+        <h3 className="sm:text-2xl font-bold">Stock Forecast</h3>
 
         <Button
           variant="contained"
@@ -79,7 +79,7 @@ export default function Forecast({ inventoryData }: InventoryProps) {
         <span className="blink-dot"></span>
       ) : forecastData ? (
         <div className="flex flex-col gap-3">
-          <p className="flex items-center gap-1">
+          <p className="flex sm:items-center gap-1">
             <SearchIcon className="text-xl" />
             <TypeAnimation
               sequence={[
@@ -96,7 +96,7 @@ export default function Forecast({ inventoryData }: InventoryProps) {
             componentsArray={forecastData.map((item: any, index: number) => (
               <div
                 key={index}
-                className={`px-4 py-2 flex items-center gap-3 rounded ${
+                className={`px-4 py-2 flex flex-wrap items-center gap-2 rounded ${
                   item.current_stocks === 0
                     ? "bg-red-100"
                     : item.current_stocks < 50
@@ -104,7 +104,7 @@ export default function Forecast({ inventoryData }: InventoryProps) {
                     : "bg-green-100"
                 }`}
               >
-                <p className="flex items-center gap-1">
+                <p className="flex flex-wrap items-center gap-1">
                   <span>{item.product_name}</span>
                   <span className="font-bold">
                     ({item.current_stocks} in stock)
@@ -112,11 +112,11 @@ export default function Forecast({ inventoryData }: InventoryProps) {
                   <EastIcon className="text-xl" />
                   <span className="font-bold">Selling 4/day.</span>
                 </p>
-                <p className="flex items-center gap-1">
+                <p className="flex flex-wrap items-center gap-1">
                   Predicted Demand:
                   <span className="font-bold">{item.forecasted_demand}.</span>
                 </p>
-                <p className="flex items-center gap-1">
+                <p className="flex flex-wrap items-center gap-1">
                   Reorder Suggestion:
                   <span className="font-bold">{item.reorder_suggestion}.</span>
                 </p>

@@ -87,7 +87,7 @@ export default function Inventory({ data }: InventoryProps) {
   return (
     <Paper
       elevation={2}
-      className="w-full h-full px-4 py-6 sm:px-6 sm:py-8"
+      className="w-full h-full px-3 py-6 sm:px-6 sm:py-8"
       sx={{
         borderRadius: "20px",
         boxShadow:
@@ -130,7 +130,7 @@ export default function Inventory({ data }: InventoryProps) {
       </div>
       <div className="flex flex-col sm:flex-row sm:items-center w-full gap-5 pt-4 pb-8">
         <p className="text-[36px] font-bold ">{filteredData.length}</p>
-        <div className="flex w-full flex-wrap gap-2 sm:gap-4">
+        <div className="flex w-full flex-wrap gap-2 md:gap-4">
           {[
             { label: "All", color: "gray" },
             { label: "Enough", color: "green" },
@@ -140,7 +140,7 @@ export default function Inventory({ data }: InventoryProps) {
             <button
               type="button"
               key={tab.label}
-              className={`flex items-center gap-2 w-max px-4 py-1 rounded-md text-${
+              className={`flex items-center gap-1 w-max px-2 md:px-4 py-1 rounded-md text-${
                 tab.color
               }-700 bg-${tab.color}-100 ${
                 selectedTab === tab.label

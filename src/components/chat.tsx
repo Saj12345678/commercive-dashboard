@@ -73,7 +73,7 @@ export default function Chat() {
   }, [name, email, storeUrl, issue]);
 
   return (
-    <div className="absolute bottom-5 right-5">
+    <div className="absolute bottom-16 sm:bottom-5 right-5">
       <div className="relative">
         <button
           className="p-3 border-4 rounded-full border-white chat-bg shadow-sm shadow-[#3E3E3E]"
@@ -89,7 +89,7 @@ export default function Chat() {
         </button>
 
         {chatOpen && (
-          <form className="absolute z-20 bottom-16 right-0 w-96 px-6 py-8 rounded-md bg-white shadow-md">
+          <form className="absolute z-20 bottom-16 right-0 w-80 sm:w-96 px-6 py-8 rounded-md bg-white shadow-md">
             <div className="relative flex flex-col gap-3">
               <IconButton
                 size="small"
