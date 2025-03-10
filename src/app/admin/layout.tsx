@@ -5,10 +5,12 @@ import { createClient } from "../utils/supabase/client";
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const supabase = createClient();
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const getUserDetails = async () => {
       try {
+        setIsLoading(true);
         const {
           data: { user: userData },
         } = await supabase.auth.getUser();
@@ -31,14 +33,24 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         }
 
         setIsAuthorized(user.role === "admin");
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching user details:", error);
         setIsAuthorized(false);
+        setIsLoading(false);
       }
     };
 
     getUserDetails();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="text-white w-full font-bold text-center mt-12 sm:mt-80">
+        Loading...
+      </div>
+    );
+  }
 
   if (!isAuthorized) {
     return (

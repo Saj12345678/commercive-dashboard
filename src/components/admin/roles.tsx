@@ -7,6 +7,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import CustomModal from "../ui/modal";
 import { toast } from "react-toastify";
 import { MenuItem, Select } from "@mui/material";
+import { FiPlus } from "react-icons/fi";
 
 export default function Roles() {
   const supabase = createClient();
@@ -17,7 +18,7 @@ export default function Roles() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [selectedRole, setSelectedRole] = useState<any>(null);
-  let limit = 5;
+  let limit = 10;
   const roleOptions = [
     { value: "admin", label: "Admin" },
     { value: "user", label: "User" },
@@ -43,6 +44,32 @@ export default function Roles() {
         ? prevSelectedUsers.filter((userId) => userId !== id)
         : [...prevSelectedUsers, id]
     );
+  };
+
+  const handleRoleUpdate = async () => {
+    setLoading(true);
+    try {
+      if (!selectedRole) {
+        toast.error("Please select a role.");
+        return;
+      }
+      const updates = selectedUsers.map((userId) =>
+        supabase
+          .from("user")
+          .update({ role: selectedRole.value })
+          .eq("id", userId)
+      );
+      await Promise.all(updates);
+
+      toast.success("Roles updated successfully.");
+      fetchUsersData(page);
+      closeAddNewModal();
+    } catch (error) {
+      console.error("Error updating roles:", error);
+      toast.error("Failed to update roles. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const tableConfig = {
@@ -187,36 +214,9 @@ export default function Roles() {
   useEffect(() => {
     fetchUsersData(page);
   }, [page]);
-  const handleRoleUpdate = async () => {
-    setLoading(true);
-    try {
-      if (!selectedRole) {
-        toast.error("Please select a role.");
-        return;
-      }
-      const updates = selectedUsers.map((userId) =>
-        supabase
-          .from("user")
-          .update({ role: selectedRole.value })
-          .eq("id", userId)
-      );
-      await Promise.all(updates);
-
-      toast.success("Roles updated successfully.");
-      fetchUsersData(page);
-      closeAddNewModal();
-      //   setSelectedUsers([]);
-    } catch (error) {
-      console.error("Error updating roles:", error);
-      toast.error("Failed to update roles. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="flex flex-col w-full gap-5">
-      <div className="flex flex-col sm:flex-row w-full justify-between gap-3">
         <h1 className="text-2xl text-white">Roles</h1>
         {addNewModalOpen && (
           <CustomModal onClose={closeAddNewModal} maxWidth={"max-w-[800px]"}>
@@ -251,6 +251,15 @@ export default function Roles() {
             </div>
           </CustomModal>
         )}
+        <div className="flex flex-col sm:flex-row w-full justify-between gap-3">
+        
+        <div className="flex">
+          <CustomButton
+            label={"Add New"}
+            className="w-max"
+            prefixIcon={<FiPlus size={24} />}
+          />
+        </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <p className="text-[#5e568f]">
             Showing {(page - 1) * limit + 1}-
@@ -271,7 +280,7 @@ export default function Roles() {
             />
           </div>
         </div>
-      </div>
+        </div>
       <CustomTable
         tableConfig={tableConfig}
         isLoading={isLoading}
