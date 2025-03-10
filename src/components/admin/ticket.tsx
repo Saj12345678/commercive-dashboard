@@ -19,7 +19,6 @@ export default function Ticket() {
   const [selectedConfirmed, setSelectedConfirmed] = useState<any>(null);
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
   let limit = 5;
-  console.log({ ticketsData });
   const confirmOptions = [
     { value: "true", label: "Yes" },
     { value: "false", label: "No" },
