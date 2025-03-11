@@ -5,33 +5,15 @@ import { createClient } from "@/app/utils/supabase/client";
 import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
 import { toast } from "react-toastify";
-import CustomModal from "../ui/modal";
-import { MenuItem, Select } from "@mui/material";
 
 export default function Ticket() {
   const supabase = createClient();
   const [ticketsData, setTicketsData] = useState([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTickets, setSelectedTickets] = useState<number[]>([]);
-  const [selectedConfirmed, setSelectedConfirmed] = useState<any>(null);
-  const [addNewModalOpen, setAddNewModalOpen] = useState(false);
   let limit = 5;
-  const confirmOptions = [
-    { value: "true", label: "Yes" },
-    { value: "false", label: "No" },
-  ];
-
-  const handleAddNewOpenModal = () => {
-    setAddNewModalOpen(true);
-  };
-
-  const closeAddNewModal = () => {
-    setAddNewModalOpen(false);
-    setSelectedConfirmed(null);
-  };
 
   const handlePagination = (curPage: number) => {
     setPage(curPage);
@@ -113,77 +95,36 @@ export default function Ticket() {
   }, [page]);
 
   const handleCheckboxClick = async (id: number) => {
-    handleAddNewOpenModal();
-    setSelectedTickets((prevSelectedTickets) =>
-      prevSelectedTickets.includes(id)
-        ? prevSelectedTickets.filter((ticketId) => ticketId !== id)
-        : [...prevSelectedTickets, id]
-    );
-  };
+    setSelectedTickets((prevSelectedTickets) => {
+      const isCurrentlySelected = prevSelectedTickets.includes(id);
+      const newSelectionState = !isCurrentlySelected;
+      
+      const updatedTickets = newSelectionState
+        ? [...prevSelectedTickets, id]
+        : prevSelectedTickets.filter((ticketId) => ticketId !== id);
+  
+      return updatedTickets;
+    });
 
-  const handleTicketUpdate = async () => {
-    setLoading(true);
-    try {
-      if (!selectedConfirmed) {
-        toast.error("Please select a value.");
-        return;
-      }
-      const updates = selectedTickets.map((ticketId) =>
-        supabase
-          .from("issues")
-          .update({ confirmed: selectedConfirmed.value })
-          .eq("id", ticketId)
-      );
-
-      await Promise.all(updates);
-
-      toast.success("Confirm successfully.");
+    const isCurrentlySelected = selectedTickets.includes(id);
+    const newSelectionState = !isCurrentlySelected;
+  
+    // Update Supabase
+    const { error } = await supabase
+      .from("issues") 
+      .update({ confirmed: newSelectionState }) 
+      .eq("id", id);
+      toast("Confirm successfully.");
       fetchTicketsData(page);
-      closeAddNewModal();
-    } catch (error) {
-      console.error("Error updating roles:", error);
-      toast.error("Failed to update roles. Please try again.");
-    } finally {
-      setLoading(false);
+    if (error) {
+      console.error("Error updating Supabase:", error.message);
+      toast.error("Failed to update Supabase.");
     }
   };
 
   return (
     <div className="flex flex-col w-full gap-5">
       <h1 className="text-2xl text-white">Tickets</h1>
-      {addNewModalOpen && (
-        <CustomModal onClose={closeAddNewModal} maxWidth={"max-w-[800px]"}>
-          <div className="flex flex-col gap-6">
-            <h2 className="text-lg font-semibold">Confirmed</h2>
-            <div className="flex flex-col gap-4">
-              <Select
-                value={selectedConfirmed?.value || ""}
-                onChange={(event) =>
-                  setSelectedConfirmed(
-                    confirmOptions.find(
-                      (confirm) => confirm.value === event.target.value
-                    )
-                  )
-                }
-              >
-                {confirmOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </div>
-            <div className="flex justify-end w-full">
-              <CustomButton
-                label={"Save"}
-                callback={handleTicketUpdate}
-                className="bg-[#342d5f] text-[#5e568f]"
-                interactingAPI={loading}
-              />
-            </div>
-          </div>
-        </CustomModal>
-      )}
       <div className="flex flex-col sm:flex-row w-full justify-end gap-3">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <p className="text-[#5e568f]">

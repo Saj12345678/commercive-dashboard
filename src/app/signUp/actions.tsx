@@ -61,6 +61,7 @@ export const signup = async (
         last_name: lastName,
         user_name: userName,
         phone_number: phoneNumber,
+        role: "user"
       },
     },
   });
