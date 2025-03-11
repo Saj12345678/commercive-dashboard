@@ -1,6 +1,6 @@
 import Roles from "@/components/admin/roles";
 import React from "react";
 
-export default function PartnerPage() {
+export default function RolePage() {
   return <Roles />;
 }
