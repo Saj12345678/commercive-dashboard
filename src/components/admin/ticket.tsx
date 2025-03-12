@@ -110,11 +110,17 @@ export default function Ticket() {
     const newSelectionState = !isCurrentlySelected;
   
     // Update Supabase
-    const { error } = await supabase
+    const { data, error }: any = await supabase
       .from("issues") 
       .update({ confirmed: newSelectionState }) 
-      .eq("id", id);
-      toast("Confirm successfully.");
+      .eq("id", id)
+      .select();
+
+      if(data[0]?.confirmed){
+        toast("Confirm successfully.");
+      } else {
+        toast("Disapprove successfully.");
+      }
       fetchTicketsData(page);
     if (error) {
       console.error("Error updating Supabase:", error.message);

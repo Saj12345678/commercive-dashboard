@@ -140,8 +140,6 @@ export default function Roles() {
     if (!formData?.last_name?.trim())
       newErrors.last_name = "Last name is required.";
 
-    if (!formData?.role?.trim()) newErrors.role = "Role is required.";
-
     if (!formData?.phone_number?.trim()) {
       newErrors.phone_number = "Phone number is required.";
     } else if (!/^\d{1,11}$/.test(formData.phone_number)) {
@@ -474,29 +472,6 @@ export default function Roles() {
                     </p>
                   )}
                 </div>
-                {/* <div className="flex flex-col relative w-full">
-                  <InputLabel>Role</InputLabel>
-                  <Select
-                    label={`Role`}
-                    name="role"
-                    value={formData.role || ""} // Ensure controlled input
-                    onChange={(e) =>
-                      handleAddNewUserChange(e, { role: e.target.value })
-                    }
-                  >
-                    {roleOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-
-                  {errors?.role && (
-                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                      {errors?.role}
-                    </p>
-                  )}
-                </div> */}
                 <div className="flex flex-col relative w-full">
                   <InputLabel>Role</InputLabel>
                   <select

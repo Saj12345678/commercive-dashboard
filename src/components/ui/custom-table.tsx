@@ -183,7 +183,8 @@ export default function CustomTable<T>({
               (fixRow
                 ? rows
                 : rows?.slice((page - 1) * rowsPerPage, page * rowsPerPage)
-              ).map((row: any, index: number) => (
+              ).map((row: any, index: number) => {
+                return(
                 <TableRow key={index} sx={{ background: "#342d5f" }}>
                   {updatedColumns.map((column: any) => {
                     const cellKey = `Datatable-row-${index}-${column.field}`;
@@ -238,7 +239,7 @@ export default function CustomTable<T>({
                           )}
                           {showCheckbox && (
                             <Checkbox
-                              checked={row.isSelected}
+                              checked={row.confirmed}
                               onClick={() => handleCheckboxClick(row.id)}
                             />
                           )}
@@ -275,7 +276,7 @@ export default function CustomTable<T>({
                     }
                   })}
                 </TableRow>
-              ))
+              )})
             )}
           </TableBody>
         </Table>
