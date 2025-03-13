@@ -74,7 +74,7 @@ export default function Inventory() {
     columns: [
       { field: "sku", headerName: "SKU", customRender: (row: any) => <span>{row?.sku}</span> },
       { field: "product_id", headerName: "Product ID", customRender: (row: any) => <span>{row?.product_id}</span> },
-      { field: "store_name", headerName: "Store Name", customRender: (row: any) => <span>{row?.store_name}</span> },
+      { field: "store_name", headerName: "Store Name", customRender: (row: any) => <span>{`${row?.store_name === 'satish-dev' ? 'Golf Pro' : row?.store_name}`}</span> },
       { field: "inventory_level[0].node.quantities[0].quantity", headerName: "Available", customRender: (row: any) => <span>{row?.inventory_level?.[0]?.node?.quantities?.[0]?.quantity}</span> },
       { field: "inventory_level[0].node.quantities[1].quantity", headerName: "Committed", customRender: (row: any) => <span>{row?.inventory_level?.[0]?.node?.quantities?.[1]?.quantity}</span> },
       { field: "inventory_level[0].node.quantities[2].quantity", headerName: "Incoming", customRender: (row: any) => <span>{row?.inventory_level?.[0]?.node?.quantities?.[2]?.quantity}</span> },
@@ -90,7 +90,10 @@ export default function Inventory() {
       <div className="flex flex-col sm:flex-row w-full justify-between">
         <Autocomplete
           options={uniqueStores}
-          getOptionLabel={(option) => option || ""}
+          // getOptionLabel={(option) => option || ""}
+          getOptionLabel={(option) =>
+            option === "satish-dev" ? "Golf Pro" : option
+          }
           value={storeFilter}
           onChange={(event, newValue) => setStoreFilter(newValue || "")}
           renderInput={(params) => (

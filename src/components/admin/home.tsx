@@ -582,7 +582,9 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-1 w-full md:w-1/2 ">
             <Autocomplete
               options={storeData}
-              getOptionLabel={(option) => option?.label || ""}
+              getOptionLabel={(option) =>
+                option.label === "satish-dev" ? "Golf Pro" : option.label
+              }
               value={storeFilter}
               onChange={(event, newValue) => { setStoreFilter(newValue) , setSelectedStore(newValue)}}
               renderInput={(params) => (
