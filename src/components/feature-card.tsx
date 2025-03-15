@@ -3,21 +3,64 @@ import { FaArrowDown, FaArrowUp } from "react-icons/fa6";
 import SparklineChart from "./charts/spartLineChart";
 import { useState } from "react";
 import CustomModal from "@/components/ui/modal";
-import { Button } from "@mui/material";
+import CustomButton from "./ui/custom-button";
+import InputField from "./ui/custom-inputfild";
+import { toast } from "react-toastify";
+import { createClient } from "@/app/utils/supabase/client";
 
 export interface FeatureCardProps {
   data?: any;
   page: any;
   dateRange?: any;
+  userId?: string;
 }
-const amount = ["$100", "$500", "$100", "Max"];
+const amount = ["100", "500", "100", "Max"];
 
 export default function FeatureCard({
   data,
   page,
   dateRange,
+  userId
 }: FeatureCardProps) {
+    
+  const supabase = createClient();
   const [isModalOpen, setModalOpen] = useState(false);
+  const [address, setAddress] = useState<string>('');
+    const [loading, setLoading] = useState(false);
+  
+    const handlePayoutChange = (e: any) => {
+      const { name, value } = e.target;
+      setAddress(value);
+    };
+  
+    const handlePayoutSubmit = async () => {
+      if (!address.trim()) {
+        toast.error("Please enter your wallet address.");
+        return;
+      }
+  
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+        .from("payouts")
+        .insert({amount: Number(amount[0]), paypal_address: address, userId: userId })
+        .select();
+
+        if (error) {
+          toast.error(error.message);
+        } else {
+          if (data) {
+            toast.success("Request payout successfully!");
+          }
+          setAddress('');
+          setModalOpen(false);
+        }
+      } catch (err) {
+        toast.error("Something went wrong! Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const handleWithdrawalClick = () => {
     setModalOpen(true);
@@ -133,28 +176,30 @@ export default function FeatureCard({
                         key={index}
                         className="text-sm font bold bg-slate-200 rounded-full px-4 py-1"
                       >
-                        {amt}
+                        {`$${amt}`}
                       </p>
                     ))}
                   </div>
                   <div className="w-full">
                     <p>To</p>
-                    <input
-                      className="w-full p-2 border-2 rounded"
+                    <InputField
+                      name="address"
                       placeholder="Enter your paypal address"
+                      type="text"
+                      className="mt-[8px]"
+                      label=""
+                      value={address}
+                      onChange={handlePayoutChange}
+                      showPasswordSuffix={false}
                     />
                   </div>
-                  <Button
-                    sx={{
-                      width: "100%",
-                      background: "#4f11c9",
-                      color: "#ffffff",
-                      border: "medium",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Request Payout
-                  </Button>
+                  <CustomButton
+                    type="submit"
+                    label={"REQUEST PAYOUT"}
+                    className="w-full whitespace-nowrap px-6 text-sm lg:h-full"
+                    callback={handlePayoutSubmit}
+                    interactingAPI={loading}
+                  />
                 </div>
               </div>
             </CustomModal>

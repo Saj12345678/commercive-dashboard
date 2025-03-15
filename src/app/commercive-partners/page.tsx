@@ -26,6 +26,7 @@ import InputField from "@/components/ui/custom-inputfild";
 import { BsCopy } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import { CiCalendar } from "react-icons/ci";
+import { User } from "@supabase/supabase-js";
 
 export default function CommercivePartners() {
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
@@ -212,6 +213,7 @@ export default function CommercivePartners() {
   ]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [loadingCard, setLoadingCard] = useState(true);
+  const [userId, setUserId] = useState<string>();
 
   const handleAffiliateClick = async () => {
     setLoading(true);
@@ -603,6 +605,8 @@ export default function CommercivePartners() {
       if (!user?.id) {
         router.push("/login");
       }
+
+      setUserId(user?.id);
     };
 
     fetchUser();
@@ -816,6 +820,7 @@ export default function CommercivePartners() {
               data={chartData}
               page={"commercive"}
               dateRange={compareDateRange}
+              userId={userId}
             />
           )}
         </div>

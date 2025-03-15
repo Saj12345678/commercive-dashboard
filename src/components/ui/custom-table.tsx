@@ -239,7 +239,7 @@ export default function CustomTable<T>({
                           )}
                           {showCheckbox && (
                             <Checkbox
-                              checked={row.confirmed}
+                              checked={row.confirmed || row.completed}
                               onClick={() => handleCheckboxClick(row.id)}
                             />
                           )}

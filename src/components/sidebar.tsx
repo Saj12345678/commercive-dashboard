@@ -77,6 +77,11 @@ const adminData = [
     href: "/admin/tickets",
     icon: <Union width={20} height={20} color={"#000000"} />,
   },
+  {
+    title: "Payouts",
+    href: "/admin/payouts",
+    icon: <Union width={20} height={20} color={"#000000"} />,
+  },
 ];
 
 export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
