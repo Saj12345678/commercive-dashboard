@@ -180,6 +180,8 @@ export default function Partner() {
 
   const closeAddNewModal = () => {
     setAddNewModalOpen(false);
+    setFormData(initialFormData);
+    setErrors(initialError);
   };
 
   const handlePagination = (curPage: number) => {

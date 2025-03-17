@@ -6,9 +6,10 @@ import CustomButton from "../ui/custom-button";
 import { createClient } from "@/app/utils/supabase/client";
 import CustomModal from "../ui/modal";
 import { toast } from "react-toastify";
-import { InputLabel, MenuItem, Select } from "@mui/material";
+import { Autocomplete, Checkbox, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { FiPlus } from "react-icons/fi";
 import InputField from "../ui/custom-inputfild";
+import { useStoreContext } from "@/context/StoreContext";
 
 export default function Roles() {
   const supabase = createClient();
@@ -19,14 +20,28 @@ export default function Roles() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [selectedRole, setSelectedRole] = useState<any>(null);
+  const { storeData } = useStoreContext();
+  const [roleModalOpen, setRoleModalOpen] = useState(false);
+  const [addNewModalOpen, setAddNewModalOpen] = useState(false);
+  const [editData, setEditData] = useState<any>({});
+
+  const [storeFilter, setStoreFilter] = useState<{ label: string; value: string }[]>([]);
+  const [storePage, setPageFilter] = useState<{ label: string; value: string }[]>([]);
+
   let limit = 10;
+
   const roleOptions = [
     { value: "user", label: "User" },
     { value: "admin", label: "Admin" },
   ];
-  const [roleModalOpen, setRoleModalOpen] = useState(false);
-  const [addNewModalOpen, setAddNewModalOpen] = useState(false);
-  const [editData, setEditData] = useState<any>({});
+
+  const pageOptions = [
+    { value: "inventory", label: "Inventory" },
+    { value: "partners", label: "Partners" },
+    { value: "roles", label: "Roles" },
+    { value: "tickets", label: "Tickets" },
+    { value: "payouts", label: "Payouts" },
+  ]
 
   const initialFormData = {
     email: "",
@@ -35,6 +50,7 @@ export default function Roles() {
     user: "",
     phone_number: "",
     role: "",
+    store: [] as string[]
   };
   const [formData, setFormData] = useState(initialFormData);
   const initialError = {
@@ -44,6 +60,7 @@ export default function Roles() {
     user: "",
     phone_number: "",
     role: "",
+    store: "",
   };
   const [errors, setErrors] = useState(initialError);
 
@@ -66,6 +83,26 @@ export default function Roles() {
     }));
   };
 
+  const handleStoreChange = (_: any, newValue: { label: string; value: string }[]) => {
+    setStoreFilter(newValue);
+    // Extract only store values
+    const selectedStores = newValue.map((store) => store.value);
+    setFormData((prev) => ({ ...prev, store: selectedStores }));
+
+      setErrors((prev) => ({
+        ...prev,
+        store: selectedStores.length === 0 ? "Please select at least one store." : "",
+      }));
+  };
+
+  const handlePageChange = (_: any, newValue: { label: string; value: string }[]) => {
+    setPageFilter(newValue);
+    // Extract only store values
+    const selectedStores = newValue.map((store) => store.value);
+    setFormData((prev) => ({ ...prev, pages: selectedStores }));
+    
+  };
+
   const handleRoleOpenModal = () => {
     setRoleModalOpen(true);
   };
@@ -81,6 +118,9 @@ export default function Roles() {
 
   const closeNewModal = () => {
     setAddNewModalOpen(false);
+    setErrors(initialError);
+    setFormData(initialFormData);
+    setStoreFilter([]);
   };
 
   const handlePagination = (curPage: number) => {
@@ -135,6 +175,10 @@ export default function Roles() {
       newErrors.email = "Please enter a valid email address.";
     }
 
+    if (formData.role === 'admin' && formData.store.length === 0) {
+      newErrors.store = "Please select at least one store.";
+    }
+
     if (!formData?.first_name?.trim())
       newErrors.first_name = "First name is required.";
     if (!formData?.last_name?.trim())
@@ -161,11 +205,13 @@ export default function Roles() {
           password: "123456789",
           options: {
             data: {
+              referral_code: '',
               first_name: formData.first_name,
               last_name: formData.last_name,
               user_name: formData.user,
               phone_number: Number(formData.phone_number),
               role: formData.role || "user",
+              visible_store: formData.store,
             },
           },
         }));
@@ -185,6 +231,7 @@ export default function Roles() {
         }
       }
       setLoading(false);
+      setStoreFilter([]);
       setFormData(initialFormData);
       setAddNewModalOpen(false);
     }
@@ -337,7 +384,7 @@ export default function Roles() {
     <div className="flex flex-col w-full gap-5">
       <h1 className="text-2xl text-white">Roles</h1>
       {roleModalOpen && (
-        <CustomModal onClose={closeRoleModal} maxWidth={"max-w-[800px]"}>
+        <CustomModal onClose={closeRoleModal} maxWidth={"max-w-[400px]"}>
           <div className="flex flex-col gap-6">
             <h2 className="text-lg font-semibold">Update Roles</h2>
             <div className="flex flex-col gap-4">
@@ -373,7 +420,7 @@ export default function Roles() {
         <CustomModal onClose={closeNewModal} maxWidth={"max-w-[800px]"}>
           <div className="flex flex-col gap-6">
             <h2 className="text-lg font-semibold">Add New</h2>
-            <div className="flex flex-col gap-6 max-sm:h-full max-sm:max-h-[350px] custom-scrollbar overflow-y-auto">
+            <div className="flex flex-col gap-6 max-sm:h-full max-sm:max-h-[350px] custom-scrollbar">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex flex-col relative w-full">
                   <InputField
@@ -495,6 +542,77 @@ export default function Roles() {
                   </select>
                 </div>
               </div>
+              {formData.role === "admin" && (
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex flex-col relative w-full">
+                    <Autocomplete
+                      multiple
+                      options={pageOptions}
+                      disableCloseOnSelect
+                      getOptionLabel={(option) => option.label || ''}
+                      value={storePage}
+                      onChange={handlePageChange}
+                      isOptionEqualToValue={(option, value) =>
+                        option.value === value.value
+                      }
+                      clearOnEscape
+                      renderOption={(props, option, { selected }) => (
+                        <MenuItem {...props} key={option.value}>
+                          <Checkbox checked={selected} />
+                          {option.label}
+                        </MenuItem>
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select pages"
+                          variant="outlined"
+                          fullWidth
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="flex flex-col relative w-full">
+                    <Autocomplete
+                      multiple
+                      options={storeData}
+                      disableCloseOnSelect
+                      getOptionLabel={(option) =>
+                        option.label === "satish-dev"
+                          ? "Golf Pro"
+                          : option.label
+                      }
+                      value={storeFilter}
+                      onChange={handleStoreChange}
+                      isOptionEqualToValue={(option, value) =>
+                        option.value === value.value
+                      }
+                      clearOnEscape
+                      renderOption={(props, option, { selected }) => (
+                        <MenuItem {...props} key={option.value}>
+                          <Checkbox checked={selected} />
+                          {option.label === "satish-dev"
+                            ? "Golf Pro"
+                            : option.label}
+                        </MenuItem>
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select store"
+                          variant="outlined"
+                          fullWidth
+                        />
+                      )}
+                    />
+                    {errors?.store && (
+                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                        {errors?.store}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
             <div className="flex justify-end w-full">
               <CustomButton
