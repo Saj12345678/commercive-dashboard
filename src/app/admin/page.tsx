@@ -6,17 +6,69 @@ import Ticket from "@/components/admin/ticket";
 import Roles from "@/components/admin/roles";
 import Inventory from "@/components/admin/inventory";
 import Home from "@/components/admin/home";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createClient } from "../utils/supabase/client";
 
 export default function AdminPage() {
   const router = useRouter();
   const pathname = usePathname();
+  const supabase = createClient();
+  const [visiblePages, setVisiblePages] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (pathname === "/admin") {
-      router.replace("/admin/home");
+    const getUserDetails = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.replace("/login"); 
+        return;
+      }
+
+      const { data: fetchedUserData, error } = await supabase
+        .from("user")
+        .select("visible_pages")
+        .eq("id", user.id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user data:", error);
+        return;
+      }
+
+      let pages = fetchedUserData?.visible_pages;
+
+      if (Array.isArray(pages) && typeof pages[0] === "string") {
+        try {
+          pages = JSON.parse(pages[0]); // Handle JSON parsing if needed
+        } catch (err) {
+          console.error("Error parsing visible_pages:", err);
+          pages = [];
+        }
+      }
+
+      setVisiblePages(pages || []);
+      setLoading(false);
+    };
+
+    getUserDetails();
+  }, [router]);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const pageName = pathname.replace("/admin/", "");
+
+    if (pathname === "/admin" || !visiblePages.includes(pageName)) {
+      router.replace(`/admin/${visiblePages[0]}`); 
     }
-  }, [pathname, router]);
+  }, [pathname, visiblePages, loading, router]);
+
+  if (loading || !visiblePages.includes(pathname.replace("/admin/", ""))) {
+    return <div className="text-white">Loading...</div>; 
+  }
 
   return (
     <div className="flex flex-col w-full gap-4 border-4 border-[#373163] rounded-[24px] bg-[#231e45] p-4 md:p-8 overflow-auto custom-scrollbar">
@@ -28,3 +80,4 @@ export default function AdminPage() {
     </div>
   );
 }
+

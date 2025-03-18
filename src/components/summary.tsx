@@ -23,7 +23,6 @@ type TransactionItem = {
 };
 
 export default function Summary({ selectedRange }: any) {
-  console.log(selectedRange);
   const supabase = createClient();
   const { selectedStore } = useStoreContext();
   const [trackingData, setTrackingData] = useState<TransactionItem[]>([]);

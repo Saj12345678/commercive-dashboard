@@ -90,7 +90,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const router = useRouter();
   const { selectedStore, setSelectedStore, storeData } = useStoreContext();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [userData, setUserData] = useState<string>();
+  const [userData, setUserData] = useState<any>({});
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [loading, setLoading] = useState(false);
   const [referralLink, setReferralLink] = useState("");
@@ -112,7 +112,18 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   >([]);
   const [showList, setShowList] = useState(false);
 
-  const sidebarData = pathName?.includes("/admin") ? adminData : data;
+  const filteredAdminData =
+  userData?.visible_pages && Array.isArray(userData.visible_pages)
+    ? adminData.filter((item) => {
+        const pageName = item.href.replace("/admin/", "").trim().toLowerCase();
+
+        return userData.visible_pages
+          .map((page: string) => page.trim().toLowerCase())
+          .includes(pageName);
+      })
+    : [];
+
+const sidebarData = pathName?.includes("/admin") ? filteredAdminData : data;
 
   // const handleClick = (event: React.MouseEvent<HTMLElement>) => {
   //   setAnchorEl(event.currentTarget);
@@ -342,8 +353,34 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
         data: { user },
       } = await supabase.auth.getUser();
 
-      const name = generateNameFromEmail(user?.user_metadata?.email);
-      setUserData(name);
+      if (!user) {
+        console.error("No user found");
+        return;
+      }
+
+      const { data: userData, error } = await supabase
+      .from("user")
+      .select("*")
+      .eq("id", user?.id)
+      .single();
+
+      if (error) {
+        console.error("Error fetching user data:", error);
+        return;
+      }
+
+       let visiblePages = userData?.visible_pages;
+
+       if (Array.isArray(visiblePages) && typeof visiblePages[0] === "string") {
+         try {
+           visiblePages = JSON.parse(visiblePages[0]); 
+         } catch (err) {
+           console.error("Error parsing visible_pages:", err);
+           visiblePages = [];
+         }
+       }
+   
+       setUserData({ visible_pages: visiblePages });
     };
 
     getUserDetails();

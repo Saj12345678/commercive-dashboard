@@ -50,7 +50,8 @@ export default function Roles() {
     user: "",
     phone_number: "",
     role: "",
-    store: [] as string[]
+    store: [] as string[],
+    pages: [] as string[]
   };
   const [formData, setFormData] = useState(initialFormData);
   const initialError = {
@@ -61,6 +62,7 @@ export default function Roles() {
     phone_number: "",
     role: "",
     store: "",
+    pages: ""
   };
   const [errors, setErrors] = useState(initialError);
 
@@ -98,8 +100,8 @@ export default function Roles() {
   const handlePageChange = (_: any, newValue: { label: string; value: string }[]) => {
     setPageFilter(newValue);
     // Extract only store values
-    const selectedStores = newValue.map((store) => store.value);
-    setFormData((prev) => ({ ...prev, pages: selectedStores }));
+    const selectedPages = newValue.map((page) => page.value);
+    setFormData((prev) => ({ ...prev, pages: selectedPages }));
     
   };
 
@@ -212,6 +214,7 @@ export default function Roles() {
               phone_number: Number(formData.phone_number),
               role: formData.role || "user",
               visible_store: formData.store,
+              visible_pages: formData.pages
             },
           },
         }));
@@ -558,7 +561,7 @@ export default function Roles() {
                       clearOnEscape
                       renderOption={(props, option, { selected }) => (
                         <MenuItem {...props} key={option.value}>
-                          <Checkbox checked={selected} />
+                          <Checkbox checked={selected} key={option.value} />
                           {option.label}
                         </MenuItem>
                       )}
@@ -590,7 +593,7 @@ export default function Roles() {
                       clearOnEscape
                       renderOption={(props, option, { selected }) => (
                         <MenuItem {...props} key={option.value}>
-                          <Checkbox checked={selected} />
+                          <Checkbox checked={selected} key={option.value}/>
                           {option.label === "satish-dev"
                             ? "Golf Pro"
                             : option.label}
