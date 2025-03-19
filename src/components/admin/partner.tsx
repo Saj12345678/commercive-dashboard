@@ -328,13 +328,7 @@ export default function Partner() {
         headerName: "User",
         customRender: (row: any) => {
           return (
-            <div className="flex gap-2">
-              <div className="border rounded h-9 w-9"></div>
-              <div>
-                <p>{row?.user_name}</p>
-                <p className="text-[#7067aa]">{row?.email}</p>
-              </div>
-            </div>
+              <p>{row?.user_name ? row?.user_name : '-'}</p>
           );
         },
       },
