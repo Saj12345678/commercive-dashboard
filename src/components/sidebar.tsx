@@ -123,7 +123,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
       })
     : [];
 
-const sidebarData = pathName?.includes("/admin") ? filteredAdminData : data;
+const sidebarData = pathName?.includes("/admin") ? filteredAdminData?.length > 0 ? filteredAdminData : adminData : data;
 
   // const handleClick = (event: React.MouseEvent<HTMLElement>) => {
   //   setAnchorEl(event.currentTarget);

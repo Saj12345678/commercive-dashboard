@@ -62,7 +62,11 @@ export default function AdminPage() {
     const pageName = pathname.replace("/admin/", "");
 
     if (pathname === "/admin" || !visiblePages.includes(pageName)) {
-      router.replace(`/admin/${visiblePages[0]}`); 
+      if (!visiblePages || visiblePages.length === 0) {
+        router.replace('/admin/home');
+      } else {
+        router.replace(`/admin/${visiblePages[0]}`); 
+      }
     }
   }, [pathname, visiblePages, loading, router]);
 
@@ -80,4 +84,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
