@@ -1,12 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Partner from "@/components/admin/partner";
 import Ticket from "@/components/admin/ticket";
 import Roles from "@/components/admin/roles";
 import Inventory from "@/components/admin/inventory";
 import Home from "@/components/admin/home";
-import { useEffect, useState } from "react";
 import { createClient } from "../utils/supabase/client";
 
 export default function AdminPage() {
@@ -23,7 +23,7 @@ export default function AdminPage() {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        router.replace("/login"); 
+        router.replace("/login");
         return;
       }
 
@@ -63,15 +63,15 @@ export default function AdminPage() {
 
     if (pathname === "/admin" || !visiblePages.includes(pageName)) {
       if (!visiblePages || visiblePages.length === 0) {
-        router.replace('/admin/home');
+        router.replace("/admin/home");
       } else {
-        router.replace(`/admin/${visiblePages[0]}`); 
+        router.replace(`/admin/${visiblePages[0]}`);
       }
     }
   }, [pathname, visiblePages, loading, router]);
 
   if (loading || !visiblePages.includes(pathname.replace("/admin/", ""))) {
-    return <div className="text-white">Loading...</div>; 
+    return <div className="text-white">Loading...</div>;
   }
 
   return (
