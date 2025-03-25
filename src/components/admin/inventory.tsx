@@ -29,7 +29,11 @@ export default function Inventory() {
         console.error("Error fetching inventory data:", storeError);
       } else {
         setInventoryData(allData || []);
-        const stores: any = [...new Set(allData.map((item: any) => item.store_name).filter(Boolean))];
+        const stores: any = [
+          ...new Set(
+            allData.map((item: any) => item.store_name).filter(Boolean)
+          ),
+        ];
         setUniqueStores(stores);
         applyFilter(allData, storeFilter, 1);
       }
@@ -41,7 +45,9 @@ export default function Inventory() {
   };
 
   const applyFilter = (data: any[], filter: string, currentPage: number) => {
-    let filtered = filter ? data.filter((item) => item.store_name === filter) : data;
+    let filtered = filter
+      ? data.filter((item) => item.store_name === filter)
+      : data;
     setFilteredData(filtered);
     setTotalRecords(filtered.length);
     setPage(currentPage);
@@ -72,20 +78,76 @@ export default function Inventory() {
   const tableConfig = {
     notFoundData: "No Data found",
     columns: [
-      { field: "sku", headerName: "SKU", customRender: (row: any) => <span>{row?.sku}</span> },
-      { field: "product_id", headerName: "Product ID", customRender: (row: any) => <span>{row?.product_id}</span> },
-      { field: "store_name", headerName: "Store Name", customRender: (row: any) => <span>{`${row?.store_name === 'satish-dev' ? 'Golf Pro' : row?.store_name}`}</span> },
-      { field: "inventory_level[0].node.quantities[0].quantity", headerName: "Available", customRender: (row: any) => <span>{row?.inventory_level?.[0]?.node?.quantities?.[0]?.quantity}</span> },
-      { field: "inventory_level[0].node.quantities[1].quantity", headerName: "Committed", customRender: (row: any) => <span>{row?.inventory_level?.[0]?.node?.quantities?.[1]?.quantity}</span> },
-      { field: "inventory_level[0].node.quantities[2].quantity", headerName: "Incoming", customRender: (row: any) => <span>{row?.inventory_level?.[0]?.node?.quantities?.[2]?.quantity}</span> },
-      { field: "inventory_level[0].node.quantities[3].quantity", headerName: "On Hand", customRender: (row: any) => <span>{row?.inventory_level?.[0]?.node?.quantities?.[3]?.quantity}</span> },
-      { field: "inventory_level[0].node.quantities[4].quantity", headerName: "Reserved", customRender: (row: any) => <span>{row?.inventory_level?.[0]?.node?.quantities?.[4]?.quantity}</span> },
+      {
+        field: "sku",
+        headerName: "SKU",
+        customRender: (row: any) => <span>{row?.sku}</span>,
+      },
+      {
+        field: "product_id",
+        headerName: "Product ID",
+        customRender: (row: any) => <span>{row?.product_id}</span>,
+      },
+      {
+        field: "store_name",
+        headerName: "Store Name",
+        customRender: (row: any) => (
+          <span>{`${
+            row?.store_name === "satish-dev" ? "Golf Pro" : row?.store_name
+          }`}</span>
+        ),
+      },
+      {
+        field: "inventory_level[0].node.quantities[0].quantity",
+        headerName: "Available",
+        customRender: (row: any) => (
+          <span>
+            {row?.inventory_level?.[0]?.node?.quantities?.[0]?.quantity}
+          </span>
+        ),
+      },
+      {
+        field: "inventory_level[0].node.quantities[1].quantity",
+        headerName: "Committed",
+        customRender: (row: any) => (
+          <span>
+            {row?.inventory_level?.[0]?.node?.quantities?.[1]?.quantity}
+          </span>
+        ),
+      },
+      {
+        field: "inventory_level[0].node.quantities[2].quantity",
+        headerName: "Incoming",
+        customRender: (row: any) => (
+          <span>
+            {row?.inventory_level?.[0]?.node?.quantities?.[2]?.quantity}
+          </span>
+        ),
+      },
+      {
+        field: "inventory_level[0].node.quantities[3].quantity",
+        headerName: "On Hand",
+        customRender: (row: any) => (
+          <span>
+            {row?.inventory_level?.[0]?.node?.quantities?.[3]?.quantity}
+          </span>
+        ),
+      },
+      {
+        field: "inventory_level[0].node.quantities[4].quantity",
+        headerName: "Reserved",
+        customRender: (row: any) => (
+          <span>
+            {row?.inventory_level?.[0]?.node?.quantities?.[4]?.quantity}
+          </span>
+        ),
+      },
     ],
     rows: paginatedData || [],
   };
 
   return (
-    <div className="flex flex-col w-full gap-5 p-4">
+    <div className="flex flex-col w-full gap-5">
       <h1 className="text-2xl font-bold text-white">Inventory</h1>
       <div className="flex flex-col sm:flex-row w-full justify-between">
         <Autocomplete
@@ -119,15 +181,30 @@ export default function Inventory() {
         />
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <p className="text-[#5e568f]">
-            Showing {(page - 1) * limit + 1}-{Math.min(page * limit, totalRecords)} of {totalRecords}
+            Showing {(page - 1) * limit + 1}-
+            {Math.min(page * limit, totalRecords)} of {totalRecords}
           </p>
           <div className="flex items-center gap-3">
-            <CustomButton label="Previous" className="bg-[#342d5f] text-[#5e568f]" callback={handlePrevious} disabled={page === 1} />
-            <CustomButton label="Next" className="bg-[#342d5f] text-[#5e568f]" callback={handleNext} disabled={page >= Math.ceil(totalRecords / limit)} />
+            <CustomButton
+              label="Previous"
+              className="bg-[#342d5f] text-[#5e568f]"
+              callback={handlePrevious}
+              disabled={page === 1}
+            />
+            <CustomButton
+              label="Next"
+              className="bg-[#342d5f] text-[#5e568f]"
+              callback={handleNext}
+              disabled={page >= Math.ceil(totalRecords / limit)}
+            />
           </div>
         </div>
       </div>
-      <CustomTable tableConfig={tableConfig} isLoading={isLoading} limit={limit} />
+      <CustomTable
+        tableConfig={tableConfig}
+        isLoading={isLoading}
+        limit={limit}
+      />
     </div>
   );
 }

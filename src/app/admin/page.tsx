@@ -75,7 +75,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="flex flex-col w-full gap-4 border-4 border-[#373163] rounded-[24px] bg-[#231e45] p-4 md:p-8 overflow-auto custom-scrollbar">
+    <div className="flex flex-col w-full gap-4 border-2 border-[#373163] rounded-[24px] bg-[#231e45] p-4 md:p-8 overflow-auto custom-scrollbar">
       {pathname === "/admin/home" && <Home />}
       {pathname === "/admin/inventory" && <Inventory />}
       {pathname === "/admin/partners" && <Partner />}

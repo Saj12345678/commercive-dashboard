@@ -94,7 +94,8 @@ export default function RootLayout({
             </div>
           </div>
           <ToastContainer position="top-right" transition={Flip} />
-          <Chat />
+
+          {!pathName?.includes("/admin") && <Chat />}
         </StoreProvider>
       </body>
     </html>
