@@ -546,7 +546,7 @@ export default function Roles() {
                   </select>
                 </div>
               </div>
-              {formData.role === "admin" || formData.role === "employee" && (
+              {(formData.role === "admin" || formData.role === "employee") && (
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full">
                     <Autocomplete

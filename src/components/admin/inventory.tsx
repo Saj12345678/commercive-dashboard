@@ -126,10 +126,6 @@ export default function Inventory() {
     if (!formData.store_name.trim())
       newErrors.store_name = "Store Name is required";
 
-    if (!formData.product_image || formData.product_image === null) {
-      newErrors.product_image = "Product Image is required";
-    }
-
     if (
       !formData.inventory_level?.[0]?.node?.quantities?.length ||
       formData.inventory_level[0].node.quantities.some((q) => q.quantity === "")
