@@ -32,7 +32,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           return;
         }
 
-        setIsAuthorized(user.role === "admin");
+        setIsAuthorized(user.role === "admin" || user.role === "employee");
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching user details:", error);

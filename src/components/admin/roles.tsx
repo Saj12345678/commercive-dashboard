@@ -33,6 +33,7 @@ export default function Roles() {
   const roleOptions = [
     { value: "user", label: "User" },
     { value: "admin", label: "Admin" },
+    { value: "employee", label: "Employee" },
   ];
 
   const pageOptions = [
@@ -545,7 +546,7 @@ export default function Roles() {
                   </select>
                 </div>
               </div>
-              {formData.role === "admin" && (
+              {formData.role === "admin" || formData.role === "employee" && (
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full">
                     <Autocomplete

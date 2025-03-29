@@ -641,9 +641,9 @@ export default function CommercivePartners() {
             <p className="text-[#A59CBB]">
               Earn{" "}
               <span className="text-[#4F11C9] font-semibold underline">
-                1% comission
+                commission
               </span>{" "}
-              on all referral orders placed through Commercive
+              on all orders placed with Commercive
             </p>
           </div>
           <Button
