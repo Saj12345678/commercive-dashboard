@@ -145,7 +145,6 @@ export default function Inventory() {
     }
 
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
@@ -689,7 +688,8 @@ export default function Inventory() {
                       src={
                         typeof formData.product_image === "string"
                           ? formData.product_image
-                          : URL.createObjectURL(formData.product_image) || fileUrl
+                          : URL.createObjectURL(formData.product_image) ||
+                            fileUrl
                       }
                       alt="Product"
                       width={60}
