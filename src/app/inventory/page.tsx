@@ -14,7 +14,6 @@ import {
   LinearProgress,
   Box,
 } from "@mui/material";
-import { GoArrowUpRight } from "react-icons/go";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { LuThumbsUp } from "react-icons/lu";
 import { MdKeyboardDoubleArrowDown } from "react-icons/md";
@@ -22,6 +21,7 @@ import TotalInventory from "../../components/images/total-inventory";
 import { useStoreContext } from "@/context/StoreContext";
 import { PiCodesandboxLogoFill } from "react-icons/pi";
 import { createClient } from "../utils/supabase/client";
+import Image from "next/image";
 
 type InventoryItem = {
   image: string;
@@ -76,7 +76,7 @@ export default function Inventory() {
           else if (available < 50) stockStatus = "Low Stock";
 
           return {
-            image: "",
+            image: item?.product_image,
             color: "#" + Math.floor(Math.random() * 16777215).toString(16),
             name: `Product ${item.sku}`,
             stockMeter: available + committed,
@@ -170,7 +170,7 @@ export default function Inventory() {
   return (
     <main
       // style={{ height: "calc(100vh - 70px)" }}
-      className="flex flex-col h-full max-h-full w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
+      className="flex flex-col h-full max-h-full w-full gap-3 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
     >
       {/* {loading && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -195,7 +195,7 @@ export default function Inventory() {
         </Typography>
         {/* Category Tabs */}
       </div>
-      <div className="flex flex-col sm:flex-row sm:items-center w-full gap-5 pt-4 pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center w-full gap-5 py-2">
         <p className="text-[36px] font-bold ">{filteredData.length}</p>
         <div className="flex w-full flex-wrap gap-2 sm:gap-4">
           {[
@@ -207,12 +207,12 @@ export default function Inventory() {
             <button
               type="button"
               key={tab.label}
-              className={`flex items-center gap-2 w-max px-4 py-1 rounded-md text-${
+              className={`flex items-center gap-2 w-max px-3 py-0.5 rounded-md text-${
                 tab.color
               }-700 bg-${tab.color}-100 ${
                 selectedTab === tab.label
-                  ? `border-2 border-${tab.color}-700`
-                  : ""
+                  ? `border-2 border-${tab.color}-700 opacity-100`
+                  : "opacity-50"
               }`}
               onClick={() => setSelectedTab(tab.label)}
             >
@@ -232,22 +232,27 @@ export default function Inventory() {
               backgroundColor: "#f4f4f7",
               fontWeight: "bold",
               color: "black",
+              padding: '4px'
             }}
           >
-            <TableRow>
-              <TableCell sx={{ fontWeight: "bold", color: "black" }}>
+            <TableRow 
+              style={{
+                backgroundColor: "#f4f4f7",
+                padding: '4px'
+              }}>
+              <TableCell sx={{ fontWeight: "bold", color: "black", width: '50px' }}>
                 Photo
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black" }}>
+              <TableCell sx={{ fontWeight: "bold", color: "black", width: '300px' }}>
                 Name/SKU
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", color: "black" }}>
                 Stock Meter
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black" }}>
+              <TableCell sx={{ fontWeight: "bold", color: "black", width: '200px' }}>
                 Stock Status
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black" }}>
+              <TableCell sx={{ fontWeight: "bold", color: "black", width: '100px' }}>
                 Backorders
               </TableCell>
             </TableRow>
@@ -257,16 +262,26 @@ export default function Inventory() {
               paginatedData.map((item, index) => (
                 <TableRow key={index}>
                   <TableCell>
-                    <div
-                      style={{
-                        backgroundColor: "#f4f4f7",
-                        width: "24px",
-                        height: "24px",
-                        borderRadius: "8px",
-                      }}
-                    >
-                      {item.image}
-                    </div>
+                    {item.image ? (
+                      <Image
+                        src={item.image}
+                        alt={`product-image-${index}`}
+                        width="36"
+                        height="36"
+                        className="bg-[#f4f4f7] w-[36px] h-[36px] border rounded-md"
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          backgroundColor: "#f4f4f7",
+                          width: "36px",
+                          height: "36px",
+                          borderRadius: "8px",
+                        }}
+                      >
+                        {item.image}
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Typography variant="subtitle1" fontWeight="bold">
@@ -277,7 +292,7 @@ export default function Inventory() {
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Box display="flex" width={100} alignItems="center" gap={1}>
+                    <Box display="flex" width={200} alignItems="center" gap={1}>
                       <Typography variant="body2" align="center">
                         {item.stockMeter}
                       </Typography>
@@ -289,7 +304,7 @@ export default function Inventory() {
                           Math.max(0, (item.stockMeter / 1000) * 100)
                         )}
                         color={getColorPalette(item.stockStatus)}
-                        sx={{ height: 10, borderRadius: 10, flex: 1 }}
+                        sx={{ height: 10, borderRadius: 10, flex: 1, bgcolor: '#f4f4f7' }}
                       />
                     </Box>
                   </TableCell>

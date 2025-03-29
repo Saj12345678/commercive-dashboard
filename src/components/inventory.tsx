@@ -140,12 +140,12 @@ export default function Inventory({ data }: InventoryProps) {
             <button
               type="button"
               key={tab.label}
-              className={`flex items-center gap-1 w-max px-2 md:px-4 py-1 rounded-md text-${
+              className={`flex items-center gap-2 w-max px-2 md:px-4 py-1 rounded-md text-${
                 tab.color
               }-700 bg-${tab.color}-100 ${
                 selectedTab === tab.label
-                  ? `border-2 border-${tab.color}-700`
-                  : ""
+                  ? `border-2 border-${tab.color}-700 opacity-100`
+                  : "opacity-50"
               }`}
               onClick={() => setSelectedTab(tab.label)}
             >
@@ -172,19 +172,19 @@ export default function Inventory({ data }: InventoryProps) {
             }}
           >
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold", color: "black" }}>
+              <TableCell sx={{ fontWeight: "bold", color: "black", width: '50px' }}>
                 Photo
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black" }}>
+              <TableCell sx={{ fontWeight: "bold", color: "black", width: '100px' }}>
                 Name/SKU
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", color: "black" }}>
                 Stock Meter
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black" }}>
+              <TableCell sx={{ fontWeight: "bold", color: "black", width: '100px' }}>
                 Stock Status
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black" }}>
+              <TableCell sx={{ fontWeight: "bold", color: "black", width: '50px' }}>
                 Backorders
               </TableCell>
             </TableRow>
@@ -218,7 +218,7 @@ export default function Inventory({ data }: InventoryProps) {
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Box display="flex" width={100} alignItems="center" gap={1}>
+                    <Box display="flex" width={200} alignItems="center" gap={1}>
                       <Typography variant="body2" align="center">
                         {item.stockMeter}
                       </Typography>
@@ -230,7 +230,7 @@ export default function Inventory({ data }: InventoryProps) {
                           Math.max(0, (item.stockMeter / 1000) * 100)
                         )}
                         color={getColorPalette(item.stockStatus)}
-                        sx={{ height: 10, borderRadius: 10, flex: 1 }}
+                        sx={{ height: 10, borderRadius: 10, flex: 1, bgcolor: '#f4f4f7' }}
                       />
                     </Box>
                   </TableCell>
