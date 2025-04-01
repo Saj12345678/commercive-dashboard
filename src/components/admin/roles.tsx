@@ -86,17 +86,39 @@ export default function Roles() {
     }));
   };
 
-  const handleStoreChange = (_: any, newValue: { label: string; value: string }[]) => {
-    setStoreFilter(newValue);
-    // Extract only store values
-    const selectedStores = newValue.map((store) => store.value);
-    setFormData((prev) => ({ ...prev, store: selectedStores }));
-
+  const handleStoreChange = (
+    _: any,
+    newValue: { label: string; value: string }[]
+  ) => {
+    const isSelectAllClicked = newValue.some((item) => item.value === "all_stores");
+  
+    if (isSelectAllClicked) {
+      const allStoresSelected = storeData.length === storeFilter.length;
+      const updatedSelection = allStoresSelected ? [] : storeData;
+  
+      setStoreFilter(updatedSelection);
+      const selectedStores = updatedSelection.map((store) => store.value);
+  
+      setFormData((prev) => ({ ...prev, store: selectedStores }));
       setErrors((prev) => ({
         ...prev,
         store: selectedStores.length === 0 ? "Please select at least one store." : "",
       }));
+    } else {
+      setStoreFilter(newValue);
+      const selectedStores = newValue.map((store) => store.value);
+  
+      setFormData((prev) => ({ ...prev, store: selectedStores }));
+      setErrors((prev) => ({
+        ...prev,
+        store: selectedStores.length === 0 ? "Please select at least one store." : "",
+      }));
+    }
   };
+  const optionsWithSelectAll = [
+    { label: "All stores", value: "all_stores" },
+    ...storeData,
+  ];
 
   const handlePageChange = (_: any, newValue: { label: string; value: string }[]) => {
     setPageFilter(newValue);
@@ -548,38 +570,44 @@ export default function Roles() {
               </div>
               {(formData.role === "admin" || formData.role === "employee") && (
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex flex-col relative w-full">
+                  {formData.role === "admin" && (
+                    <div className="flex flex-col relative w-full">
+                      <Autocomplete
+                        multiple
+                        options={pageOptions}
+                        disableCloseOnSelect
+                        getOptionLabel={(option) => option.label || ""}
+                        value={storePage}
+                        onChange={handlePageChange}
+                        isOptionEqualToValue={(option, value) =>
+                          option.value === value.value
+                        }
+                        clearOnEscape
+                        renderOption={(props, option, { selected }) => (
+                          <MenuItem {...props} key={option.value}>
+                            <Checkbox checked={selected} key={option.value} />
+                            {option.label}
+                          </MenuItem>
+                        )}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Select pages"
+                            variant="outlined"
+                            fullWidth
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+                  <div
+                    className={`flex flex-col relative w-full ${
+                      formData.role === "admin" ? "w-full" : "w-1/2"
+                    }`}
+                  >
                     <Autocomplete
                       multiple
-                      options={pageOptions}
-                      disableCloseOnSelect
-                      getOptionLabel={(option) => option.label || ''}
-                      value={storePage}
-                      onChange={handlePageChange}
-                      isOptionEqualToValue={(option, value) =>
-                        option.value === value.value
-                      }
-                      clearOnEscape
-                      renderOption={(props, option, { selected }) => (
-                        <MenuItem {...props} key={option.value}>
-                          <Checkbox checked={selected} key={option.value} />
-                          {option.label}
-                        </MenuItem>
-                      )}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select pages"
-                          variant="outlined"
-                          fullWidth
-                        />
-                      )}
-                    />
-                  </div>
-                  <div className="flex flex-col relative w-full">
-                    <Autocomplete
-                      multiple
-                      options={storeData}
+                      options={optionsWithSelectAll}
                       disableCloseOnSelect
                       getOptionLabel={(option) =>
                         option.label === "satish-dev"
@@ -594,7 +622,14 @@ export default function Roles() {
                       clearOnEscape
                       renderOption={(props, option, { selected }) => (
                         <MenuItem {...props} key={option.value}>
-                          <Checkbox checked={selected} key={option.value}/>
+                          <Checkbox
+                            key={option.value}
+                            checked={
+                              option.value === "all_stores"
+                                ? storeFilter.length === storeData.length
+                                : selected
+                            }
+                          />
                           {option.label === "satish-dev"
                             ? "Golf Pro"
                             : option.label}
