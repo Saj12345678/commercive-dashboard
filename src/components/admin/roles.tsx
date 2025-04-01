@@ -1,12 +1,19 @@
 "use client";
 
 import { ChangeEvent, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import CustomTable from "@/components/ui/custom-table";
 import CustomButton from "../ui/custom-button";
 import { createClient } from "@/app/utils/supabase/client";
 import CustomModal from "../ui/modal";
-import { toast } from "react-toastify";
-import { Autocomplete, Checkbox, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Checkbox,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
 import { FiPlus } from "react-icons/fi";
 import InputField from "../ui/custom-inputfild";
 import { useStoreContext } from "@/context/StoreContext";
@@ -25,8 +32,12 @@ export default function Roles() {
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
   const [editData, setEditData] = useState<any>({});
 
-  const [storeFilter, setStoreFilter] = useState<{ label: string; value: string }[]>([]);
-  const [storePage, setPageFilter] = useState<{ label: string; value: string }[]>([]);
+  const [storeFilter, setStoreFilter] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [storePage, setPageFilter] = useState<
+    { label: string; value: string }[]
+  >([]);
 
   let limit = 10;
 
@@ -42,7 +53,7 @@ export default function Roles() {
     { value: "roles", label: "Roles" },
     { value: "tickets", label: "Tickets" },
     { value: "payouts", label: "Payouts" },
-  ]
+  ];
 
   const initialFormData = {
     email: "",
@@ -52,7 +63,7 @@ export default function Roles() {
     phone_number: "",
     role: "",
     store: [] as string[],
-    pages: [] as string[]
+    pages: [] as string[],
   };
   const [formData, setFormData] = useState(initialFormData);
   const initialError = {
@@ -63,7 +74,7 @@ export default function Roles() {
     phone_number: "",
     role: "",
     store: "",
-    pages: ""
+    pages: "",
   };
   const [errors, setErrors] = useState(initialError);
 
@@ -90,28 +101,36 @@ export default function Roles() {
     _: any,
     newValue: { label: string; value: string }[]
   ) => {
-    const isSelectAllClicked = newValue.some((item) => item.value === "all_stores");
-  
+    const isSelectAllClicked = newValue.some(
+      (item) => item.value === "all_stores"
+    );
+
     if (isSelectAllClicked) {
       const allStoresSelected = storeData.length === storeFilter.length;
       const updatedSelection = allStoresSelected ? [] : storeData;
-  
+
       setStoreFilter(updatedSelection);
       const selectedStores = updatedSelection.map((store) => store.value);
-  
+
       setFormData((prev) => ({ ...prev, store: selectedStores }));
       setErrors((prev) => ({
         ...prev,
-        store: selectedStores.length === 0 ? "Please select at least one store." : "",
+        store:
+          selectedStores.length === 0
+            ? "Please select at least one store."
+            : "",
       }));
     } else {
       setStoreFilter(newValue);
       const selectedStores = newValue.map((store) => store.value);
-  
+
       setFormData((prev) => ({ ...prev, store: selectedStores }));
       setErrors((prev) => ({
         ...prev,
-        store: selectedStores.length === 0 ? "Please select at least one store." : "",
+        store:
+          selectedStores.length === 0
+            ? "Please select at least one store."
+            : "",
       }));
     }
   };
@@ -120,12 +139,14 @@ export default function Roles() {
     ...storeData,
   ];
 
-  const handlePageChange = (_: any, newValue: { label: string; value: string }[]) => {
+  const handlePageChange = (
+    _: any,
+    newValue: { label: string; value: string }[]
+  ) => {
     setPageFilter(newValue);
     // Extract only store values
     const selectedPages = newValue.map((page) => page.value);
     setFormData((prev) => ({ ...prev, pages: selectedPages }));
-    
   };
 
   const handleRoleOpenModal = () => {
@@ -200,7 +221,7 @@ export default function Roles() {
       newErrors.email = "Please enter a valid email address.";
     }
 
-    if (formData.role === 'admin' && formData.store.length === 0) {
+    if (formData.role === "admin" && formData.store.length === 0) {
       newErrors.store = "Please select at least one store.";
     }
 
@@ -230,14 +251,14 @@ export default function Roles() {
           password: "123456789",
           options: {
             data: {
-              referral_code: '',
+              referral_code: "",
               first_name: formData.first_name,
               last_name: formData.last_name,
               user_name: formData.user,
               phone_number: Number(formData.phone_number),
               role: formData.role || "user",
               visible_store: formData.store,
-              visible_pages: formData.pages
+              visible_pages: formData.pages,
             },
           },
         }));
