@@ -113,17 +113,24 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [showList, setShowList] = useState(false);
 
   const filteredAdminData =
-  userData?.visible_pages && Array.isArray(userData.visible_pages)
-    ? adminData.filter((item) => {
-        const pageName = item.href.replace("/admin/", "").trim().toLowerCase();
+    userData?.visible_pages && Array.isArray(userData.visible_pages)
+      ? adminData.filter((item) => {
+          const pageName = item.href
+            .replace("/admin/", "")
+            .trim()
+            .toLowerCase();
+          console.log("userData.visible_pages :>> ", userData.visible_pages);
+          return (userData.visible_pages ?? [])
+            .map((page: string) => page?.trim().toLowerCase())
+            .includes(pageName);
+        })
+      : [];
 
-        return userData.visible_pages
-          .map((page: string) => page.trim().toLowerCase())
-          .includes(pageName);
-      })
-    : [];
-
-const sidebarData = pathName?.includes("/admin") ? filteredAdminData?.length > 0 ? filteredAdminData : adminData : data;
+  const sidebarData = pathName?.includes("/admin")
+    ? filteredAdminData?.length > 0
+      ? filteredAdminData
+      : adminData
+    : data;
 
   // const handleClick = (event: React.MouseEvent<HTMLElement>) => {
   //   setAnchorEl(event.currentTarget);
@@ -359,28 +366,28 @@ const sidebarData = pathName?.includes("/admin") ? filteredAdminData?.length > 0
       }
 
       const { data: userData, error } = await supabase
-      .from("user")
-      .select("*")
-      .eq("id", user?.id)
-      .single();
+        .from("user")
+        .select("*")
+        .eq("id", user?.id)
+        .single();
 
       if (error) {
         console.error("Error fetching user data:", error);
         return;
       }
 
-       let visiblePages = userData?.visible_pages;
+      let visiblePages = userData?.visible_pages;
 
-       if (Array.isArray(visiblePages) && typeof visiblePages[0] === "string") {
-         try {
-           visiblePages = JSON.parse(visiblePages[0]); 
-         } catch (err) {
-           console.error("Error parsing visible_pages:", err);
-           visiblePages = [];
-         }
-       }
-   
-       setUserData({ visible_pages: visiblePages });
+      if (Array.isArray(visiblePages) && typeof visiblePages[0] === "string") {
+        try {
+          visiblePages = JSON.parse(visiblePages[0]);
+        } catch (err) {
+          console.error("Error parsing visible_pages:", err);
+          visiblePages = [];
+        }
+      }
+
+      setUserData({ visible_pages: visiblePages });
     };
 
     getUserDetails();
