@@ -258,7 +258,7 @@ export default function Roles() {
               phone_number: Number(formData.phone_number),
               role: formData.role || "user",
               visible_store: formData.store,
-              visible_pages: formData.pages,
+              visible_pages: [],
             },
           },
         }));
