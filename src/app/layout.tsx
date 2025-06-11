@@ -23,13 +23,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const supabase = createClient();
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const pathName = usePathname();
-  const supabase = createClient();
   const router = useRouter();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

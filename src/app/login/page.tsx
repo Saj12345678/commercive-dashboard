@@ -66,8 +66,8 @@ export default function LoginPage() {
         <div className="flex justify-center mb-5">
           <LogoIcon width={150} height={35} color={"#4F11C9"} />
         </div>
-        <h1 className="text-2xl font-bold mb-2 text-blue-600">Sign In</h1>
-        <p className="mb-10 text-gray-500">
+        <h1 className="text-2xl font-bold mb-3 text-blue-600">Sign In</h1>
+        {/* <p className="mb-10 text-gray-500">
           Don’t have an account?{" "}
           <span
             className="text-blue-600 cursor-pointer hover:underline"
@@ -77,7 +77,7 @@ export default function LoginPage() {
           >
             Sign up
           </span>
-        </p>
+        </p> */}
         <form action={formAction}>
           <div className="space-y-4">
             <div>
