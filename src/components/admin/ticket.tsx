@@ -26,6 +26,21 @@ export default function Ticket() {
     actionList: ["checkbox"],
     columns: [
       {
+        field: "created_at",
+        headerName: "Time Created",
+        customRender: (row: any) => {
+          const formatDate = (dateString: string) => {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1; // Months are zero-based
+            const day = date.getDate();
+            return `${year}/${month}/${day}`;
+          };
+
+          return <div>{formatDate(row.created_at)}</div>;
+        },
+      },
+      {
         field: "name",
         headerName: "Name",
         customRender: (row: any) => <span>{row.name}</span>,
@@ -44,6 +59,11 @@ export default function Ticket() {
         field: "issue",
         headerName: "Issue",
         customRender: (row: any) => <span>{row.issue}</span>,
+      },
+      {
+        field: "phone_number",
+        headerName: "Phone Number",
+        customRender: (row: any) => <span>{row.phone_number}</span>,
       },
       {
         field: "confirmed",
@@ -98,30 +118,30 @@ export default function Ticket() {
     setSelectedTickets((prevSelectedTickets) => {
       const isCurrentlySelected = prevSelectedTickets.includes(id);
       const newSelectionState = !isCurrentlySelected;
-      
+
       const updatedTickets = newSelectionState
         ? [...prevSelectedTickets, id]
         : prevSelectedTickets.filter((ticketId) => ticketId !== id);
-  
+
       return updatedTickets;
     });
 
     const isCurrentlySelected = selectedTickets.includes(id);
     const newSelectionState = !isCurrentlySelected;
-  
+
     // Update Supabase
     const { data, error }: any = await supabase
-      .from("issues") 
-      .update({ confirmed: newSelectionState }) 
+      .from("issues")
+      .update({ confirmed: newSelectionState })
       .eq("id", id)
       .select();
 
-      if(data[0]?.confirmed){
-        toast("Confirm successfully.");
-      } else {
-        toast("Disapprove successfully.");
-      }
-      fetchTicketsData(page);
+    if (data[0]?.confirmed) {
+      toast("Confirm successfully.");
+    } else {
+      toast("Disapprove successfully.");
+    }
+    fetchTicketsData(page);
     if (error) {
       console.error("Error updating Supabase:", error.message);
       toast.error("Failed to update Supabase.");

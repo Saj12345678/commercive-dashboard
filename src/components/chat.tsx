@@ -8,7 +8,15 @@ import CloseIcon from "@mui/icons-material/Close";
 import { createClient } from "@/app/utils/supabase/client";
 import { useStoreContext } from "@/context/StoreContext";
 
-export default function Chat() {
+export default function Chat({
+  user,
+  setUser,
+  setUserEmail,
+}: {
+  user: any;
+  setUser: any;
+  setUserEmail: any;
+}) {
   const supabase = createClient();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -20,12 +28,14 @@ export default function Chat() {
   const [isIssueValid, setIssueValid] = useState(true);
   const { chatOpen, setChatOpen } = useStoreContext();
 
+  const userName = user?.first_name + " " + user?.last_name;
+
   const handleSubmit = async () => {
-    if (name === "") {
+    if ((name || userName) === "") {
       setNameValid(false);
       return;
     }
-    if (email === "") {
+    if ((email || user?.email) === "") {
       setEmailValid(false);
       return;
     }
@@ -42,8 +52,8 @@ export default function Chat() {
       .from("issues")
       .insert([
         {
-          name: name,
-          email: email,
+          name: name || userName,
+          email: email || user?.email,
           store_url: storeUrl,
           issue: issue,
         },
@@ -52,16 +62,17 @@ export default function Chat() {
 
     if (data) {
       toast.success("Submitted sucessfully");
+      setChatOpen(false);
     } else {
       toast.error(error.message);
     }
   };
 
   useEffect(() => {
-    if (name !== "") {
+    if ((name || userName) !== "") {
       setNameValid(true);
     }
-    if (email !== "") {
+    if ((email || user?.email) !== "") {
       setEmailValid(true);
     }
     if (storeUrl !== "") {
@@ -70,8 +81,17 @@ export default function Chat() {
     if (issue !== "") {
       setIssueValid(true);
     }
-  }, [name, email, storeUrl, issue]);
+  }, [name, email, storeUrl, issue, userName, user?.email]);
 
+  const handleClose = () => {
+    setChatOpen(false);
+    setName("");
+    setEmail("");
+    setStoreUrl("");
+    setIssue("");
+    setUser(null);
+    setUserEmail("");
+  };
   return (
     <div className="absolute bottom-16 sm:bottom-5 right-5">
       <div className="relative">
@@ -94,7 +114,7 @@ export default function Chat() {
               <IconButton
                 size="small"
                 className="!absolute -top-5 -right-3 !bg-gray-100 hover:!bg-gray-200"
-                onClick={() => setChatOpen(false)}
+                onClick={handleClose}
               >
                 <CloseIcon />
               </IconButton>
@@ -108,7 +128,7 @@ export default function Chat() {
                   type="text"
                   name="name"
                   placeholder="John Doe"
-                  value={name}
+                  value={name || userName}
                   onChange={(e) => setName(e.target.value)}
                 />
                 {!isNameValid && (
@@ -125,7 +145,7 @@ export default function Chat() {
                   type="email"
                   name="email"
                   placeholder="example@email.com"
-                  value={email}
+                  value={email || user?.email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
                 {!isEmailValid && (

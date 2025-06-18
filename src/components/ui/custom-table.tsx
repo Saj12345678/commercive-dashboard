@@ -184,99 +184,100 @@ export default function CustomTable<T>({
                 ? rows
                 : rows?.slice((page - 1) * rowsPerPage, page * rowsPerPage)
               ).map((row: any, index: number) => {
-                return(
-                <TableRow key={index} sx={{ background: "#342d5f" }}>
-                  {updatedColumns.map((column: any) => {
-                    const cellKey = `Datatable-row-${index}-${column.field}`;
+                return (
+                  <TableRow key={index} sx={{ background: "#342d5f" }}>
+                    {updatedColumns.map((column: any) => {
+                      const cellKey = `Datatable-row-${index}-${column.field}`;
 
-                    if (
-                      column.field === "action" &&
-                      tableConfig.actionPresent
-                    ) {
-                      return (
-                        <TableCell
-                          key={cellKey}
-                          sx={{
-                            minWidth: "100px",
-                            fontSize: "14px",
-                            color: "#7067aa",
-                            borderBottom: "2px solid #403a6b",
-                            textAlign: "center", // Optional for alignment
-                            background: "#342d5f",
-                            display:
-                              column.field === "action" && isLoading
-                                ? "none"
-                                : "table-cell",
-                          }}
-                        >
-                          {showEdit && (
-                            <IconButton
-                              onClick={() => {
-                                tableConfig.onActionClick("edit", row);
-                              }}
-                            >
-                              <Image
-                                src="/icons/edit.png"
-                                alt="edit"
-                                width={18}
-                                height={18}
+                      if (
+                        column.field === "action" &&
+                        tableConfig.actionPresent
+                      ) {
+                        return (
+                          <TableCell
+                            key={cellKey}
+                            sx={{
+                              minWidth: "100px",
+                              fontSize: "14px",
+                              color: "#7067aa",
+                              borderBottom: "2px solid #403a6b",
+                              textAlign: "center", // Optional for alignment
+                              background: "#342d5f",
+                              display:
+                                column.field === "action" && isLoading
+                                  ? "none"
+                                  : "table-cell",
+                            }}
+                          >
+                            {showEdit && (
+                              <IconButton
+                                onClick={() => {
+                                  tableConfig.onActionClick("edit", row);
+                                }}
+                              >
+                                <Image
+                                  src="/icons/edit.png"
+                                  alt="edit"
+                                  width={18}
+                                  height={18}
+                                />
+                              </IconButton>
+                            )}
+                            {showDelete && (
+                              <IconButton
+                                onClick={() => {
+                                  tableConfig.onActionClick("delete", row);
+                                }}
+                              >
+                                <Image
+                                  src="/icons/delete.png"
+                                  alt="delete"
+                                  width={18}
+                                  height={18}
+                                />
+                              </IconButton>
+                            )}
+                            {showCheckbox && (
+                              <Checkbox
+                                checked={row.confirmed || row.completed}
+                                onClick={() => handleCheckboxClick(row.id)}
                               />
-                            </IconButton>
-                          )}
-                          {showDelete && (
-                            <IconButton
-                              onClick={() => {
-                                tableConfig.onActionClick("delete", row);
-                              }}
-                            >
-                              <Image
-                                src="/icons/delete.png"
-                                alt="delete"
-                                width={18}
-                                height={18}
-                              />
-                            </IconButton>
-                          )}
-                          {showCheckbox && (
-                            <Checkbox
-                              checked={row.confirmed || row.completed}
-                              onClick={() => handleCheckboxClick(row.id)}
-                            />
-                          )}
-                        </TableCell>
-                      );
-                    } else if (column.customRender) {
-                      return (
-                        <TableCell
-                          key={cellKey}
-                          sx={{
-                            // fontFamily: "Montserrat, sans-serif",
-                            fontSize: "14px",
-                            borderBottom: "2px solid #403a6b",
-                            color: "#ffffff",
-                          }}
-                        >
-                          {column.customRender(row)}
-                        </TableCell>
-                      );
-                    } else {
-                      return (
-                        <TableCell
-                          key={cellKey}
-                          sx={{
-                            // fontFamily: "Montserrat, sans-serif",
-                            fontSize: "14px",
-                            borderBottom: "2px solid #403a6b",
-                            color: "#ffffff",
-                          }}
-                        >
-                          {row[column.field] ? row[column.field] : "-"}
-                        </TableCell>
-                      );
-                    }
-                  })}
-                </TableRow>
-              )})
+                            )}
+                          </TableCell>
+                        );
+                      } else if (column.customRender) {
+                        return (
+                          <TableCell
+                            key={cellKey}
+                            sx={{
+                              // fontFamily: "Montserrat, sans-serif",
+                              fontSize: "14px",
+                              borderBottom: "2px solid #403a6b",
+                              color: "#ffffff",
+                            }}
+                          >
+                            {column.customRender(row)}
+                          </TableCell>
+                        );
+                      } else {
+                        return (
+                          <TableCell
+                            key={cellKey}
+                            sx={{
+                              // fontFamily: "Montserrat, sans-serif",
+                              fontSize: "14px",
+                              borderBottom: "2px solid #403a6b",
+                              color: "#ffffff",
+                            }}
+                          >
+                            {row[column.field] ? row[column.field] : "-"}
+                          </TableCell>
+                        );
+                      }
+                    })}
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>

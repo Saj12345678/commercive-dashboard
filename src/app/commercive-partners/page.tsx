@@ -907,7 +907,7 @@ export default function CommercivePartners() {
                           variant="body1"
                           sx={{ color: "black", fontWeight: "bold" }}
                         >
-                          Amount Spent
+                          Order Amount
                         </Typography>
                       </TableCell>
                       <TableCell

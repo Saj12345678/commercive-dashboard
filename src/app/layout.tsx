@@ -34,6 +34,8 @@ export default function RootLayout({
   const router = useRouter();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [user, setUser] = useState<any>(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -54,6 +56,23 @@ export default function RootLayout({
 
     checkUser();
   }, [supabase]);
+
+  const fetchUser = async () => {
+    const { data, error } = await supabase.auth.getUser();
+    if (data) {
+      setUserEmail(data.user?.email || "");
+      const { data: user } = await supabase
+        .from("user")
+        .select("*")
+        .eq("email", userEmail)
+        .single();
+      setUser(user);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, [supabase, userEmail]);
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -96,7 +115,9 @@ export default function RootLayout({
           </div>
           <ToastContainer position="top-right" transition={Flip} />
 
-          {!pathName?.includes("/admin") && <Chat />}
+          {!pathName?.includes("/admin") && (
+            <Chat user={user} setUser={setUser} setUserEmail={setUserEmail} />
+          )}
         </StoreProvider>
       </body>
     </html>

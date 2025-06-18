@@ -20,47 +20,51 @@ export default function FeatureCard({
   data,
   page,
   dateRange,
-  userId
+  userId,
 }: FeatureCardProps) {
-    
   const supabase = createClient();
   const [isModalOpen, setModalOpen] = useState(false);
-  const [address, setAddress] = useState<string>('');
-    const [loading, setLoading] = useState(false);
-  
-    const handlePayoutChange = (e: any) => {
-      const { name, value } = e.target;
-      setAddress(value);
-    };
-  
-    const handlePayoutSubmit = async () => {
-      if (!address.trim()) {
-        toast.error("Please enter your wallet address.");
-        return;
-      }
-  
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
+  const [address, setAddress] = useState<string>("");
+  const [selectedAmount, setSelectedAmount] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+
+  const handlePayoutChange = (e: any) => {
+    const { name, value } = e.target;
+    setAddress(value);
+  };
+
+  const handlePayoutSubmit = async () => {
+    if (!address.trim()) {
+      toast.error("Please enter your wallet address.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
         .from("payouts")
-        .insert({amount: Number(amount[0]), paypal_address: address, userId: userId })
+        .insert({
+          amount: Number(selectedAmount),
+          paypal_address: address,
+          userId: userId,
+        })
         .select();
 
-        if (error) {
-          toast.error(error.message);
-        } else {
-          if (data) {
-            toast.success("Request payout successfully!");
-          }
-          setAddress('');
-          setModalOpen(false);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        if (data) {
+          toast.success("Request payout successfully!");
         }
-      } catch (err) {
-        toast.error("Something went wrong! Please try again.");
-      } finally {
-        setLoading(false);
+        setAddress("");
+        setModalOpen(false);
       }
-    };
+    } catch (err) {
+      toast.error("Something went wrong! Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleWithdrawalClick = () => {
     setModalOpen(true);
@@ -68,6 +72,8 @@ export default function FeatureCard({
 
   const closeModal = () => {
     setModalOpen(false);
+    setSelectedAmount("");
+    setAddress("");
   };
 
   return (
@@ -169,12 +175,15 @@ export default function FeatureCard({
               <div className="">
                 <h2 className="text-lg font-semibold">Withdrawal</h2>
                 <div className="flex flex-col items-center gap-3 mt-2">
-                  <p className="text-3xl font-bold">$ 1393.73</p>
+                  <p className="text-3xl font-bold">
+                    $ {selectedAmount || "1393.73"}
+                  </p>
                   <div className="flex gap-3">
-                    {amount.map((amt: any, index) => (
+                    {amount.map((amt: any, index: any) => (
                       <p
                         key={index}
-                        className="text-sm font bold bg-slate-200 rounded-full px-4 py-1"
+                        className="text-sm font bold bg-slate-200 rounded-full px-4 py-1 cursor-pointer"
+                        onClick={() => setSelectedAmount(amt)}
                       >
                         {`$${amt}`}
                       </p>
