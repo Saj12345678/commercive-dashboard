@@ -7,15 +7,16 @@ import { Button, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { createClient } from "@/app/utils/supabase/client";
 import { useStoreContext } from "@/context/StoreContext";
+import { useRouter } from "next/navigation";
 
 export default function Chat({
   user,
   setUser,
   setUserEmail,
 }: {
-  user: any;
-  setUser: any;
-  setUserEmail: any;
+  user?: any;
+  setUser?: any;
+  setUserEmail?: any;
 }) {
   const supabase = createClient();
   const [name, setName] = useState("");
@@ -92,6 +93,12 @@ export default function Chat({
     setUser(null);
     setUserEmail("");
   };
+
+  useEffect(() => {
+    if (user && window.location.pathname.includes("/admin/support")) {
+      setChatOpen(true);
+    }
+  }, [user]);
   return (
     <div className="absolute bottom-16 sm:bottom-5 right-5">
       <div className="relative">

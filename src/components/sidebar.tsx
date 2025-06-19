@@ -22,6 +22,7 @@ import CustomSelection from "./ui/custom-select";
 import { useStoreContext } from "@/context/StoreContext";
 import { FiPlus } from "react-icons/fi";
 import { IoIosMore } from "react-icons/io";
+import { BiSupport } from "react-icons/bi";
 
 export interface SidebarProps {
   isOpen?: any;
@@ -56,6 +57,11 @@ const adminData = [
     title: "Home",
     href: "/admin/home",
     icon: <HouseIcon width={20} height={20} color={"#000000"} />,
+  },
+  {
+    title: "New Quote",
+    href: "/admin/support",
+    icon: <BiSupport width={30} height={30} color={"#000000"} />,
   },
   {
     title: "Inventory",

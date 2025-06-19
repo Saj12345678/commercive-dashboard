@@ -5,6 +5,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
 import { toast } from "react-toastify";
+import { Button } from "@mui/material";
 
 export default function Ticket() {
   const supabase = createClient();
@@ -26,6 +27,11 @@ export default function Ticket() {
     actionList: ["checkbox"],
     columns: [
       {
+        field: "name",
+        headerName: "Name",
+        customRender: (row: any) => <span>{row.name}</span>,
+      },
+      {
         field: "created_at",
         headerName: "Time Created",
         customRender: (row: any) => {
@@ -41,11 +47,6 @@ export default function Ticket() {
         },
       },
       {
-        field: "name",
-        headerName: "Name",
-        customRender: (row: any) => <span>{row.name}</span>,
-      },
-      {
         field: "email",
         headerName: "Email",
         customRender: (row: any) => <span>{row.email}</span>,
@@ -59,6 +60,15 @@ export default function Ticket() {
         field: "issue",
         headerName: "Issue",
         customRender: (row: any) => <span>{row.issue}</span>,
+      },
+      {
+        field: "reply",
+        headerName: "Reply",
+        customRender: (row: any) => (
+          <button className="bg-transparent text-[#FFFFFF] border py-1 px-2 rounded-md">
+            Reply
+          </button>
+        ),
       },
       {
         field: "phone_number",
