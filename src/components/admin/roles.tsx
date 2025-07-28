@@ -25,7 +25,7 @@ export default function Roles() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectedRole, setSelectedRole] = useState<any>(null);
   const { storeData } = useStoreContext();
   const [roleModalOpen, setRoleModalOpen] = useState(false);
@@ -172,7 +172,7 @@ export default function Roles() {
   const handlePagination = (curPage: number) => {
     setPage(curPage);
   };
-  const handleCheckboxClick = (id: number) => {
+  const handleCheckboxClick = (id: string) => {
     handleRoleOpenModal();
     setSelectedUsers((prevSelectedUsers) =>
       prevSelectedUsers.includes(id)
@@ -264,6 +264,7 @@ export default function Roles() {
         }));
         if (error instanceof Error) {
           toast(error.message || "Failed to save data. Please try again.");
+          return;
         } else {
           toast(id ? "Data updated successfully" : "Data added successfully");
           fetchUsersData(page);

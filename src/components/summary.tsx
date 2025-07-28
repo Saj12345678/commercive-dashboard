@@ -10,6 +10,7 @@ import { useStoreContext } from "@/context/StoreContext";
 import { createClient } from "@/app/utils/supabase/client";
 import Link from "next/link";
 import { CiCalendar } from "react-icons/ci";
+import { Database } from "@/app/utils/supabase/database.types";
 
 type TransactionItem = {
   id: string;
@@ -25,7 +26,9 @@ type TransactionItem = {
 export default function Summary({ selectedRange }: any) {
   const supabase = createClient();
   const { selectedStore } = useStoreContext();
-  const [trackingData, setTrackingData] = useState<TransactionItem[]>([]);
+  const [trackingData, setTrackingData] = useState<
+    Database["public"]["Tables"]["trackings"]["Row"][]
+  >([]);
   const storeName = selectedStore ? selectedStore.label : null;
   const datePickerRef = useRef<HTMLDivElement>(null);
   const dateLabelsRef = useRef<HTMLDivElement>(null);
@@ -102,7 +105,7 @@ export default function Summary({ selectedRange }: any) {
       .select("*")
       .gte("created_at", formattedStartDate)
       .lt("created_at", formattedEndDate)
-      .eq("store_name", storeName);
+      .eq("store_name", storeName!);
 
     if (trackingsError) {
       console.error("Error fetching trackings:", trackingsError.message);
@@ -402,7 +405,7 @@ export default function Summary({ selectedRange }: any) {
                         "UPS",
                         "YANWEN",
                         "Yun Express",
-                      ].includes(data.tracking_company) && (
+                      ].includes(data.tracking_company || "") && (
                         <Image
                           src="/icons/Layer.png"
                           alt="default-logo"

@@ -349,11 +349,11 @@ export default function Home() {
         );
 
         const paidRecords = orderData.filter(
-          (data) => data.financial_status.trim().toLowerCase() === "paid"
+          (data) => data.financial_status?.trim().toLowerCase() === "paid"
         );
 
         const pastWeekPaidRecords = pastWeekOrders?.filter(
-          (data) => data.financial_status.trim().toLowerCase() === "paid"
+          (data) => data.financial_status?.trim().toLowerCase() === "paid"
         );
 
         const fulfillRecords = orderData.filter(
@@ -391,7 +391,7 @@ export default function Home() {
           }
           acc[date].push(item);
           return acc;
-        }, {});
+        }, {} as any);
 
         const groupedCounts = Object.values(groupedByDate).map(
           (group: any) => group.length
@@ -404,7 +404,7 @@ export default function Home() {
           }
           acc[date].push(item);
           return acc;
-        }, {});
+        }, {} as any);
 
         const groupedCountsTotalSale = Object.values(
           groupedByDateTotalSale
@@ -417,7 +417,7 @@ export default function Home() {
           }
           acc[date].push(item);
           return acc;
-        }, {});
+        }, {} as any);
 
         const groupedCountsFulfillOrder = Object.values(
           groupedByDateFulfillOrder
@@ -506,8 +506,9 @@ export default function Home() {
         });
 
         const transformedData = inventoryData.map((item) => {
+          const inventory_level = item.inventory_level as any;
           const inventoryQuantities =
-            item.inventory_level[0]?.node?.quantities || [];
+            inventory_level?.[0]?.node?.quantities || [];
           const available =
             inventoryQuantities.find((q: any) => q.name === "available")
               ?.quantity || 0;
@@ -570,14 +571,14 @@ export default function Home() {
   useEffect(() => {
     if (storeData.length > 0) {
       setStoreFilter(storeData[0]);
-      setSelectedStore(storeData[0]); 
+      setSelectedStore(storeData[0]);
     }
   }, [storeData]);
 
   return (
     <>
       <main className="flex flex-col h-full max-h-full w-full gap-5 overflow-auto custom-scrollbar">
-      <h1 className="text-2xl font-bold text-white">Home</h1>
+        <h1 className="text-2xl font-bold text-white">Home</h1>
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col sm:flex-row gap-1 w-full md:w-1/2 ">
             <Autocomplete
@@ -586,7 +587,9 @@ export default function Home() {
                 option.label === "satish-dev" ? "Golf Pro" : option.label
               }
               value={storeFilter}
-              onChange={(event, newValue) => { setStoreFilter(newValue) , setSelectedStore(newValue)}}
+              onChange={(event, newValue) => {
+                setStoreFilter(newValue), setSelectedStore(newValue);
+              }}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -605,10 +608,12 @@ export default function Home() {
                   }}
                 />
               )}
-              isOptionEqualToValue={(option, value) => option.value === value.value}
+              isOptionEqualToValue={(option, value) =>
+                option.value === value.value
+              }
               clearOnEscape
               sx={{
-                width: '50%'
+                width: "50%",
               }}
             />
           </div>
@@ -624,7 +629,7 @@ export default function Home() {
               color: "white",
             }}
           >
-            <FullScreen color={'#5e568f'} />
+            <FullScreen color={"#5e568f"} />
             {isFullScreen ? "Exit Fullscreen" : "Fullscreen"}
           </Button>
         </div>

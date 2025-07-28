@@ -24,10 +24,10 @@ import { createClient } from "../utils/supabase/client";
 import Image from "next/image";
 
 type InventoryItem = {
-  image: string;
+  image: string | null;
   color: string;
   name: string;
-  stockMeter: number;
+  stockMeter: any;
   stockStatus: string;
   backorders: number;
 };
@@ -60,8 +60,9 @@ export default function Inventory() {
         setLoading(false);
       } else {
         const transformedData = fetchedData.map((item) => {
+          const inventory_level = item.inventory_level as any;
           const inventoryQuantities =
-            item.inventory_level[0]?.node?.quantities || [];
+            inventory_level?.[0]?.node?.quantities || [];
           const available =
             inventoryQuantities.find((q: any) => q.name === "available")
               ?.quantity || 0;
@@ -232,27 +233,36 @@ export default function Inventory() {
               backgroundColor: "#f4f4f7",
               fontWeight: "bold",
               color: "black",
-              padding: '4px'
+              padding: "4px",
             }}
           >
-            <TableRow 
+            <TableRow
               style={{
                 backgroundColor: "#f4f4f7",
-                padding: '4px'
-              }}>
-              <TableCell sx={{ fontWeight: "bold", color: "black", width: '50px' }}>
+                padding: "4px",
+              }}
+            >
+              <TableCell
+                sx={{ fontWeight: "bold", color: "black", width: "50px" }}
+              >
                 Photo
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black", width: '300px' }}>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "black", width: "300px" }}
+              >
                 Name/SKU
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", color: "black" }}>
                 Stock Meter
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black", width: '200px' }}>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "black", width: "200px" }}
+              >
                 Stock Status
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black", width: '100px' }}>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "black", width: "100px" }}
+              >
                 Backorders
               </TableCell>
             </TableRow>
@@ -304,7 +314,12 @@ export default function Inventory() {
                           Math.max(0, (item.stockMeter / 1000) * 100)
                         )}
                         color={getColorPalette(item.stockStatus)}
-                        sx={{ height: 10, borderRadius: 10, flex: 1, bgcolor: '#f4f4f7' }}
+                        sx={{
+                          height: 10,
+                          borderRadius: 10,
+                          flex: 1,
+                          bgcolor: "#f4f4f7",
+                        }}
                       />
                     </Box>
                   </TableCell>

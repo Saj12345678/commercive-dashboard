@@ -12,7 +12,7 @@ export default function Payout() {
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedPayout, setSelectedPayout] = useState<number[]>([]);
+  const [selectedPayout, setSelectedPayout] = useState<string[]>([]);
   let limit = 5;
 
   const handlePagination = (curPage: number) => {
@@ -28,7 +28,7 @@ export default function Payout() {
       {
         field: "name",
         headerName: "Name",
-        customRender: (row: any) => <span>{row.name ? row.name : '-'}</span>,
+        customRender: (row: any) => <span>{row.name ? row.name : "-"}</span>,
       },
       {
         field: "amount",
@@ -54,53 +54,57 @@ export default function Payout() {
   const fetchPayoutsData = async (currentPage: number) => {
     setIsLoading(true);
     try {
-        const start = (currentPage - 1) * limit;
-        const { data: payouts, count, error: payoutError } = await supabase
-          .from("payouts")
-          .select("*", { count: "exact" })
-          .range(start, start + limit - 1);
-      
-        if (payoutError) {
-          console.error("Error fetching payouts data:", payoutError);
-          return;
-        }
-      
-        if (!payouts || payouts.length === 0) {
-          setPayoutsData([]);
-          setTotalRecords(count || 0);
-          return;
-        }
-      
-        // Extract unique user IDs
-        const userIds = [...new Set(payouts.map((payout) => payout.userId))];
-      
-        // Fetch user details
-        const { data: users, error: usersError } = await supabase
-          .from("user")
-          .select("id, first_name, last_name")
-          .in("id", userIds);
-      
-        if (usersError) {
-          console.error("Error fetching user data:", usersError);
-        }
-      
-        // Create a mapping of userId to full name
-        const userMap = users?.reduce((acc, user) => {
-          acc[user.id] = `${user.first_name} ${user.last_name}`;
-          return acc;
-        }, {} as Record<string, string>);
-      
-        // Merge user names into payout data
-        const updatedPayouts = payouts.map((payout) => ({
-          ...payout,
-          name: userMap?.[payout.userId] || "Unknown",
-        }));
-      
-        setPayoutsData(updatedPayouts);
+      const start = (currentPage - 1) * limit;
+      const {
+        data: payouts,
+        count,
+        error: payoutError,
+      } = await supabase
+        .from("payouts")
+        .select("*", { count: "exact" })
+        .range(start, start + limit - 1);
+
+      if (payoutError) {
+        console.error("Error fetching payouts data:", payoutError);
+        return;
+      }
+
+      if (!payouts || payouts.length === 0) {
+        setPayoutsData([]);
         setTotalRecords(count || 0);
-      } catch (error) {
-        console.error("Unexpected error:", error);
-      } finally {
+        return;
+      }
+
+      // Extract unique user IDs
+      const userIds = [...new Set(payouts.map((payout) => payout.userId))];
+
+      // Fetch user details
+      const { data: users, error: usersError } = await supabase
+        .from("user")
+        .select("id, first_name, last_name")
+        .in("id", userIds);
+
+      if (usersError) {
+        console.error("Error fetching user data:", usersError);
+      }
+
+      // Create a mapping of userId to full name
+      const userMap = users?.reduce((acc, user) => {
+        acc[user.id] = `${user.first_name} ${user.last_name}`;
+        return acc;
+      }, {} as Record<string, string>);
+
+      // Merge user names into payout data
+      const updatedPayouts = payouts.map((payout) => ({
+        ...payout,
+        name: userMap?.[payout.userId] || "Unknown",
+      }));
+
+      setPayoutsData(updatedPayouts);
+      setTotalRecords(count || 0);
+    } catch (error) {
+      console.error("Unexpected error:", error);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -121,34 +125,34 @@ export default function Payout() {
     fetchPayoutsData(page);
   }, [page]);
 
-  const handleCheckboxClick = async (id: number) => {
+  const handleCheckboxClick = async (id: string) => {
     setSelectedPayout((prevSelectedPayout) => {
       const isCurrentlySelected = prevSelectedPayout.includes(id);
       const newSelectionState = !isCurrentlySelected;
-      
+
       const updatedPayouts = newSelectionState
         ? [...prevSelectedPayout, id]
         : prevSelectedPayout.filter((ticketId) => ticketId !== id);
-  
+
       return updatedPayouts;
     });
 
     const isCurrentlySelected = selectedPayout.includes(id);
     const newSelectionState = !isCurrentlySelected;
-  
+
     // Update Supabase
     const { data, error }: any = await supabase
-      .from("payouts") 
-      .update({ completed: newSelectionState }) 
+      .from("payouts")
+      .update({ completed: newSelectionState })
       .eq("id", id)
       .select();
 
-      if(data[0]?.completed){
-        toast("Payment Completed successfully.");
-      } else {
-        toast("Payment uncompleted successfully.");
-      }
-      fetchPayoutsData(page);
+    if (data[0]?.completed) {
+      toast("Payment Completed successfully.");
+    } else {
+      toast("Payment uncompleted successfully.");
+    }
+    fetchPayoutsData(page);
     if (error) {
       console.error("Error updating Supabase:", error.message);
       toast.error("Failed to update Supabase.");

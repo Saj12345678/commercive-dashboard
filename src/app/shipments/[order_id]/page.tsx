@@ -49,6 +49,7 @@ import { useMap } from "react-leaflet";
 import Image from "next/image";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { ParamValue } from "next/dist/server/request/params";
 
 // ✅ Map styles
 const mapStyles = {
@@ -128,19 +129,20 @@ export default function OrderDetails() {
       const { data: trackingData, error: trackingError } = await supabase
         .from("trackings")
         .select("*")
-        .eq("order_id", order_id)
+        .eq("order_id", order_id as string)
         .single();
 
       if (trackingError) throw trackingError;
 
       if (trackingData) {
+        const destination = trackingData.destination as any;
         setDestination([
-          trackingData?.destination?.latitude || 0,
-          trackingData?.destination?.longitude || 0,
+          destination?.latitude || 0,
+          destination?.longitude || 0,
         ]);
         setStoreLocation([
-          trackingData?.store_location?.latitude || 10,
-          trackingData?.store_location?.longitude || 10,
+          destination?.latitude || 10,
+          destination?.longitude || 10,
         ]);
         setTrackingData(trackingData);
         if (trackingData.store_location) {
@@ -168,7 +170,7 @@ export default function OrderDetails() {
       const { data: orderData, error: orderError } = await supabase
         .from("order")
         .select("*")
-        .eq("order_id", order_id)
+        .eq("order_id", order_id as string)
         .single();
 
       if (orderError) throw orderError;

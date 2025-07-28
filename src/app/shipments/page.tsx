@@ -19,6 +19,7 @@ import { useStoreContext } from "@/context/StoreContext";
 import { createClient } from "@/app/utils/supabase/client";
 import FullScreen from "@/components/images/full-screen";
 import { CiCalendar } from "react-icons/ci";
+import { Database } from "../utils/supabase/database.types";
 
 type TransactionItem = {
   id: string;
@@ -35,7 +36,9 @@ type TransactionItem = {
 export default function Shipment() {
   const supabase = createClient();
   const { selectedStore } = useStoreContext();
-  const [trackingData, setTrackingData] = useState<TransactionItem[]>([]);
+  const [trackingData, setTrackingData] = useState<
+    Database["public"]["Tables"]["trackings"]["Row"][]
+  >([]);
   const storeName = selectedStore ? selectedStore.label : null;
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
@@ -503,7 +506,7 @@ export default function Shipment() {
                         "UPS",
                         "YANWEN",
                         "Yun Express",
-                      ].includes(data.tracking_company) && (
+                      ].includes(data.tracking_company || "") && (
                         <Image
                           src="/icons/Layer.png"
                           alt="default-logo"

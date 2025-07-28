@@ -460,7 +460,7 @@ export default function CommercivePartners() {
             if (!acc[order.customer_email]) {
               acc[order.customer_email] = {
                 totalSpending: 0,
-                name: order.customer_name,
+                name: order.customer_email,
               };
             }
             acc[order.customer_email].totalSpending += parseFloat(
@@ -468,7 +468,7 @@ export default function CommercivePartners() {
             );
           }
           return acc;
-        }, {});
+        }, {} as any);
 
         // Prepare table data based on grouped orders
         const updatedTableData = Object.keys(groupedOrders).map(
@@ -487,10 +487,10 @@ export default function CommercivePartners() {
         setTableData(updatedTableData);
 
         const pendingRecords = orderData.filter(
-          (data) => data.financial_status.trim().toLowerCase() === "pending"
+          (data) => data.financial_status?.trim().toLowerCase() === "pending"
         );
         const paidRecords = orderData.filter(
-          (data) => data.financial_status.trim().toLowerCase() === "paid"
+          (data) => data.financial_status?.trim().toLowerCase() === "paid"
         );
 
         const groupedByDate = referral.reduce((acc, item) => {
@@ -501,7 +501,7 @@ export default function CommercivePartners() {
           }
           acc[date].push(item);
           return acc;
-        }, {});
+        }, {} as any);
 
         // Convert the grouped data into counts
         const groupedCounts = Object.values(groupedByDate).map(

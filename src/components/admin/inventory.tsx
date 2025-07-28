@@ -23,7 +23,7 @@ interface FormDataType {
       quantities: { name: string; quantity: string | number }[];
     };
   }[];
-  product_image: File | string | null; // <-- Ensure it's explicitly File | null
+  product_image: string | null; // <-- Ensure it's explicitly File | null
 }
 export default function Inventory() {
   const supabase = createClient();
@@ -250,7 +250,7 @@ export default function Inventory() {
     const { data, error } = await supabase
       .from("inventory")
       .update(formData)
-      .eq("id", formData?.id)
+      .eq("id", formData.id!)
       .select();
     if (error) {
       toast.error("Error updating inventory data: " + error.message);

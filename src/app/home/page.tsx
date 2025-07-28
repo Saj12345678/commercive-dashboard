@@ -349,11 +349,11 @@ export default function Home() {
         );
 
         const paidRecords = orderData.filter(
-          (data) => data.financial_status.trim().toLowerCase() === "paid"
+          (data) => data.financial_status?.trim().toLowerCase() === "paid"
         );
 
         const pastWeekPaidRecords = pastWeekOrders?.filter(
-          (data) => data.financial_status.trim().toLowerCase() === "paid"
+          (data) => data.financial_status?.trim().toLowerCase() === "paid"
         );
 
         const fulfillRecords = orderData.filter(
@@ -391,7 +391,7 @@ export default function Home() {
           }
           acc[date].push(item);
           return acc;
-        }, {});
+        }, {} as any);
 
         const groupedCounts = Object.values(groupedByDate).map(
           (group: any) => group.length
@@ -404,7 +404,7 @@ export default function Home() {
           }
           acc[date].push(item);
           return acc;
-        }, {});
+        }, {} as any);
 
         const groupedCountsTotalSale = Object.values(
           groupedByDateTotalSale
@@ -417,7 +417,7 @@ export default function Home() {
           }
           acc[date].push(item);
           return acc;
-        }, {});
+        }, {} as any);
 
         const groupedCountsFulfillOrder = Object.values(
           groupedByDateFulfillOrder
@@ -506,8 +506,9 @@ export default function Home() {
         });
 
         const transformedData = inventoryData.map((item) => {
+          const inventory_level = item.inventory_level as any;
           const inventoryQuantities =
-            item.inventory_level[0]?.node?.quantities || [];
+            inventory_level?.[0]?.node?.quantities || [];
           const available =
             inventoryQuantities.find((q: any) => q.name === "available")
               ?.quantity || 0;

@@ -38,7 +38,7 @@ interface CustomTableProps<T> {
   showEdit?: boolean;
   showDelete?: boolean;
   showCheckbox?: boolean;
-  onCheckboxClick?: (id: number) => void;
+  onCheckboxClick?: (id: any) => void;
 }
 
 export default function CustomTable<T>({
@@ -81,7 +81,7 @@ export default function CustomTable<T>({
     }
     setPage(newPage);
   };
-  const handleCheckboxClick = (id: number) => {
+  const handleCheckboxClick = (id: any) => {
     if (onCheckboxClick) {
       onCheckboxClick(id);
     }
