@@ -7,7 +7,7 @@ import Ticket from "@/components/admin/ticket";
 import Roles from "@/components/admin/roles";
 import Inventory from "@/components/admin/inventory";
 import Home from "@/components/admin/home";
-import { createClient } from "../utils/supabase/client";
+import { createClient } from "@/app/utils/supabase/client";
 
 export default function AdminPage() {
   const router = useRouter();

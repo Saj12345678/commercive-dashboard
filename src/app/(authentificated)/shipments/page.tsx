@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import OrderIcon from "../../components/images/order";
 import Image from "next/image";
 import { DateRangePicker, Range } from "react-date-range";
 import "react-date-range/dist/styles.css";
@@ -19,7 +18,8 @@ import { useStoreContext } from "@/context/StoreContext";
 import { createClient } from "@/app/utils/supabase/client";
 import FullScreen from "@/components/images/full-screen";
 import { CiCalendar } from "react-icons/ci";
-import { Database } from "../utils/supabase/database.types";
+import OrderIcon from "@/components/images/order";
+import { Database } from "@/app/utils/supabase/database.types";
 
 type TransactionItem = {
   id: string;

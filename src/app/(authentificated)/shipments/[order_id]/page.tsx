@@ -13,7 +13,6 @@ import {
   Breadcrumbs,
 } from "@mui/material";
 import { useStoreContext } from "@/context/StoreContext";
-import { createClient } from "../../utils/supabase/client";
 import "leaflet/dist/leaflet.css";
 import {
   differenceInDays,
@@ -50,6 +49,7 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { ParamValue } from "next/dist/server/request/params";
+import { createClient } from "@/app/utils/supabase/client";
 
 // ✅ Map styles
 const mapStyles = {

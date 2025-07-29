@@ -1,6 +1,6 @@
 "use client";
+import { createClient } from "@/app/utils/supabase/client";
 import { ReactNode, useEffect, useState } from "react";
-import { createClient } from "../utils/supabase/client";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const supabase = createClient();

@@ -2,14 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "../utils/supabase/server";
 import { ActionResponse } from "@/components/type-identifiers";
+import { createServerSideClient } from "../utils/supabase/server";
 
 export const signup = async (
   prevState: any,
   formData: FormData
 ): Promise<ActionResponse<void>> => {
-  const supabase = await createClient();
+  const supabase = await createServerSideClient();
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;

@@ -20,7 +20,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { DateRangePicker, Range } from "react-date-range";
-import "../home/home.css";
+import "../(authentificated)/home/home.css";
 import CustomButton from "@/components/ui/custom-button";
 import InputField from "@/components/ui/custom-inputfild";
 import { BsCopy } from "react-icons/bs";

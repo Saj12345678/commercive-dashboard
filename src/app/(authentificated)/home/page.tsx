@@ -10,7 +10,7 @@ import Inventory from "@/components/inventory";
 import Summary from "@/components/summary";
 import Forecast from "@/components/forecast";
 import { useStoreContext } from "@/context/StoreContext";
-import { createClient } from "../utils/supabase/client";
+import { createClient } from "../../utils/supabase/client";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./home.css";

@@ -17,11 +17,11 @@ import {
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { LuThumbsUp } from "react-icons/lu";
 import { MdKeyboardDoubleArrowDown } from "react-icons/md";
-import TotalInventory from "../../components/images/total-inventory";
 import { useStoreContext } from "@/context/StoreContext";
 import { PiCodesandboxLogoFill } from "react-icons/pi";
-import { createClient } from "../utils/supabase/client";
 import Image from "next/image";
+import { createClient } from "@/app/utils/supabase/client";
+import TotalInventory from "@/components/images/total-inventory";
 
 type InventoryItem = {
   image: string | null;
