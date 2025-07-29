@@ -17,6 +17,7 @@ import {
 import { FiPlus } from "react-icons/fi";
 import InputField from "../ui/custom-inputfild";
 import { useStoreContext } from "@/context/StoreContext";
+import { Store } from "@/app/utils/types";
 
 export default function Roles() {
   const supabase = createClient();
@@ -27,14 +28,12 @@ export default function Roles() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectedRole, setSelectedRole] = useState<any>(null);
-  const { storeData } = useStoreContext();
+  const { stores: storeData } = useStoreContext();
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
   const [editData, setEditData] = useState<any>({});
 
-  const [storeFilter, setStoreFilter] = useState<
-    { label: string; value: string }[]
-  >([]);
+  const [storeFilter, setStoreFilter] = useState<Store[]>([]);
   const [storePage, setPageFilter] = useState<
     { label: string; value: string }[]
   >([]);
@@ -97,12 +96,9 @@ export default function Roles() {
     }));
   };
 
-  const handleStoreChange = (
-    _: any,
-    newValue: { label: string; value: string }[]
-  ) => {
+  const handleStoreChange = (_: any, newValue: Store[]) => {
     const isSelectAllClicked = newValue.some(
-      (item) => item.value === "all_stores"
+      (item) => item.id === "all_stores"
     );
 
     if (isSelectAllClicked) {
@@ -110,7 +106,7 @@ export default function Roles() {
       const updatedSelection = allStoresSelected ? [] : storeData;
 
       setStoreFilter(updatedSelection);
-      const selectedStores = updatedSelection.map((store) => store.value);
+      const selectedStores = updatedSelection.map((store) => store.id);
 
       setFormData((prev) => ({ ...prev, store: selectedStores }));
       setErrors((prev) => ({
@@ -122,7 +118,7 @@ export default function Roles() {
       }));
     } else {
       setStoreFilter(newValue);
-      const selectedStores = newValue.map((store) => store.value);
+      const selectedStores = newValue.map((store) => store.id);
 
       setFormData((prev) => ({ ...prev, store: selectedStores }));
       setErrors((prev) => ({
@@ -135,7 +131,7 @@ export default function Roles() {
     }
   };
   const optionsWithSelectAll = [
-    { label: "All stores", value: "all_stores" },
+    // { label: "All stores", value: "all_stores" }, // todo
     ...storeData,
   ];
 
@@ -632,29 +628,29 @@ export default function Roles() {
                       options={optionsWithSelectAll}
                       disableCloseOnSelect
                       getOptionLabel={(option) =>
-                        option.label === "satish-dev"
+                        option.store_name === "satish-dev"
                           ? "Golf Pro"
-                          : option.label
+                          : option.store_name
                       }
                       value={storeFilter}
                       onChange={handleStoreChange}
                       isOptionEqualToValue={(option, value) =>
-                        option.value === value.value
+                        option.id === value.id
                       }
                       clearOnEscape
                       renderOption={(props, option, { selected }) => (
-                        <MenuItem {...props} key={option.value}>
+                        <MenuItem {...props} key={option.id}>
                           <Checkbox
-                            key={option.value}
+                            key={option.id}
                             checked={
-                              option.value === "all_stores"
+                              option.id === "all_stores"
                                 ? storeFilter.length === storeData.length
                                 : selected
                             }
                           />
-                          {option.label === "satish-dev"
+                          {option.store_name === "satish-dev"
                             ? "Golf Pro"
-                            : option.label}
+                            : option.store_name}
                         </MenuItem>
                       )}
                       renderInput={(params) => (

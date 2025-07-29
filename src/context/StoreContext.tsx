@@ -8,34 +8,43 @@ import Sidebar from "@/components/sidebar";
 import LabelBottomNavigation from "@/components/bottom-navigation";
 import { Flip, ToastContainer } from "react-toastify";
 import Chat from "@/components/chat";
-
-interface Store {
-  label: string;
-  value: string;
-}
+import { Database } from "@/app/utils/supabase/database.types";
+import { Store, UserRow } from "@/app/utils/types";
 
 interface StoreContextProps {
+  userinfo?: UserRow;
+  updateUserinfo: () => void;
   selectedStore: Store | null;
   setSelectedStore: React.Dispatch<React.SetStateAction<Store | null>>;
-  storeData: Store[];
+  stores: Store[];
   chatOpen: boolean;
   setChatOpen: (data: boolean) => void;
 }
 
 const StoreContext = createContext<StoreContextProps | undefined>(undefined);
 
-export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+export const StoreProvider: React.FC<{
+  initialUserinfo?: UserRow;
+  children: React.ReactNode;
+}> = ({ initialUserinfo, children }) => {
   const supabase = createClient();
   const pathName = usePathname();
 
-  const [storeData, setStoreData] = useState<Store[]>([]);
-  const [selectedStore, setSelectedStore] = useState<any | null>(null);
+  const [stores, setStoreData] = useState<Store[]>([]);
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [userEmail, setUserEmail] = useState("");
+  const [userinfo, setUserinfo] = useState(initialUserinfo);
+
+  const updateUserinfo = async () => {
+    if (!userinfo) return;
+    const { data } = await supabase
+      .from("user")
+      .select()
+      .eq("id", userinfo.id)
+      .single();
+    setUserinfo(data!);
+  };
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -43,22 +52,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fetchStoreData = async () => {
     const { data, error } = await supabase
-      .from("stores")
-      .select("*")
-      .eq("is_store_listed", true);
+      .from("store_to_user")
+      .select("*, stores(*)");
 
     if (error) {
       console.error("Error fetching stores:", error.message);
       return;
     }
-
-    const formattedData = data.map((store: any) => ({
-      label: store.store_name,
-      value: store.id,
-    }));
-
-    setStoreData(formattedData);
-    setSelectedStore(formattedData[0]);
+    setStoreData(data.map((row) => row.stores));
+    setSelectedStore(data[0].stores);
   };
 
   useEffect(() => {
@@ -68,9 +70,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <StoreContext.Provider
       value={{
+        userinfo,
+        updateUserinfo,
         selectedStore,
         setSelectedStore,
-        storeData,
+        stores: stores,
         chatOpen,
         setChatOpen,
       }}
@@ -109,9 +113,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
       </div>
       <ToastContainer position="top-right" transition={Flip} />
 
-      {!pathName?.includes("/admin") && (
-        <Chat user={user} setUser={setUser} setUserEmail={setUserEmail} />
-      )}
+      {!pathName?.includes("/admin") && <Chat />}
     </StoreContext.Provider>
   );
 };

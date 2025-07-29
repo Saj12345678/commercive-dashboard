@@ -39,7 +39,7 @@ export default function Shipment() {
   const [trackingData, setTrackingData] = useState<
     Database["public"]["Tables"]["trackings"]["Row"][]
   >([]);
-  const storeName = selectedStore ? selectedStore.label : null;
+  const storeName = selectedStore ? selectedStore.store_name : null;
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);

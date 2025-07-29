@@ -28,8 +28,8 @@ export default function Home() {
   const supabase = createClient();
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
   const comparePickerRef = useRef<HTMLDivElement | null>(null);
-  const { selectedStore, setSelectedStore, storeData } = useStoreContext();
-  const storeName = selectedStore ? selectedStore.label : null;
+  const { selectedStore, setSelectedStore, stores } = useStoreContext();
+  const storeName = selectedStore ? selectedStore.store_name : null;
 
   const getSundayOfWeek = (date: Date) => {
     const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
@@ -555,33 +555,6 @@ export default function Home() {
     color: "#4CAF50", // Range start and end date color
     backgroundColor: "#DFF0D8", // Background color for the selected range
   };
-
-  const Data = [
-    {
-      image: "",
-      color: "#26124",
-      name: "Modern Sofa",
-      stockMeter: 530,
-      stockStatus: "Enough Stock",
-      backorders: 0,
-    },
-    {
-      image: "",
-      color: "#60430",
-      name: "Oak Dining Table",
-      stockMeter: 221,
-      stockStatus: "Low Stock",
-      backorders: 0,
-    },
-    {
-      image: "",
-      color: "#40539",
-      name: "Leather Recliner Chair",
-      stockMeter: 672,
-      stockStatus: "No Stock",
-      backorders: 34,
-    },
-  ];
 
   const [isChecked, setIsChecked] = useState(false);
 

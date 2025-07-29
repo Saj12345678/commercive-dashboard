@@ -29,7 +29,7 @@ export default function Summary({ selectedRange }: any) {
   const [trackingData, setTrackingData] = useState<
     Database["public"]["Tables"]["trackings"]["Row"][]
   >([]);
-  const storeName = selectedStore ? selectedStore.label : null;
+  const storeName = selectedStore ? selectedStore.store_name : null;
   const datePickerRef = useRef<HTMLDivElement>(null);
   const dateLabelsRef = useRef<HTMLDivElement>(null);
   const shipmentItemsRef = useRef<HTMLDivElement>(null);

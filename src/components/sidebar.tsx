@@ -23,6 +23,7 @@ import { useStoreContext } from "@/context/StoreContext";
 import { FiPlus } from "react-icons/fi";
 import { IoIosMore } from "react-icons/io";
 import { BiSupport } from "react-icons/bi";
+import { Store } from "@/app/utils/types";
 
 export interface SidebarProps {
   isOpen?: any;
@@ -94,7 +95,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const supabase = createClient();
   const pathName = usePathname();
   const router = useRouter();
-  const { selectedStore, setSelectedStore, storeData } = useStoreContext();
+  const { selectedStore, setSelectedStore, stores } = useStoreContext();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userData, setUserData] = useState<any>({});
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -106,16 +107,11 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const [tooltipMessage, setTooltipMessage] = useState("");
   const [showStoreData, setShowStoreData] = useState(false);
-  const storeName = selectedStore ? selectedStore.label : null;
+  const storeName = selectedStore ? selectedStore.store_name : null;
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [activeStore, setActiveStore] = useState<{
-    value: string;
-    label: string;
-  } | null>(null);
+  const [activeStore, setActiveStore] = useState<Store | null>(null);
   const [showDisconnect, setShowDisconnect] = useState(false);
-  const [stores, setStores] = useState<
-    { id: string; store_name: string; is_store_listed: boolean }[]
-  >([]);
+
   const [showList, setShowList] = useState(false);
 
   const filteredAdminData =
@@ -182,10 +178,10 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const handleAddStore = () => {
     console.log("Add Store");
   };
-  const handleMoreClick = (store: { value: string; label: string } | null) => {
+  const handleMoreClick = (store: Store | null) => {
     setShowStoreData(true);
 
-    if (activeStore?.value === store?.value) {
+    if (activeStore?.id === store?.id) {
       setShowDisconnect((prev) => !prev);
     }
     setActiveStore(store);
@@ -198,7 +194,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
         const { error } = await supabase
           .from("stores")
           .update({ is_store_listed: false })
-          .eq("id", activeStore.value);
+          .eq("id", activeStore.id);
 
         if (error) {
           console.error("Error disconnecting store:", error.message);
@@ -212,23 +208,6 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
     }
   };
 
-  const fetchStores = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("stores")
-      .select("id, store_name, is_store_listed");
-    if (error) {
-      console.error("Error fetching stores:", error.message);
-    } else {
-      setStores(data || []);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchStores();
-  }, []);
-
   const connectStore = async (storeId: string) => {
     const { error } = await supabase
       .from("stores")
@@ -239,7 +218,6 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
       console.error("Error connecting store:", error.message);
     } else {
       window.location.reload();
-      fetchStores();
     }
   };
 
@@ -498,21 +476,21 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   className="w-full border-2 rounded shadow-lg absolute top-[78px] "
                 >
                   <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar cursor-pointer">
-                    {storeData && storeData.length > 0 ? (
-                      storeData.map((store, index) => (
+                    {stores && stores.length > 0 ? (
+                      stores.map((store, index) => (
                         <div
                           key={index}
                           className={`flex justify-between items-center p-3 border-b ${
-                            store.label === storeName
+                            store.store_name === storeName
                               ? "bg-[#F3E8FF] hover:bg-none"
                               : "bg-[#F9F9FF] hover:bg-[#F9F9FF]"
                           }`}
                           onClick={() => handleStoreSelect(store)} // Select store on click
                         >
                           <p>
-                            {store.label == "satish-dev"
+                            {store.store_name == "satish-dev"
                               ? "Golf Pro"
-                              : store.label}
+                              : store.store_name}
                           </p>
                           <IoIosMore
                             scale={20}
@@ -522,17 +500,16 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                               handleMoreClick(store);
                             }}
                           />
-                          {showDisconnect &&
-                            activeStore?.value === store.value && (
-                              <div className="absolute top-0 right-0 mt-2 w-32 bg-white shadow-md rounded-md p-2 text-sm">
-                                <button
-                                  className="w-full text-red-500 rounded-md py-2"
-                                  onClick={disconnectStore}
-                                >
-                                  Disconnect Store
-                                </button>
-                              </div>
-                            )}
+                          {showDisconnect && activeStore?.id === store.id && (
+                            <div className="absolute top-0 right-0 mt-2 w-32 bg-white shadow-md rounded-md p-2 text-sm">
+                              <button
+                                className="w-full text-red-500 rounded-md py-2"
+                                onClick={disconnectStore}
+                              >
+                                Disconnect Store
+                              </button>
+                            </div>
+                          )}
                         </div>
                       ))
                     ) : (
@@ -626,7 +603,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                       href={link.href}
                       key={index}
                       prefetch={false}
-                      className={`flex items-center rounded-md gap-3 p-3 
+                      className={`flex items-center rounded-md gap-3 p-3
                        ${
                          pathName?.includes("/admin")
                            ? pathName === link.href
@@ -635,7 +612,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                            : pathName === link.href
                            ? "text-black bg-[#F9F9FF]"
                            : "text-black bg-[#FFF] hover:bg-purple-100"
-                       } 
+                       }
                       ${isCollapsed && "justify-center"}`}
                     >
                       <span className={`${isCollapsed && "justify-center"}`}>
@@ -794,18 +771,18 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   className="w-[275px] border-2 rounded shadow-lg absolute top-24 left-3 z-[100] bg-white"
                 >
                   <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar cursor-pointer">
-                    {storeData && storeData.length > 0 ? (
-                      storeData.map((store, index) => (
+                    {stores && stores.length > 0 ? (
+                      stores.map((store, index) => (
                         <div
                           key={index}
                           className={`flex justify-between items-center p-3 border-b ${
-                            store.label === storeName
+                            store.store_name === storeName
                               ? "bg-[#F3E8FF] hover:bg-none"
                               : "bg-[#F9F9FF] hover:bg-[#F9F9FF]"
                           }`}
                           onClick={() => handleStoreSelect(store)} // Select store on click
                         >
-                          <p>{store.label}</p>
+                          <p>{store.store_name}</p>
                           <IoIosMore
                             scale={20}
                             className="cursor-pointer"
@@ -814,17 +791,16 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                               handleMoreClick(store);
                             }}
                           />
-                          {showDisconnect &&
-                            activeStore?.value === store.value && (
-                              <div className="absolute top-0 right-0 mt-2 w-32 bg-white shadow-md rounded-md p-2 text-sm">
-                                <button
-                                  className="w-full text-red-500 rounded-md py-2"
-                                  onClick={disconnectStore}
-                                >
-                                  Disconnect Store
-                                </button>
-                              </div>
-                            )}
+                          {showDisconnect && activeStore?.id === store.id && (
+                            <div className="absolute top-0 right-0 mt-2 w-32 bg-white shadow-md rounded-md p-2 text-sm">
+                              <button
+                                className="w-full text-red-500 rounded-md py-2"
+                                onClick={disconnectStore}
+                              >
+                                Disconnect Store
+                              </button>
+                            </div>
+                          )}
                         </div>
                       ))
                     ) : (

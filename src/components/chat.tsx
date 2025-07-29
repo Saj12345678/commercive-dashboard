@@ -9,15 +9,10 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useStoreContext } from "@/context/StoreContext";
 import { useRouter } from "next/navigation";
 
-export default function Chat({
-  user,
-  setUser,
-  setUserEmail,
-}: {
-  user?: any;
-  setUser?: any;
-  setUserEmail?: any;
-}) {
+export default function Chat() {
+  const [user, setUser] = useState<any>(null);
+  const [userEmail, setUserEmail] = useState("");
+
   const supabase = createClient();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

@@ -13,6 +13,7 @@ import { useStoreContext } from "@/context/StoreContext";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { createClient } from "@/app/utils/supabase/client";
+import { Store } from "@/app/utils/types";
 
 export interface InventoryData {
   image: string;
@@ -27,12 +28,9 @@ export default function Home() {
   const supabase = createClient();
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
   const comparePickerRef = useRef<HTMLDivElement | null>(null);
-  const { selectedStore, setSelectedStore, storeData } = useStoreContext();
-  const storeName = selectedStore ? selectedStore.label : null;
-  const [storeFilter, setStoreFilter] = useState<{
-    label: string;
-    value: string;
-  } | null>(null);
+  const { selectedStore, setSelectedStore, stores } = useStoreContext();
+  const storeName = selectedStore ? selectedStore.store_name : null;
+  const [storeFilter, setStoreFilter] = useState<Store | null>(null);
 
   const getSundayOfWeek = (date: Date) => {
     const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
@@ -569,11 +567,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (storeData.length > 0) {
-      setStoreFilter(storeData[0]);
-      setSelectedStore(storeData[0]);
+    if (stores.length > 0) {
+      setStoreFilter(stores[0]);
+      setSelectedStore(stores[0]);
     }
-  }, [storeData]);
+  }, [stores]);
 
   return (
     <>
@@ -582,9 +580,11 @@ export default function Home() {
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col sm:flex-row gap-1 w-full md:w-1/2 ">
             <Autocomplete
-              options={storeData}
+              options={stores}
               getOptionLabel={(option) =>
-                option.label === "satish-dev" ? "Golf Pro" : option.label
+                option.store_name === "satish-dev"
+                  ? "Golf Pro"
+                  : option.store_name
               }
               value={storeFilter}
               onChange={(event, newValue) => {
@@ -608,9 +608,7 @@ export default function Home() {
                   }}
                 />
               )}
-              isOptionEqualToValue={(option, value) =>
-                option.value === value.value
-              }
+              isOptionEqualToValue={(option, value) => option.id === value.id}
               clearOnEscape
               sx={{
                 width: "50%",

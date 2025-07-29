@@ -38,7 +38,7 @@ export default function Inventory() {
   const [selectedTab, setSelectedTab] = useState("All");
   const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
   const { selectedStore } = useStoreContext();
-  const storeName = selectedStore ? selectedStore.label : null;
+  const storeName = selectedStore ? selectedStore.store_name : null;
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20); // Default 20 items per page

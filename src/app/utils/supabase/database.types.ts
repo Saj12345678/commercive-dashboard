@@ -47,6 +47,35 @@ export type Database = {
         }
         Relationships: []
       }
+      admin: {
+        Row: {
+          created_at: string
+          email: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory: {
         Row: {
           back_orders: number | null
@@ -442,6 +471,42 @@ export type Database = {
         }
         Relationships: []
       }
+      store_to_user: {
+        Row: {
+          created_at: string
+          id: number
+          store_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          store_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          store_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_to_user_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_to_user_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stores: {
         Row: {
           created_at: string
@@ -561,7 +626,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_admin_ids: {
+        Args: Record<PropertyKey, never>
+        Returns: string[]
+      }
     }
     Enums: {
       [_ in never]: never
