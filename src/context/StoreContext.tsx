@@ -8,7 +8,6 @@ import Sidebar from "@/components/sidebar";
 import LabelBottomNavigation from "@/components/bottom-navigation";
 import { Flip, ToastContainer } from "react-toastify";
 import Chat from "@/components/chat";
-import { Database } from "@/app/utils/supabase/database.types";
 import { Store, UserRow } from "@/app/utils/types";
 
 interface StoreContextProps {
@@ -17,6 +16,7 @@ interface StoreContextProps {
   selectedStore: Store | null;
   setSelectedStore: React.Dispatch<React.SetStateAction<Store | null>>;
   stores: Store[];
+  allStores: Store[];
   chatOpen: boolean;
   setChatOpen: (data: boolean) => void;
 }
@@ -30,7 +30,8 @@ export const StoreProvider: React.FC<{
   const supabase = createClient();
   const pathName = usePathname();
 
-  const [stores, setStoreData] = useState<Store[]>([]);
+  const [stores, setStores] = useState<Store[]>([]);
+  const [allStores, setAllStores] = useState<Store[]>([]);
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -51,16 +52,19 @@ export const StoreProvider: React.FC<{
   };
 
   const fetchStoreData = async () => {
-    const { data, error } = await supabase
+    const { data: storeData, error } = await supabase
       .from("store_to_user")
       .select("*, stores(*)");
-
+    const { data: allStoreData } = await supabase.from("stores").select();
+    setAllStores(allStoreData || []);
     if (error) {
       console.error("Error fetching stores:", error.message);
       return;
     }
-    setStoreData(data.map((row) => row.stores));
-    setSelectedStore(data[0].stores);
+    if (storeData?.length > 0) {
+      setStores(storeData.map((row) => row.stores));
+      setSelectedStore(storeData[0].stores);
+    }
   };
 
   useEffect(() => {
@@ -74,7 +78,8 @@ export const StoreProvider: React.FC<{
         updateUserinfo,
         selectedStore,
         setSelectedStore,
-        stores: stores,
+        stores,
+        allStores,
         chatOpen,
         setChatOpen,
       }}

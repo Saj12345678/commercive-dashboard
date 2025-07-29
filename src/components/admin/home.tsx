@@ -28,9 +28,15 @@ export default function Home() {
   const supabase = createClient();
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
   const comparePickerRef = useRef<HTMLDivElement | null>(null);
-  const { selectedStore, setSelectedStore, stores } = useStoreContext();
+  const { selectedStore, setSelectedStore, allStores } = useStoreContext();
   const storeName = selectedStore ? selectedStore.store_name : null;
   const [storeFilter, setStoreFilter] = useState<Store | null>(null);
+
+  useEffect(() => {
+    if (!selectedStore) {
+      setSelectedStore(allStores[0]);
+    }
+  }, []);
 
   const getSundayOfWeek = (date: Date) => {
     const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
@@ -567,11 +573,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (stores.length > 0) {
-      setStoreFilter(stores[0]);
-      setSelectedStore(stores[0]);
+    if (allStores.length > 0) {
+      setStoreFilter(allStores[0]);
+      setSelectedStore(allStores[0]);
     }
-  }, [stores]);
+  }, [allStores]);
 
   return (
     <>
@@ -580,7 +586,7 @@ export default function Home() {
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col sm:flex-row gap-1 w-full md:w-1/2 ">
             <Autocomplete
-              options={stores}
+              options={allStores}
               getOptionLabel={(option) =>
                 option.store_name === "satish-dev"
                   ? "Golf Pro"
