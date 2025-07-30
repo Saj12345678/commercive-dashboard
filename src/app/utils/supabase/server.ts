@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { Database } from "./database.types";
+import { createClient } from "@supabase/supabase-js";
 
 export async function createServerSideClient() {
   const cookieStore = await cookies();
@@ -27,4 +28,32 @@ export async function createServerSideClient() {
       },
     }
   );
+}
+
+export async function createAdminClient() {
+  const supabase = await createServerSideClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+  if (user) {
+    const { data } = await supabase
+      .from("admin")
+      .select()
+      .eq("user_id", user.id)
+      .single();
+    if (data) {
+      const adminSupabase = createClient<Database>(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+          },
+        }
+      );
+      return adminSupabase;
+    }
+  }
 }

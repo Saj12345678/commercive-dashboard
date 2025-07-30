@@ -18,13 +18,14 @@ import { FiPlus } from "react-icons/fi";
 import InputField from "../ui/custom-inputfild";
 import { useStoreContext } from "@/context/StoreContext";
 import { Store } from "@/app/utils/types";
+import { adminSignup } from "./action";
 
 export default function Roles() {
   const supabase = createClient();
   const [usersData, setUsersData] = useState([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectedRole, setSelectedRole] = useState<any>(null);
@@ -63,6 +64,7 @@ export default function Roles() {
     role: "",
     store: [] as string[],
     pages: [] as string[],
+    password: "",
   };
   const [formData, setFormData] = useState(initialFormData);
   const initialError = {
@@ -74,6 +76,7 @@ export default function Roles() {
     role: "",
     store: "",
     pages: "",
+    password: "",
   };
   const [errors, setErrors] = useState(initialError);
 
@@ -178,7 +181,7 @@ export default function Roles() {
   };
 
   const handleRoleUpdate = async () => {
-    setLoading(true);
+    setSaving(true);
     try {
       if (!selectedRole) {
         toast.error("Please select a role.");
@@ -199,7 +202,7 @@ export default function Roles() {
       console.error("Error updating roles:", error);
       toast.error("Failed to update roles. Please try again.");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -225,6 +228,8 @@ export default function Roles() {
       newErrors.first_name = "First name is required.";
     if (!formData?.last_name?.trim())
       newErrors.last_name = "Last name is required.";
+    if (!formData?.password?.trim())
+      newErrors.password = "Password is required.";
 
     if (!formData?.phone_number?.trim()) {
       newErrors.phone_number = "Phone number is required.";
@@ -237,35 +242,33 @@ export default function Roles() {
   };
 
   const handleSave = async (id: any) => {
+    if (isLoading) return;
     if (validateForm()) {
-      setLoading(true);
+      setSaving(true);
       try {
-        let data, error;
-
-        ({ data, error } = await supabase.auth.signUp({
+        const { data, error } = await adminSignup({
           email: formData.email,
-          password: "123456789",
-          options: {
-            data: {
-              referral_code: "",
-              first_name: formData.first_name,
-              last_name: formData.last_name,
-              user_name: formData.user,
-              phone_number: Number(formData.phone_number),
-              role: formData.role || "user",
-              visible_store: formData.store,
-              visible_pages: [],
-            },
-          },
-        }));
+          password: "",
+          referral_code: "",
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          user_name: formData.user,
+          phone_number: formData.phone_number,
+          role: formData.role || "user",
+          visible_store: formData.store,
+          visible_pages: [],
+        });
         if (error instanceof Error) {
-          toast(error.message || "Failed to save data. Please try again.");
+          toast.error(
+            error.message || "Failed to save data. Please try again."
+          );
+          setSaving(false);
           return;
         } else {
           toast(id ? "Data updated successfully" : "Data added successfully");
           fetchUsersData(page);
+          setEditData({});
         }
-        setEditData({});
       } catch (error: unknown) {
         console.error("Unexpected error:", error);
         if (error instanceof Error) {
@@ -274,7 +277,7 @@ export default function Roles() {
           toast.error("An unexpected error occurred");
         }
       }
-      setLoading(false);
+      setSaving(false);
       setStoreFilter([]);
       setFormData(initialFormData);
       setAddNewModalOpen(false);
@@ -454,7 +457,7 @@ export default function Roles() {
                 label={"Save"}
                 callback={handleRoleUpdate}
                 className="bg-[#342d5f] text-[#5e568f]"
-                interactingAPI={loading}
+                interactingAPI={saving}
               />
             </div>
           </div>
@@ -486,6 +489,26 @@ export default function Roles() {
                 </div>
                 <div className="flex flex-col relative w-full">
                   <InputField
+                    name="password"
+                    placeholder="Enter Password"
+                    type="text"
+                    className="mt-[8px]"
+                    label={`Password`}
+                    value={formData.password || ""}
+                    onChange={(e: any) =>
+                      handleAddNewUserChange(e, { password: e.target.value })
+                    }
+                  />
+                  {errors?.password && (
+                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                      {errors?.password}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col relative w-full">
+                  <InputField
                     name="first_name"
                     placeholder="Enter First name"
                     type="text"
@@ -502,8 +525,6 @@ export default function Roles() {
                     </p>
                   )}
                 </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex flex-col relative w-full">
                   <InputField
                     name="last_name"
@@ -522,6 +543,8 @@ export default function Roles() {
                     </p>
                   )}
                 </div>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex flex-col relative w-full">
                   <InputField
                     name="user"
@@ -540,8 +563,6 @@ export default function Roles() {
                     </p>
                   )}
                 </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex flex-col relative w-full">
                   <InputField
                     name="phone_number"
@@ -563,28 +584,28 @@ export default function Roles() {
                     </p>
                   )}
                 </div>
-                <div className="flex flex-col relative w-full">
-                  <InputLabel>Role</InputLabel>
-                  <select
-                    name="Role"
-                    id=""
-                    className="border border-color-[#D4D77D] border-opacity-5 p-[9px] mt-2.5 rounded-md focus-within:outline-none"
-                    value={formData.role || ""}
-                    onChange={(e) =>
-                      handleAddNewUserChange(e, { role: e.target.value })
-                    }
-                  >
-                    {roleOptions.map((option) => (
-                      <option
-                        key={option.value}
-                        value={option.value}
-                        className="focus-within:outline-none"
-                      >
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              </div>
+              <div className="flex flex-col relative w-full">
+                <InputLabel>Role</InputLabel>
+                <select
+                  name="Role"
+                  id=""
+                  className="border border-color-[#D4D77D] border-opacity-5 p-[9px] mt-2.5 rounded-md focus-within:outline-none"
+                  value={formData.role || ""}
+                  onChange={(e) =>
+                    handleAddNewUserChange(e, { role: e.target.value })
+                  }
+                >
+                  {roleOptions.map((option) => (
+                    <option
+                      key={option.value}
+                      value={option.value}
+                      className="focus-within:outline-none"
+                    >
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
               {(formData.role === "admin" || formData.role === "employee") && (
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -678,7 +699,8 @@ export default function Roles() {
                   handleSave(editData.id ? editData.id : undefined);
                 }}
                 className="bg-[#342d5f] text-[#5e568f]"
-                interactingAPI={loading}
+                interactingAPI={saving}
+                disabled={saving}
               />
             </div>
           </div>

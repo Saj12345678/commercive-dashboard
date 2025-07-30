@@ -1,11 +1,11 @@
-'use client';
-import React from 'react';
-import { useFormStatus } from 'react-dom';
+"use client";
+import React from "react";
+import { useFormStatus } from "react-dom";
 
 interface ButtonProps {
   label: string | undefined;
   className?: string;
-  type?: 'button' | 'submit' | 'reset' | undefined;
+  type?: "button" | "submit" | "reset" | undefined;
   callback?: () => void | Promise<void> | undefined;
   interactingAPI?: boolean;
   disabled?: boolean;
@@ -14,31 +14,31 @@ interface ButtonProps {
 }
 
 const CustomButton = ({
-  label = '',
-  type = 'button',
+  label = "",
+  type = "button",
   callback,
-  className = '',
+  className = "",
   interactingAPI = false,
   disabled = false,
   prefixIcon,
-  suffixIcon
+  suffixIcon,
 }: ButtonProps) => {
   const { pending: formPending } = useFormStatus();
 
   const handleButtonClick = async () => {
-    if (typeof callback === 'function') {
+    if (typeof callback === "function" && !disabled) {
       await callback();
     }
   };
 
-  const showLoader = (formPending && type === 'submit') || interactingAPI;
+  const showLoader = (formPending && type === "submit") || interactingAPI;
 
   return (
     <button
       disabled={formPending || disabled}
       type={type}
       className={`flex items-center justify-center gap-2 rounded-[8px] bg-[#4F11C9] px-4 py-2 font-semibold text-[#F4F4F4] ${
-        disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+        disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
       } ${className}`}
       onClick={handleButtonClick}
     >

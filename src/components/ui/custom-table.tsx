@@ -15,6 +15,7 @@ import {
   MenuItem,
   Checkbox,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import { MdOutlineEdit, MdOutlineMoreVert } from "react-icons/md";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { GrView } from "react-icons/gr";
@@ -238,10 +239,13 @@ export default function CustomTable<T>({
                               </IconButton>
                             )}
                             {showCheckbox && (
-                              <Checkbox
-                                checked={row.confirmed || row.completed}
+                              <IconButton
+                                // checked={row.confirmed || row.completed}
                                 onClick={() => handleCheckboxClick(row.id)}
-                              />
+                                color="inherit"
+                              >
+                                <EditIcon />
+                              </IconButton>
                             )}
                           </TableCell>
                         );
