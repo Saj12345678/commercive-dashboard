@@ -16,6 +16,7 @@ import {
   Checkbox,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { MdOutlineEdit, MdOutlineMoreVert } from "react-icons/md";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { GrView } from "react-icons/gr";
@@ -40,6 +41,7 @@ interface CustomTableProps<T> {
   showDelete?: boolean;
   showCheckbox?: boolean;
   onCheckboxClick?: (id: any) => void;
+  onDelete?: (id: any) => void;
 }
 
 export default function CustomTable<T>({
@@ -51,6 +53,7 @@ export default function CustomTable<T>({
   showDelete = false,
   showCheckbox = false,
   onCheckboxClick,
+  onDelete,
 }: CustomTableProps<T>) {
   const { columns, rows, handlePagination, fixRow, handleRowLimit } =
     tableConfig;
@@ -238,15 +241,26 @@ export default function CustomTable<T>({
                                 />
                               </IconButton>
                             )}
-                            {showCheckbox && (
-                              <IconButton
-                                // checked={row.confirmed || row.completed}
-                                onClick={() => handleCheckboxClick(row.id)}
-                                color="inherit"
-                              >
-                                <EditIcon />
-                              </IconButton>
-                            )}
+                            <div className="flex">
+                              {showCheckbox && (
+                                <IconButton
+                                  // checked={row.confirmed || row.completed}
+                                  onClick={() => handleCheckboxClick(row.id)}
+                                  color="inherit"
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              )}
+                              {showCheckbox && onDelete && (
+                                <IconButton
+                                  // checked={row.confirmed || row.completed}
+                                  onClick={() => onDelete(row.id)}
+                                  color="inherit"
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              )}
+                            </div>
                           </TableCell>
                         );
                       } else if (column.customRender) {

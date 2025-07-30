@@ -2,7 +2,7 @@
 
 import { createAdminClient } from "@/app/utils/supabase/server";
 
-export const adminSignup = async (formData: {
+export const signUpByAdmin = async (formData: {
   email: string;
   password: string;
   referral_code: string | null;
@@ -22,5 +22,12 @@ export const adminSignup = async (formData: {
     user_metadata: formData,
   });
   console.log("new  user :>> ", data, error);
+  return { data, error };
+};
+
+export const deleteUserByAdmin = async (id: string) => {
+  const supabase = await createAdminClient();
+  if (!supabase) return { data: null, error: {} };
+  const { data, error } = await supabase.auth.admin.deleteUser(id);
   return { data, error };
 };

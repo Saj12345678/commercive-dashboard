@@ -18,7 +18,7 @@ import { FiPlus } from "react-icons/fi";
 import InputField from "../ui/custom-inputfild";
 import { useStoreContext } from "@/context/StoreContext";
 import { Store } from "@/app/utils/types";
-import { adminSignup } from "./action";
+import { deleteUserByAdmin, signUpByAdmin } from "./action";
 
 export default function Roles() {
   const supabase = createClient();
@@ -27,10 +27,11 @@ export default function Roles() {
   const [page, setPage] = useState(1);
   const [saving, setSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>();
   const [selectedRole, setSelectedRole] = useState<any>(null);
   const { stores: storeData } = useStoreContext();
   const [roleModalOpen, setRoleModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
   const [editData, setEditData] = useState<any>({});
 
@@ -173,11 +174,11 @@ export default function Roles() {
   };
   const handleCheckboxClick = (id: string) => {
     handleRoleOpenModal();
-    setSelectedUsers((prevSelectedUsers) =>
-      prevSelectedUsers.includes(id)
-        ? prevSelectedUsers.filter((userId) => userId !== id)
-        : [...prevSelectedUsers, id]
-    );
+    setSelectedUserId(id);
+  };
+  const handleOnDelete = (id: string) => {
+    setDeleteModalOpen(true);
+    setSelectedUserId(id);
   };
 
   const handleRoleUpdate = async () => {
@@ -187,23 +188,32 @@ export default function Roles() {
         toast.error("Please select a role.");
         return;
       }
-      const updates = selectedUsers.map((userId) =>
-        supabase
-          .from("user")
-          .update({ role: selectedRole.value })
-          .eq("id", userId)
-      );
-      await Promise.all(updates);
+      await supabase
+        .from("user")
+        .update({ role: selectedRole.value })
+        .eq("id", selectedUserId!);
 
       toast.success("Roles updated successfully.");
+
       fetchUsersData(page);
       closeRoleModal();
+      setSelectedUserId(undefined);
     } catch (error) {
       console.error("Error updating roles:", error);
       toast.error("Failed to update roles. Please try again.");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleDelete = async () => {
+    setSaving(true);
+    await deleteUserByAdmin(selectedUserId!);
+    await fetchUsersData(page);
+    toast.success("User deleted successfully!");
+    setSaving(false);
+    setDeleteModalOpen(false);
+    setSelectedUserId(undefined);
   };
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -246,7 +256,7 @@ export default function Roles() {
     if (validateForm()) {
       setSaving(true);
       try {
-        const { data, error } = await adminSignup({
+        const { data, error } = await signUpByAdmin({
           email: formData.email,
           password: "",
           referral_code: "",
@@ -458,6 +468,7 @@ export default function Roles() {
                 callback={handleRoleUpdate}
                 className="bg-[#342d5f] text-[#5e568f]"
                 interactingAPI={saving}
+                disabled={saving}
               />
             </div>
           </div>
@@ -706,6 +717,26 @@ export default function Roles() {
           </div>
         </CustomModal>
       )}
+      {deleteModalOpen && (
+        <CustomModal
+          onClose={() => setDeleteModalOpen(false)}
+          maxWidth={"max-w-[400px]"}
+        >
+          <div className="flex flex-col gap-6">
+            <h2 className="text-lg font-semibold">Delete User?</h2>
+
+            <div className="flex justify-end w-full">
+              <CustomButton
+                label={"OK"}
+                callback={handleDelete}
+                className="bg-[#342d5f] text-[#5e568f]"
+                interactingAPI={saving}
+                disabled={saving}
+              />
+            </div>
+          </div>
+        </CustomModal>
+      )}
       <div className="flex flex-col sm:flex-row w-full justify-between gap-3">
         <div className="flex">
           <CustomButton
@@ -742,6 +773,7 @@ export default function Roles() {
         limit={limit}
         showCheckbox
         onCheckboxClick={handleCheckboxClick}
+        onDelete={handleOnDelete}
       />
     </div>
   );
