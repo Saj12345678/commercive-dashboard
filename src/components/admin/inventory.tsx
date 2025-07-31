@@ -17,7 +17,7 @@ interface FormDataType {
   sku: string;
   product_id: string;
   inventory_id: string;
-  store_name: string;
+  store_url: string;
   inventory_level: {
     node: {
       quantities: { name: string; quantity: string | number }[];
@@ -41,7 +41,7 @@ export default function Inventory() {
     sku: "",
     inventory_id: "",
     product_id: "",
-    store_name: "",
+    store_url: "",
     product_image: null,
     inventory_level: [
       {
@@ -77,7 +77,7 @@ export default function Inventory() {
   const initialError = {
     sku: "",
     product_id: "",
-    store_name: "",
+    store_url: "",
     product_image: "",
     inventory_level: [
       {
@@ -123,7 +123,7 @@ export default function Inventory() {
     if (!formData.product_id.trim())
       newErrors.product_id = "Product ID is required";
 
-    if (!formData.store_name.trim())
+    if (!formData.store_url.trim())
       newErrors.store_name = "Store Name is required";
 
     if (
@@ -500,14 +500,14 @@ export default function Inventory() {
                       type="text"
                       className="mt-[8px]"
                       label={`Store Name`}
-                      value={formData.store_name || ""}
+                      value={formData.store_url || ""}
                       onChange={(e: any) =>
                         handleInventoryChange(e, "store_name")
                       }
                     />
-                    {errors?.store_name && (
+                    {errors?.store_url && (
                       <p className="text-red-500 absolute text-sm bottom-[2px] message">
-                        {errors?.store_name}
+                        {errors?.store_url}
                       </p>
                     )}
                   </div>

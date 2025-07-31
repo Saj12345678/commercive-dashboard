@@ -170,7 +170,7 @@ export default function OrderDetails() {
       const { data: orderData, error: orderError } = await supabase
         .from("order")
         .select("*")
-        .eq("order_id", order_id as string)
+        .eq("order_id", order_id as unknown as number)
         .single();
 
       if (orderError) throw orderError;

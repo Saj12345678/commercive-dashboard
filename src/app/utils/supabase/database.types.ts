@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      _prisma_migrations: {
+        Row: {
+          applied_steps_count: number
+          checksum: string
+          finished_at: string | null
+          id: string
+          logs: string | null
+          migration_name: string
+          rolled_back_at: string | null
+          started_at: string
+        }
+        Insert: {
+          applied_steps_count?: number
+          checksum: string
+          finished_at?: string | null
+          id: string
+          logs?: string | null
+          migration_name: string
+          rolled_back_at?: string | null
+          started_at?: string
+        }
+        Update: {
+          applied_steps_count?: number
+          checksum?: string
+          finished_at?: string | null
+          id?: string
+          logs?: string | null
+          migration_name?: string
+          rolled_back_at?: string | null
+          started_at?: string
+        }
+        Relationships: []
+      }
       admin: {
         Row: {
           created_at: string
@@ -47,35 +80,32 @@ export type Database = {
         Row: {
           back_orders: number | null
           created_at: string
-          id: string
           inventory_id: string
           inventory_level: Json | null
           product_id: string | null
           product_image: string | null
           sku: string | null
-          store_name: string | null
+          store_url: string
         }
         Insert: {
           back_orders?: number | null
           created_at?: string
-          id?: string
           inventory_id: string
           inventory_level?: Json | null
           product_id?: string | null
           product_image?: string | null
           sku?: string | null
-          store_name?: string | null
+          store_url: string
         }
         Update: {
           back_orders?: number | null
           created_at?: string
-          id?: string
           inventory_id?: string
           inventory_level?: Json | null
           product_id?: string | null
           product_image?: string | null
           sku?: string | null
-          store_name?: string | null
+          store_url?: string
         }
         Relationships: []
       }
@@ -155,21 +185,21 @@ export type Database = {
           current_total_tax: string | null
           current_total_tax_set: Json | null
           customer_email: string | null
-          customer_id: string | null
+          customer_id: number | null
           financial_status: string | null
           fulfillment_status: string | null
           fulfillments: Json | null
           id: string
           line_items: Json[] | null
-          order_id: string | null
-          order_number: string
+          order_id: number | null
+          order_number: number
           order_status_url: string | null
           order_tags: string | null
           processed_at: string | null
           shipping_address: string | null
           shipping_costs: number | null
           shipping_costs_usd: string | null
-          store_name: string | null
+          store_url: string | null
           sub_total_price: string
           sub_total_price_usd: string | null
           tax_rate: number | null
@@ -184,21 +214,21 @@ export type Database = {
           current_total_tax?: string | null
           current_total_tax_set?: Json | null
           customer_email?: string | null
-          customer_id?: string | null
+          customer_id?: number | null
           financial_status?: string | null
           fulfillment_status?: string | null
           fulfillments?: Json | null
           id?: string
           line_items?: Json[] | null
-          order_id?: string | null
-          order_number: string
+          order_id?: number | null
+          order_number: number
           order_status_url?: string | null
           order_tags?: string | null
           processed_at?: string | null
           shipping_address?: string | null
           shipping_costs?: number | null
           shipping_costs_usd?: string | null
-          store_name?: string | null
+          store_url?: string | null
           sub_total_price: string
           sub_total_price_usd?: string | null
           tax_rate?: number | null
@@ -213,21 +243,21 @@ export type Database = {
           current_total_tax?: string | null
           current_total_tax_set?: Json | null
           customer_email?: string | null
-          customer_id?: string | null
+          customer_id?: number | null
           financial_status?: string | null
           fulfillment_status?: string | null
           fulfillments?: Json | null
           id?: string
           line_items?: Json[] | null
-          order_id?: string | null
-          order_number?: string
+          order_id?: number | null
+          order_number?: number
           order_status_url?: string | null
           order_tags?: string | null
           processed_at?: string | null
           shipping_address?: string | null
           shipping_costs?: number | null
           shipping_costs_usd?: string | null
-          store_name?: string | null
+          store_url?: string | null
           sub_total_price?: string
           sub_total_price_usd?: string | null
           tax_rate?: number | null
@@ -243,16 +273,16 @@ export type Database = {
           created_at: string
           currency: string | null
           discount_allocations: Json | null
-          grams: string | null
+          grams: number | null
           id: string
           image_url: string | null
-          lineItem_id: string | null
-          order_id: string | null
+          lineItem_id: number | null
+          order_id: number
           price: string | null
-          product_id: string | null
-          quantity: string | null
+          product_id: number | null
+          quantity: number | null
           sku: string | null
-          store_name: string | null
+          store_url: string | null
           total_discount: string | null
           vendor_name: string | null
         }
@@ -260,16 +290,16 @@ export type Database = {
           created_at?: string
           currency?: string | null
           discount_allocations?: Json | null
-          grams?: string | null
+          grams?: number | null
           id?: string
           image_url?: string | null
-          lineItem_id?: string | null
-          order_id?: string | null
+          lineItem_id?: number | null
+          order_id: number
           price?: string | null
-          product_id?: string | null
-          quantity?: string | null
+          product_id?: number | null
+          quantity?: number | null
           sku?: string | null
-          store_name?: string | null
+          store_url?: string | null
           total_discount?: string | null
           vendor_name?: string | null
         }
@@ -277,16 +307,16 @@ export type Database = {
           created_at?: string
           currency?: string | null
           discount_allocations?: Json | null
-          grams?: string | null
+          grams?: number | null
           id?: string
           image_url?: string | null
-          lineItem_id?: string | null
-          order_id?: string | null
+          lineItem_id?: number | null
+          order_id?: number
           price?: string | null
-          product_id?: string | null
-          quantity?: string | null
+          product_id?: number | null
+          quantity?: number | null
           sku?: string | null
-          store_name?: string | null
+          store_url?: string | null
           total_discount?: string | null
           vendor_name?: string | null
         }
@@ -481,6 +511,7 @@ export type Database = {
           is_inventory_fetched: boolean
           is_store_listed: boolean
           store_name: string
+          store_url: string
         }
         Insert: {
           created_at?: string
@@ -488,6 +519,7 @@ export type Database = {
           is_inventory_fetched: boolean
           is_store_listed?: boolean
           store_name: string
+          store_url: string
         }
         Update: {
           created_at?: string
@@ -495,21 +527,7 @@ export type Database = {
           is_inventory_fetched?: boolean
           is_store_listed?: boolean
           store_name?: string
-        }
-        Relationships: []
-      }
-      test: {
-        Row: {
-          created_at: string
-          id: number
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-        }
-        Update: {
-          created_at?: string
-          id?: number
+          store_url?: string
         }
         Relationships: []
       }
@@ -519,9 +537,10 @@ export type Database = {
           destination: Json | null
           id: string
           order_id: string | null
+          shipment_status: string | null
           status: string
           store_location: string | null
-          store_name: string | null
+          store_url: string | null
           tracking_company: string | null
           tracking_number: string | null
           tracking_numbers: Json | null
@@ -534,9 +553,10 @@ export type Database = {
           destination?: Json | null
           id?: string
           order_id?: string | null
+          shipment_status?: string | null
           status: string
           store_location?: string | null
-          store_name?: string | null
+          store_url?: string | null
           tracking_company?: string | null
           tracking_number?: string | null
           tracking_numbers?: Json | null
@@ -549,9 +569,10 @@ export type Database = {
           destination?: Json | null
           id?: string
           order_id?: string | null
+          shipment_status?: string | null
           status?: string
           store_location?: string | null
-          store_name?: string | null
+          store_url?: string | null
           tracking_company?: string | null
           tracking_number?: string | null
           tracking_numbers?: Json | null
