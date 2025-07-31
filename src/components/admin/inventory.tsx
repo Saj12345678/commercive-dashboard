@@ -12,6 +12,7 @@ import { MdOutlineFileUpload } from "react-icons/md";
 import { RiLoader2Fill } from "react-icons/ri";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import { Database } from "@/app/utils/supabase/database.types";
 interface FormDataType {
   id?: string;
   sku: string;
@@ -27,7 +28,9 @@ interface FormDataType {
 }
 export default function Inventory() {
   const supabase = createClient();
-  const [inventoryData, setInventoryData] = useState([]);
+  const [inventoryData, setInventoryData] = useState<
+    Database["public"]["Tables"]["inventory"]["Row"][]
+  >([]);
   const [filteredData, setFilteredData] = useState<any>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [storeFilter, setStoreFilter] = useState("");
@@ -152,19 +155,18 @@ export default function Inventory() {
     setIsLoading(true);
     try {
       // Fetch all data to extract unique stores
-      const { data: allData, error: storeError }: any = await supabase
+      const { data: allData, error: storeError } = await supabase
         .from("inventory")
         .select("*");
-
+      console.log("allData :>> ", allData);
       if (storeError) {
         console.error("Error fetching inventory data:", storeError);
       } else {
         setInventoryData(allData || []);
-        const stores: any = [
-          ...new Set(
-            allData.map((item: any) => item.store_name).filter(Boolean)
-          ),
+        const stores = [
+          ...new Set(allData.map((item) => item.store_url).filter(Boolean)),
         ];
+        console.log("stores :>> ", stores);
         setUniqueStores(stores);
         applyFilter(allData, storeFilter, 1);
       }
@@ -177,7 +179,7 @@ export default function Inventory() {
 
   const applyFilter = (data: any[], filter: string, currentPage: number) => {
     let filtered = filter
-      ? data.filter((item) => item.store_name === filter)
+      ? data.filter((item) => item.store_url === filter)
       : data;
     setFilteredData(filtered);
     setTotalRecords(filtered.length);
