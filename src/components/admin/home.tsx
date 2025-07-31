@@ -29,7 +29,7 @@ export default function Home() {
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
   const comparePickerRef = useRef<HTMLDivElement | null>(null);
   const { selectedStore, setSelectedStore, allStores } = useStoreContext();
-  const storeName = selectedStore ? selectedStore.store_name : null;
+  const store_url = selectedStore ? selectedStore.store_url : null;
   const [storeFilter, setStoreFilter] = useState<Store | null>(null);
 
   useEffect(() => {
@@ -287,7 +287,7 @@ export default function Home() {
   };
 
   const fetchOrders = async (currentDateRange: any, compareDateRange: any) => {
-    if (!storeName) {
+    if (!store_url) {
       return;
     }
 
@@ -311,21 +311,21 @@ export default function Home() {
         .select("*")
         .gte("created_at", formattedStartDate)
         .lt("created_at", formattedEndDate)
-        .eq("store_name", storeName); // Add the condition to filter by store_name
+        .eq("store_url", store_url); // Add the condition to filter by store_name
 
       const { data: pastWeekOrders, error: pastWeekError } = await supabase
         .from("order")
         .select("*")
         .gte("created_at", formattedStartDatePast)
         .lt("created_at", formattedEndDatePast)
-        .eq("store_name", storeName); // Add the condition to filter by store_name
+        .eq("store_url", store_url); // Add the condition to filter by store_name
 
       const { data: trackingsData, error: trackingsError } = await supabase
         .from("trackings")
         .select("*")
         .gte("created_at", formattedStartDate)
         .lt("created_at", formattedEndDate)
-        .eq("store_name", storeName);
+        .eq("store_url", store_url);
 
       const { data: pastWeekTrackings, error: pastWeekTrackingsError } =
         await supabase
@@ -333,12 +333,12 @@ export default function Home() {
           .select("*")
           .gte("created_at", formattedStartDatePast)
           .lte("created_at", formattedEndDatePast)
-          .eq("store_name", storeName);
+          .eq("store_url", store_url);
 
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
-        .eq("store_name", storeName);
+        .eq("store_url", store_url);
 
       if (orderError || inventoryError || trackingsError) {
         console.error("Error fetching orders:", orderError, inventoryError);
