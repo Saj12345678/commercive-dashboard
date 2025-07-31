@@ -208,9 +208,13 @@ export default function Roles() {
 
   const handleDelete = async () => {
     setSaving(true);
-    await deleteUserByAdmin(selectedUserId!);
-    await fetchUsersData(page);
-    toast.success("User deleted successfully!");
+    const { error } = await deleteUserByAdmin(selectedUserId!);
+    if (!error) {
+      await fetchUsersData(page);
+      toast.success("User deleted successfully!");
+    } else {
+      toast.error("Error");
+    }
     setSaving(false);
     setDeleteModalOpen(false);
     setSelectedUserId(undefined);
