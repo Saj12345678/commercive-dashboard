@@ -38,13 +38,13 @@ export default function Inventory() {
   const [selectedTab, setSelectedTab] = useState("All");
   const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
   const { selectedStore } = useStoreContext();
-  const storeName = selectedStore ? selectedStore.store_name : null;
+  const storeUrl = selectedStore ? selectedStore.store_url : null;
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20); // Default 20 items per page
 
   const fetchInventoryData = async () => {
-    if (!storeName) {
+    if (!storeUrl) {
       return;
     }
 
@@ -53,7 +53,7 @@ export default function Inventory() {
       const { data: fetchedData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
-        .eq("store_name", storeName);
+        .eq("store_url", storeUrl);
 
       if (inventoryError) {
         console.error("Error fetching inventory data:", inventoryError);

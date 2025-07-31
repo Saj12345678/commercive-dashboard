@@ -84,8 +84,10 @@ export type Database = {
           inventory_level: Json | null
           product_id: string | null
           product_image: string | null
+          product_name: string | null
           sku: string | null
           store_url: string
+          variant_name: string | null
         }
         Insert: {
           back_orders?: number | null
@@ -94,8 +96,10 @@ export type Database = {
           inventory_level?: Json | null
           product_id?: string | null
           product_image?: string | null
+          product_name?: string | null
           sku?: string | null
           store_url: string
+          variant_name?: string | null
         }
         Update: {
           back_orders?: number | null
@@ -104,8 +108,10 @@ export type Database = {
           inventory_level?: Json | null
           product_id?: string | null
           product_image?: string | null
+          product_name?: string | null
           sku?: string | null
           store_url?: string
+          variant_name?: string | null
         }
         Relationships: []
       }

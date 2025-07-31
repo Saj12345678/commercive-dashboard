@@ -39,7 +39,7 @@ export default function Shipment() {
   const [trackingData, setTrackingData] = useState<
     Database["public"]["Tables"]["trackings"]["Row"][]
   >([]);
-  const storeName = selectedStore ? selectedStore.store_name : null;
+  const storeUrl = selectedStore ? selectedStore.store_url : null;
   const [showDatePicker, setShowDatePicker] = useState(false);
   const datePickerRef = useRef<HTMLDivElement>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -143,7 +143,7 @@ export default function Shipment() {
   const formatDateForQuery = (date: Date) => date.toISOString().split("Z")[0];
 
   const fetchTrackings = async () => {
-    if (!dateRange[0].startDate || !dateRange[0].endDate || !storeName) return;
+    if (!dateRange[0].startDate || !dateRange[0].endDate || !storeUrl) return;
 
     const formattedStartDate = formatDateForQuery(dateRange[0].startDate);
     const formattedEndDate = formatDateForQuery(dateRange[0].endDate);
@@ -153,7 +153,7 @@ export default function Shipment() {
       .select("*")
       .gte("created_at", formattedStartDate)
       .lt("created_at", formattedEndDate)
-      .eq("store_name", storeName);
+      .eq("store_url", storeUrl);
 
     if (trackingsError) {
       console.error("Error fetching trackings:", trackingsError.message);
@@ -164,7 +164,7 @@ export default function Shipment() {
 
   useEffect(() => {
     fetchTrackings();
-  }, [dateRange, storeName]);
+  }, [dateRange, storeUrl]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

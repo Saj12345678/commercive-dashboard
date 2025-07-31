@@ -29,7 +29,7 @@ export default function Summary({ selectedRange }: any) {
   const [trackingData, setTrackingData] = useState<
     Database["public"]["Tables"]["trackings"]["Row"][]
   >([]);
-  const storeName = selectedStore ? selectedStore.store_name : null;
+  const storeUrl = selectedStore ? selectedStore.store_url : null;
   const datePickerRef = useRef<HTMLDivElement>(null);
   const dateLabelsRef = useRef<HTMLDivElement>(null);
   const shipmentItemsRef = useRef<HTMLDivElement>(null);
@@ -105,7 +105,7 @@ export default function Summary({ selectedRange }: any) {
       .select("*")
       .gte("created_at", formattedStartDate)
       .lt("created_at", formattedEndDate)
-      .eq("store_name", storeName!);
+      .eq("store_url", storeUrl!);
 
     if (trackingsError) {
       console.error("Error fetching trackings:", trackingsError.message);
@@ -116,7 +116,7 @@ export default function Summary({ selectedRange }: any) {
 
   useEffect(() => {
     fetchTrackings();
-  }, [selectedRange, storeName]);
+  }, [selectedRange, storeUrl]);
 
   const dateLabels = generateDateLabels(
     selectedRange[0].startDate,

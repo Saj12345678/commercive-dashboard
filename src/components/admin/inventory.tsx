@@ -368,16 +368,16 @@ export default function Inventory() {
       {
         field: "product_id",
         headerName: "Product ID",
-        customRender: (row: any) => <span>{row?.product_id}</span>,
+        customRender: (row: any) => (
+          <span>
+            {row?.product_name} ({row?.product_id})
+          </span>
+        ),
       },
       {
         field: "store_name",
         headerName: "Store Name",
-        customRender: (row: any) => (
-          <span>{`${
-            row?.store_name === "satish-dev" ? "Golf Pro" : row?.store_name
-          }`}</span>
-        ),
+        customRender: (row: any) => <span>{row?.store_url}</span>,
       },
       {
         field: "inventory_level[0].node.quantities[0].quantity",

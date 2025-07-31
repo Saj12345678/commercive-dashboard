@@ -29,7 +29,7 @@ export default function Home() {
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
   const comparePickerRef = useRef<HTMLDivElement | null>(null);
   const { selectedStore, setSelectedStore, stores } = useStoreContext();
-  const storeName = selectedStore ? selectedStore.store_name : null;
+  const storeUrl = selectedStore ? selectedStore.store_url : null;
 
   const getSundayOfWeek = (date: Date) => {
     const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
@@ -283,7 +283,7 @@ export default function Home() {
   };
 
   const fetchOrders = async (currentDateRange: any, compareDateRange: any) => {
-    if (!storeName) {
+    if (!storeUrl) {
       return;
     }
 
@@ -307,21 +307,21 @@ export default function Home() {
         .select("*")
         .gte("created_at", formattedStartDate)
         .lt("created_at", formattedEndDate)
-        .eq("store_name", storeName); // Add the condition to filter by store_name
+        .eq("store_url", storeUrl); // Add the condition to filter by store_name
 
       const { data: pastWeekOrders, error: pastWeekError } = await supabase
         .from("order")
         .select("*")
         .gte("created_at", formattedStartDatePast)
         .lt("created_at", formattedEndDatePast)
-        .eq("store_name", storeName); // Add the condition to filter by store_name
+        .eq("store_url", storeUrl); // Add the condition to filter by store_name
 
       const { data: trackingsData, error: trackingsError } = await supabase
         .from("trackings")
         .select("*")
         .gte("created_at", formattedStartDate)
         .lt("created_at", formattedEndDate)
-        .eq("store_name", storeName);
+        .eq("store_url", storeUrl);
 
       const { data: pastWeekTrackings, error: pastWeekTrackingsError } =
         await supabase
@@ -329,12 +329,12 @@ export default function Home() {
           .select("*")
           .gte("created_at", formattedStartDatePast)
           .lte("created_at", formattedEndDatePast)
-          .eq("store_name", storeName);
+          .eq("store_url", storeUrl);
 
       const { data: inventoryData, error: inventoryError } = await supabase
         .from("inventory")
         .select("*")
-        .eq("store_name", storeName);
+        .eq("store_url", storeUrl);
 
       if (orderError || inventoryError || trackingsError) {
         console.error("Error fetching orders:", orderError, inventoryError);
@@ -593,7 +593,7 @@ export default function Home() {
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col sm:flex-row gap-1">
             <h1 className="flex w-full text-[#454545] text-4xl font-bold">
-              Hello, {storeName == "satish-dev" ? "Golf Pro" : storeName}!
+              Hello, {storeUrl == "satish-dev" ? "Golf Pro" : storeUrl}!
             </h1>
             {/* <p className="text-[#af9ae4] text-nowrap text-2xl">
               Here’s an update for your store
