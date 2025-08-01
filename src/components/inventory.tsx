@@ -20,15 +20,7 @@ import { LuThumbsUp } from "react-icons/lu";
 import { PiCodesandboxLogoFill } from "react-icons/pi";
 import { MdKeyboardDoubleArrowDown } from "react-icons/md";
 import TotalInventory from "./images/total-inventory";
-
-type InventoryItem = {
-  image: string;
-  color: string;
-  name: string;
-  stockMeter: number;
-  stockStatus: string;
-  backorders: number;
-};
+import { InventoryItem } from "@/app/(authentificated)/home/page";
 
 type InventoryProps = {
   data: InventoryItem[];
@@ -172,19 +164,27 @@ export default function Inventory({ data }: InventoryProps) {
             }}
           >
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold", color: "black", width: '50px' }}>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "black", width: "50px" }}
+              >
                 Photo
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black", width: '100px' }}>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "black", width: "100px" }}
+              >
                 Name/SKU
               </TableCell>
               <TableCell sx={{ fontWeight: "bold", color: "black" }}>
                 Stock Meter
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black", width: '100px' }}>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "black", width: "100px" }}
+              >
                 Stock Status
               </TableCell>
-              <TableCell sx={{ fontWeight: "bold", color: "black", width: '50px' }}>
+              <TableCell
+                sx={{ fontWeight: "bold", color: "black", width: "50px" }}
+              >
                 Backorders
               </TableCell>
             </TableRow>
@@ -202,7 +202,7 @@ export default function Inventory({ data }: InventoryProps) {
                         borderRadius: "8px",
                       }}
                     >
-                      {item.image}
+                      <img src={item.image!} />
                     </div>
                   </TableCell>
                   <TableCell>
@@ -230,7 +230,12 @@ export default function Inventory({ data }: InventoryProps) {
                           Math.max(0, (item.stockMeter / 1000) * 100)
                         )}
                         color={getColorPalette(item.stockStatus)}
-                        sx={{ height: 10, borderRadius: 10, flex: 1, bgcolor: '#f4f4f7' }}
+                        sx={{
+                          height: 10,
+                          borderRadius: 10,
+                          flex: 1,
+                          bgcolor: "#f4f4f7",
+                        }}
                       />
                     </Box>
                   </TableCell>

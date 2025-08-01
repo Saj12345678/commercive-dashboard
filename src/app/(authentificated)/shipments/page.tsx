@@ -21,18 +21,6 @@ import { CiCalendar } from "react-icons/ci";
 import OrderIcon from "@/components/images/order";
 import { Database } from "@/app/utils/supabase/database.types";
 
-type TransactionItem = {
-  id: string;
-  order_id: string;
-  tracking_company: string;
-  tracking_number: string;
-  status: string;
-  tracking_url: string;
-  created_at: string;
-  updated_at: string;
-  store_location: string;
-};
-
 export default function Shipment() {
   const supabase = createClient();
   const { selectedStore } = useStoreContext();

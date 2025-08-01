@@ -477,21 +477,21 @@ export type Database = {
       store_to_user: {
         Row: {
           created_at: string
-          id: number
           store_id: string
           user_id: string
+          uuid: string
         }
         Insert: {
           created_at?: string
-          id?: number
           store_id: string
           user_id: string
+          uuid: string
         }
         Update: {
           created_at?: string
-          id?: number
           store_id?: string
           user_id?: string
+          uuid?: string
         }
         Relationships: [
           {

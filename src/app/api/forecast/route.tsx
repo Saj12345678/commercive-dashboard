@@ -42,10 +42,7 @@ export async function POST(req: Request) {
     try {
       forecast = JSON.parse(data.choices[0].message.content);
     } catch (error) {
-      console.error(
-        "ChatGPT response is not valid JSON:",
-        data.choices[0].message.content[0]
-      );
+      console.error("ChatGPT response is not valid JSON:", error);
       return NextResponse.json(
         { error: "Invalid JSON response from AI" },
         { status: 500 }

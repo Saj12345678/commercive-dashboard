@@ -245,7 +245,7 @@ export default function CustomTable<T>({
                               {showCheckbox && (
                                 <IconButton
                                   // checked={row.confirmed || row.completed}
-                                  onClick={() => handleCheckboxClick(row.id)}
+                                  onClick={() => handleCheckboxClick(row)}
                                   color="inherit"
                                 >
                                   <EditIcon />
@@ -254,7 +254,7 @@ export default function CustomTable<T>({
                               {showCheckbox && onDelete && (
                                 <IconButton
                                   // checked={row.confirmed || row.completed}
-                                  onClick={() => onDelete(row.id)}
+                                  onClick={() => onDelete(row)}
                                   color="inherit"
                                 >
                                   <DeleteIcon />

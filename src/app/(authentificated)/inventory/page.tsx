@@ -78,8 +78,8 @@ export default function Inventory() {
 
           return {
             image: item?.product_image,
-            color: "#" + Math.floor(Math.random() * 16777215).toString(16),
-            name: `Product ${item.sku}`,
+            color: item.product_name || "",
+            name: `Product [${item.sku || "NOSKU"}]`,
             stockMeter: available + committed,
             stockStatus,
             backorders: backOrders,

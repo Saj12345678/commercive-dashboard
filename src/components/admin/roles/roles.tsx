@@ -3,9 +3,9 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import CustomTable from "@/components/ui/custom-table";
-import CustomButton from "../ui/custom-button";
+import CustomButton from "../../ui/custom-button";
 import { createClient } from "@/app/utils/supabase/client";
-import CustomModal from "../ui/modal";
+import CustomModal from "../../ui/modal";
 import {
   Autocomplete,
   Checkbox,
@@ -15,38 +15,35 @@ import {
   TextField,
 } from "@mui/material";
 import { FiPlus } from "react-icons/fi";
-import InputField from "../ui/custom-inputfild";
+import InputField from "../../ui/custom-inputfild";
 import { useStoreContext } from "@/context/StoreContext";
-import { Store } from "@/app/utils/types";
-import { deleteUserByAdmin, signUpByAdmin } from "./action";
+import { StoreRow, UserRow } from "@/app/utils/types";
+import { deleteUserByAdmin, signUpByAdmin } from "../action";
+import { Database } from "@/app/utils/supabase/database.types";
+import { roleOptions } from "@/app/utils/constants";
+import { UserModal } from "./UserModal";
 
 export default function Roles() {
   const supabase = createClient();
-  const [usersData, setUsersData] = useState([]);
+  const [usersData, setUsersData] = useState<UserRow[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [saving, setSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string>();
+  const [selectedUser, setSelectedUser] = useState<UserRow>();
   const [selectedRole, setSelectedRole] = useState<any>(null);
-  const { stores: storeData } = useStoreContext();
+  const { allStores: storeData } = useStoreContext();
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
   const [editData, setEditData] = useState<any>({});
 
-  const [storeFilter, setStoreFilter] = useState<Store[]>([]);
+  const [storeFilter, setStoreFilter] = useState<StoreRow[]>([]);
   const [storePage, setPageFilter] = useState<
     { label: string; value: string }[]
   >([]);
 
   let limit = 10;
-
-  const roleOptions = [
-    { value: "user", label: "User" },
-    { value: "admin", label: "Admin" },
-    { value: "employee", label: "Employee" },
-  ];
 
   const pageOptions = [
     { value: "inventory", label: "Inventory" },
@@ -100,7 +97,7 @@ export default function Roles() {
     }));
   };
 
-  const handleStoreChange = (_: any, newValue: Store[]) => {
+  const handleStoreChange = (_: any, newValue: StoreRow[]) => {
     const isSelectAllClicked = newValue.some(
       (item) => item.id === "all_stores"
     );
@@ -134,10 +131,7 @@ export default function Roles() {
       }));
     }
   };
-  const optionsWithSelectAll = [
-    // { label: "All stores", value: "all_stores" }, // todo
-    ...storeData,
-  ];
+  const optionsWithSelectAll = [...storeData];
 
   const handlePageChange = (
     _: any,
@@ -172,13 +166,13 @@ export default function Roles() {
   const handlePagination = (curPage: number) => {
     setPage(curPage);
   };
-  const handleCheckboxClick = (id: string) => {
+  const handleCheckboxClick = (user: UserRow) => {
     handleRoleOpenModal();
-    setSelectedUserId(id);
+    setSelectedUser(user);
   };
-  const handleOnDelete = (id: string) => {
+  const handleOnDelete = (user: UserRow) => {
     setDeleteModalOpen(true);
-    setSelectedUserId(id);
+    setSelectedUser(user);
   };
 
   const handleRoleUpdate = async () => {
@@ -191,13 +185,13 @@ export default function Roles() {
       await supabase
         .from("user")
         .update({ role: selectedRole.value })
-        .eq("id", selectedUserId!);
+        .eq("id", selectedUser!.id);
 
       toast.success("Roles updated successfully.");
 
-      fetchUsersData(page);
+      fetchUsersData();
       closeRoleModal();
-      setSelectedUserId(undefined);
+      setSelectedUser(undefined);
     } catch (error) {
       console.error("Error updating roles:", error);
       toast.error("Failed to update roles. Please try again.");
@@ -208,16 +202,16 @@ export default function Roles() {
 
   const handleDelete = async () => {
     setSaving(true);
-    const { error } = await deleteUserByAdmin(selectedUserId!);
+    const { error } = await deleteUserByAdmin(selectedUser!.id);
     if (!error) {
-      await fetchUsersData(page);
+      await fetchUsersData();
       toast.success("User deleted successfully!");
     } else {
       toast.error("Error");
     }
     setSaving(false);
     setDeleteModalOpen(false);
-    setSelectedUserId(undefined);
+    setSelectedUser(undefined);
   };
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -235,7 +229,7 @@ export default function Roles() {
     }
 
     if (formData.role === "admin" && formData.store.length === 0) {
-      newErrors.store = "Please select at least one store.";
+      // newErrors.store = "Please select at least one store.";
     }
 
     if (!formData?.first_name?.trim())
@@ -280,7 +274,7 @@ export default function Roles() {
           return;
         } else {
           toast(id ? "Data updated successfully" : "Data added successfully");
-          fetchUsersData(page);
+          fetchUsersData();
           setEditData({});
         }
       } catch (error: unknown) {
@@ -399,11 +393,11 @@ export default function Roles() {
     rows: usersData || [],
   };
 
-  const fetchUsersData = async (currentPage: number) => {
+  const fetchUsersData = async () => {
     setIsLoading(true);
     try {
-      const start = (currentPage - 1) * limit;
-      const { data, count, error }: any = await supabase
+      const start = (page - 1) * limit;
+      const { data, count, error } = await supabase
         .from("user")
         .select("*", { count: "exact" }) // Fetch data with exact count
         .range(start, start + limit - 1);
@@ -411,9 +405,7 @@ export default function Roles() {
       if (error) {
         console.error("Error fetching referrals data:", error);
       } else {
-        setUsersData(
-          data?.map((row: { id: any }) => ({ ...row, id: row.id })) || []
-        );
+        setUsersData(data || []);
         setTotalRecords(count || 0); // Update total records
       }
     } catch (error) {
@@ -438,45 +430,19 @@ export default function Roles() {
 
   // Fetch data whenever the page changes
   useEffect(() => {
-    fetchUsersData(page);
+    fetchUsersData();
   }, [page]);
 
   return (
     <div className="flex flex-col w-full gap-5">
       <h1 className="text-2xl text-white">Roles</h1>
-      {roleModalOpen && (
-        <CustomModal onClose={closeRoleModal} maxWidth={"max-w-[400px]"}>
-          <div className="flex flex-col gap-6">
-            <h2 className="text-lg font-semibold">Update Roles</h2>
-            <div className="flex flex-col gap-4">
-              <Select
-                value={selectedRole?.value || ""}
-                onChange={(event) =>
-                  setSelectedRole(
-                    roleOptions.find(
-                      (role) => role.value === event.target.value
-                    )
-                  )
-                }
-              >
-                {roleOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </div>
-            <div className="flex justify-end w-full">
-              <CustomButton
-                label={"Save"}
-                callback={handleRoleUpdate}
-                className="bg-[#342d5f] text-[#5e568f]"
-                interactingAPI={saving}
-                disabled={saving}
-              />
-            </div>
-          </div>
-        </CustomModal>
+
+      {roleModalOpen && selectedUser && (
+        <UserModal
+          selectedUser={selectedUser}
+          onClose={closeRoleModal}
+          fetchUsers={fetchUsersData}
+        />
       )}
       {addNewModalOpen && (
         <CustomModal onClose={closeNewModal} maxWidth={"max-w-[800px]"}>
@@ -654,56 +620,6 @@ export default function Roles() {
                       />
                     </div>
                   )}
-                  <div
-                    className={`flex flex-col relative w-full ${
-                      formData.role === "admin" ? "w-full" : "w-1/2"
-                    }`}
-                  >
-                    <Autocomplete
-                      multiple
-                      options={optionsWithSelectAll}
-                      disableCloseOnSelect
-                      getOptionLabel={(option) =>
-                        option.store_name === "satish-dev"
-                          ? "Golf Pro"
-                          : option.store_name
-                      }
-                      value={storeFilter}
-                      onChange={handleStoreChange}
-                      isOptionEqualToValue={(option, value) =>
-                        option.id === value.id
-                      }
-                      clearOnEscape
-                      renderOption={(props, option, { selected }) => (
-                        <MenuItem {...props} key={option.id}>
-                          <Checkbox
-                            key={option.id}
-                            checked={
-                              option.id === "all_stores"
-                                ? storeFilter.length === storeData.length
-                                : selected
-                            }
-                          />
-                          {option.store_name === "satish-dev"
-                            ? "Golf Pro"
-                            : option.store_name}
-                        </MenuItem>
-                      )}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Select store"
-                          variant="outlined"
-                          fullWidth
-                        />
-                      )}
-                    />
-                    {errors?.store && (
-                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.store}
-                      </p>
-                    )}
-                  </div>
                 </div>
               )}
             </div>

@@ -7,15 +7,7 @@ import { Button } from "@mui/material";
 import EastIcon from "@mui/icons-material/East";
 import SearchIcon from "@mui/icons-material/Search";
 import FadeView from "./fade-view";
-
-type InventoryItem = {
-  image: string;
-  color: string;
-  name: string;
-  stockMeter: number;
-  stockStatus: string;
-  backorders: number;
-};
+import { InventoryItem } from "@/app/(authentificated)/home/page";
 
 type InventoryProps = {
   inventoryData: InventoryItem[];

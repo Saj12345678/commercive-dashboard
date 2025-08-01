@@ -8,15 +8,15 @@ import Sidebar from "@/components/sidebar";
 import LabelBottomNavigation from "@/components/bottom-navigation";
 import { Flip, ToastContainer } from "react-toastify";
 import Chat from "@/components/chat";
-import { Store, UserRow } from "@/app/utils/types";
+import { StoreRow, UserRow } from "@/app/utils/types";
 
 interface StoreContextProps {
   userinfo?: UserRow;
   updateUserinfo: () => void;
-  selectedStore: Store | null;
-  setSelectedStore: React.Dispatch<React.SetStateAction<Store | null>>;
-  stores: Store[];
-  allStores: Store[];
+  selectedStore: StoreRow | null;
+  setSelectedStore: React.Dispatch<React.SetStateAction<StoreRow | null>>;
+  stores: StoreRow[];
+  allStores: StoreRow[];
   chatOpen: boolean;
   setChatOpen: (data: boolean) => void;
 }
@@ -30,9 +30,9 @@ export const StoreProvider: React.FC<{
   const supabase = createClient();
   const pathName = usePathname();
 
-  const [stores, setStores] = useState<Store[]>([]);
-  const [allStores, setAllStores] = useState<Store[]>([]);
-  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+  const [stores, setStores] = useState<StoreRow[]>([]);
+  const [allStores, setAllStores] = useState<StoreRow[]>([]);
+  const [selectedStore, setSelectedStore] = useState<StoreRow | null>(null);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [userinfo, setUserinfo] = useState(initialUserinfo);

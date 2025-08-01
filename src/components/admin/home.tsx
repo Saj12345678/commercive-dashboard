@@ -13,7 +13,7 @@ import { useStoreContext } from "@/context/StoreContext";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { createClient } from "@/app/utils/supabase/client";
-import { Store } from "@/app/utils/types";
+import { StoreRow } from "@/app/utils/types";
 
 export interface InventoryData {
   image: string;
@@ -30,7 +30,7 @@ export default function Home() {
   const comparePickerRef = useRef<HTMLDivElement | null>(null);
   const { selectedStore, setSelectedStore, allStores } = useStoreContext();
   const store_url = selectedStore ? selectedStore.store_url : null;
-  const [storeFilter, setStoreFilter] = useState<Store | null>(null);
+  const [storeFilter, setStoreFilter] = useState<StoreRow | null>(null);
 
   useEffect(() => {
     if (!selectedStore) {

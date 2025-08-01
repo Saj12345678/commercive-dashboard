@@ -23,7 +23,7 @@ import { useStoreContext } from "@/context/StoreContext";
 import { FiPlus } from "react-icons/fi";
 import { IoIosMore } from "react-icons/io";
 import { BiSupport } from "react-icons/bi";
-import { Store } from "@/app/utils/types";
+import { StoreRow } from "@/app/utils/types";
 
 export interface SidebarProps {
   isOpen?: any;
@@ -109,7 +109,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [showStoreData, setShowStoreData] = useState(false);
   const storeName = selectedStore ? selectedStore.store_name : null;
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [activeStore, setActiveStore] = useState<Store | null>(null);
+  const [activeStore, setActiveStore] = useState<StoreRow | null>(null);
   const [showDisconnect, setShowDisconnect] = useState(false);
 
   const [showList, setShowList] = useState(false);
@@ -178,7 +178,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const handleAddStore = () => {
     console.log("Add Store");
   };
-  const handleMoreClick = (store: Store | null) => {
+  const handleMoreClick = (store: StoreRow | null) => {
     setShowStoreData(true);
 
     if (activeStore?.id === store?.id) {

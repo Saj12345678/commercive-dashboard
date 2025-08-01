@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Partner from "@/components/admin/partner";
 import Ticket from "@/components/admin/ticket";
-import Roles from "@/components/admin/roles";
+import Roles from "@/components/admin/roles/roles";
 import Inventory from "@/components/admin/inventory";
 import Home from "@/components/admin/home";
 import { createClient } from "@/app/utils/supabase/client";

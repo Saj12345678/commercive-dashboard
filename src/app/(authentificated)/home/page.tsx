@@ -15,8 +15,8 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./home.css";
 
-export interface InventoryData {
-  image: string;
+export interface InventoryItem {
+  image: string | null;
   color: string;
   name: string;
   stockMeter: number;
@@ -210,7 +210,7 @@ export default function Home() {
       series: [0, 0, 0, 0, 0],
     },
   ]);
-  const [inventoryData, setInventoryData] = useState<InventoryData[]>([]);
+  const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [loadingCard, setLoadingCard] = useState(true);
 
@@ -520,7 +520,7 @@ export default function Home() {
           if (available === 0) stockStatus = "No Stock";
           else if (available < 50) stockStatus = "Low Stock";
           return {
-            image: "",
+            image: item.product_image,
             color: "#" + Math.floor(Math.random() * 16777215).toString(16),
             name: `${item.sku}`,
             product_id: item.product_id,
@@ -593,7 +593,7 @@ export default function Home() {
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col sm:flex-row gap-1">
             <h1 className="flex w-full text-[#454545] text-4xl font-bold">
-              Hello, {storeUrl == "satish-dev" ? "Golf Pro" : storeUrl}!
+              Hello, {selectedStore?.store_name} !
             </h1>
             {/* <p className="text-[#af9ae4] text-nowrap text-2xl">
               Here’s an update for your store
