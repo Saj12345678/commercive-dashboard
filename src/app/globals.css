@@ -45,7 +45,7 @@ body {
 
 .custom-scrollbar::-webkit-scrollbar-track {
   background: #f1f1f1;
-  background: transparent !important;
+  /* background: transparent !important; */
   padding: 2px;
 }
 

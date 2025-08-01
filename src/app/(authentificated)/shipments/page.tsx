@@ -356,7 +356,7 @@ export default function Shipment() {
           <Typography
             key={index}
             className="text-sm font-medium text-[#B1B0B2]"
-            style={{ minWidth: "80px" }} // Fixed minWidth
+            style={{ minWidth: "80px", maxWidth: "80px" }}
           >
             {day}
           </Typography>
@@ -366,7 +366,7 @@ export default function Shipment() {
             <Typography
               key={index + chunkSize}
               className="text-sm font-medium text-[#B1B0B2]"
-              style={{ minWidth: "80px" }}
+              style={{ minWidth: "80px", maxWidth: "80px" }}
             >
               {day}
             </Typography>
@@ -376,30 +376,35 @@ export default function Shipment() {
       {trackingData.length > 0 ? (
         <Box
           ref={shipmentItemsRef}
-          className="grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#F4F4F7_2px,transparent_1px)] bg-[size:10%_100%] overflow-auto custom-scrollbar"
+          className={`grid grid-cols-6 gap-0 p-3 text-center relative h-[76vh] bg-white bg-[linear-gradient(to_right,#dddde0_2px,transparent_1px)] bg-[size:160px_100%] overflow-auto custom-scrollbar`}
+          sx={{
+            backgroundPositionX: `-${scrollLeft}px`,
+          }}
         >
           {/* Shipment Items */}
           {trackingData.map((data, i) => {
             const createdDateStr = data.created_at.split("T")[0];
             const updatedDateStr = data.updated_at.split("T")[0];
+            const status = data.status.toUpperCase();
             const createdIndex = dateLabels.indexOf(
               formatDateLabel(new Date(createdDateStr))
             );
             const updatedIndex = dateLabels.indexOf(
               formatDateLabel(new Date(updatedDateStr))
             );
+            console.log("dateLabels :>> ", createdDateStr, updatedDateStr);
             let colSpan = updatedIndex - createdIndex + 1;
             const daysGap = calculateDaysGap(data);
             const tooltipContent = (
               <div className="text-left">
                 <p>
-                  <strong>SKU #:</strong> {data.tracking_number}
+                  <strong>SKU #:</strong> {data.tracking_number || "N/A"}
                 </p>
                 <p>
-                  <strong>Company:</strong> {data.tracking_company}
+                  <strong>Company:</strong> {data.tracking_company || "N/A"}
                 </p>
                 <p>
-                  <strong>Status:</strong> {data.status}
+                  <strong>Status:</strong> {data.status.toUpperCase()}
                 </p>
                 <p>
                   <strong>Days:</strong> {daysGap}
@@ -407,13 +412,13 @@ export default function Shipment() {
               </div>
             );
 
-            const dateLabelWidth = 80;
+            const dateLabelWidth = 160;
             const initialLeft = createdIndex * dateLabelWidth;
             const adjustedLeft = initialLeft - scrollLeft;
 
             return (
               <Link href={`/shipments/${data.order_id}`} key={data.id} passHref>
-                <Tooltip title={tooltipContent} placement="top" arrow>
+                <Tooltip title={tooltipContent} placement="top-start" arrow>
                   <Box
                     key={data.id}
                     className={`px-3 pt-1 ${
@@ -421,15 +426,20 @@ export default function Shipment() {
                         ? "bg-[#FFECD6]"
                         : "bg-[#E8ECFE]"
                     } rounded-lg flex items-center absolute overflow-x-auto custom-scrollbar whitespace-nowrap mt-3 h-12`}
-                    style={{
+                    sx={{
                       top: `${i * 55}px`,
                       left: `${adjustedLeft}px`,
                       width: `${colSpan * dateLabelWidth}px`,
-                      gap: "2rem",
+                      gap: "1rem",
+                      cursor: "pointer",
+                      "&:hover": {
+                        overflow: "visible",
+                        width: "fit-content",
+                      },
                     }}
                   >
                     <Typography className="text-sm text-gray-800">
-                      #{data.tracking_number}
+                      #{data.tracking_number || "No SKU"}
                     </Typography>
                     <Typography className="text-sm text-gray-500">•</Typography>
                     <Box className={"flex w-max gap-2"}>
@@ -504,7 +514,7 @@ export default function Shipment() {
                         />
                       )}
                       <Chip
-                        label={data.tracking_company}
+                        label={data.tracking_company || "No Company"}
                         size="small"
                         className="text-sm !bg-transparent text-yellow-600"
                       />
@@ -514,26 +524,26 @@ export default function Shipment() {
                     <Typography className="text-sm text-gray-500">•</Typography>
                     <Typography
                       className={`text-sm ml-2 ${
-                        data.status === "SUCCESS"
+                        status === "SUCCESS"
                           ? "text-green-600"
-                          : data.status === "PENDING" || data.status === "OPEN"
+                          : status === "PENDING" || status === "OPEN"
                           ? "text-yellow-600"
-                          : data.status === "CANCELLED" ||
-                            data.status === "ERROR" ||
-                            data.status === "FAILURE"
+                          : status === "CANCELLED" ||
+                            status === "ERROR" ||
+                            status === "FAILURE"
                           ? "text-red-600"
                           : "text-gray-600"
                       }`}
                     >
-                      {data.status === "SUCCESS"
+                      {status === "SUCCESS"
                         ? "On-Time"
-                        : data.status === "PENDING" || data.status === "OPEN"
+                        : status === "PENDING" || status === "OPEN"
                         ? "Pending"
-                        : data.status === "CANCELLED"
+                        : status === "CANCELLED"
                         ? "Cancelled"
-                        : data.status === "ERROR"
+                        : status === "ERROR"
                         ? "Error"
-                        : data.status === "FAILURE"
+                        : status === "FAILURE"
                         ? "Failed"
                         : "Unknown"}
                     </Typography>
