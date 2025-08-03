@@ -93,7 +93,7 @@ export const StoreProvider: React.FC<{
               <Header toggleSidebar={toggleSidebar} />
             )}
         </div>
-        <div className="flex flex-col h-screen max-h-screen overflow-hidden">
+        <div className="flex flex-col overflow-hidden">
           <div
             className={`flex w-full h-full ${
               pathName?.includes("/admin") && "bg-[#1b1838] p-4"

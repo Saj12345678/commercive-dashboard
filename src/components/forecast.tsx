@@ -25,7 +25,12 @@ export default function Forecast({ inventoryData }: InventoryProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ inventoryData }),
+        body: JSON.stringify({
+          inventoryData: [...inventoryData].map((item) => ({
+            ...item,
+            name: `${item.color}(${item.name || "NO SKU"})`,
+          })),
+        }),
       });
       const result = await response.json();
       setForecastData(result.forecast);

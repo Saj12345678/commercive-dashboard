@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     Respond ONLY in valid JSON format with an array of objects like this: 
     [{"product_name": "Item A", "current_stocks": 50, "forecasted_demand": 150, "reorder_suggestion": "Reorder 100 units"}]
     You can get the current_stocks from availble data in inventorydata. And product name should be name of inventory data.
-    
+
     Inventory Data: ${JSON.stringify(inventoryData)}`;
 
     const openaiRes = await fetch(
@@ -31,12 +31,13 @@ export async function POST(req: Request) {
           model: "gpt-3.5-turbo",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.2,
-          max_tokens: 300,
+          // max_tokens: 300,
         }),
       }
     );
 
     const data = await openaiRes.json();
+    console.log("data :>> ", data.choices[0].message.content);
     // Ensure response is valid JSON
     let forecast;
     try {

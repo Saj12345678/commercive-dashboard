@@ -7,31 +7,27 @@ import { Button, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { createClient } from "@/app/utils/supabase/client";
 import { useStoreContext } from "@/context/StoreContext";
-import { useRouter } from "next/navigation";
 
 export default function Chat() {
-  const [user, setUser] = useState<any>(null);
-  const [userEmail, setUserEmail] = useState("");
-
   const supabase = createClient();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [storeUrl, setStoreUrl] = useState("");
+  const { chatOpen, setChatOpen, userinfo, selectedStore } = useStoreContext();
+
+  const [user, setUser] = useState<any>(null);
+  const [name, setName] = useState(userinfo?.user_name || "");
+  const [email, setEmail] = useState(userinfo?.email || "");
+  const [storeUrl, setStoreUrl] = useState(selectedStore?.store_url || "");
   const [issue, setIssue] = useState("");
   const [isNameValid, setNameValid] = useState(true);
   const [isEmailValid, setEmailValid] = useState(true);
   const [isStoreUrlValid, setStoreUrlValid] = useState(true);
   const [isIssueValid, setIssueValid] = useState(true);
-  const { chatOpen, setChatOpen } = useStoreContext();
-
-  const userName = user?.first_name + " " + user?.last_name;
 
   const handleSubmit = async () => {
-    if ((name || userName) === "") {
+    if (name === "") {
       setNameValid(false);
       return;
     }
-    if ((email || user?.email) === "") {
+    if (email === "") {
       setEmailValid(false);
       return;
     }
@@ -48,7 +44,7 @@ export default function Chat() {
       .from("issues")
       .insert([
         {
-          name: name || userName,
+          name: name,
           email: email || user?.email,
           store_url: storeUrl,
           issue: issue,
@@ -64,11 +60,26 @@ export default function Chat() {
     }
   };
 
+  const handleClose = () => {
+    setChatOpen(false);
+    setName("");
+    setEmail("");
+    setStoreUrl("");
+    setIssue("");
+    setUser(null);
+  };
+
   useEffect(() => {
-    if ((name || userName) !== "") {
+    if (user && window.location.pathname.includes("/admin/support")) {
+      setChatOpen(true);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (name !== "") {
       setNameValid(true);
     }
-    if ((email || user?.email) !== "") {
+    if (email !== "") {
       setEmailValid(true);
     }
     if (storeUrl !== "") {
@@ -77,25 +88,14 @@ export default function Chat() {
     if (issue !== "") {
       setIssueValid(true);
     }
-  }, [name, email, storeUrl, issue, userName, user?.email]);
-
-  const handleClose = () => {
-    setChatOpen(false);
-    setName("");
-    setEmail("");
-    setStoreUrl("");
-    setIssue("");
-    setUser(null);
-    setUserEmail("");
-  };
+  }, [name, email, storeUrl, issue]);
 
   useEffect(() => {
-    if (user && window.location.pathname.includes("/admin/support")) {
-      setChatOpen(true);
-    }
-  }, [user]);
+    setStoreUrl(selectedStore?.store_url || "");
+  }, [selectedStore]);
+
   return (
-    <div className="absolute bottom-16 sm:bottom-5 right-5">
+    <div className="fixed bottom-16 sm:bottom-5 right-5">
       <div className="relative">
         <button
           className="p-3 border-4 rounded-full border-white chat-bg shadow-sm shadow-[#3E3E3E]"
@@ -111,7 +111,7 @@ export default function Chat() {
         </button>
 
         {chatOpen && (
-          <form className="absolute z-20 bottom-16 right-0 w-80 sm:w-96 px-6 py-8 rounded-md bg-white shadow-md">
+          <form className="absolute z-20 bottom-16 right-0 w-80 sm:w-96 px-6 py-8 rounded-md bg-white shadow-md shadow-purple-500/50 ring-1 ring-purple-300">
             <div className="relative flex flex-col gap-3">
               <IconButton
                 size="small"
@@ -130,8 +130,8 @@ export default function Chat() {
                   type="text"
                   name="name"
                   placeholder="John Doe"
-                  value={name || userName}
-                  onChange={(e) => setName(e.target.value)}
+                  value={name}
+                  onChange={(e) => setName(e.target.value.trim())}
                 />
                 {!isNameValid && (
                   <p className="text-sm text-red-500">Please input name</p>
@@ -148,7 +148,7 @@ export default function Chat() {
                   name="email"
                   placeholder="example@email.com"
                   value={email || user?.email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => setEmail(e.target.value.trim())}
                 />
                 {!isEmailValid && (
                   <p className="text-sm text-red-500">
@@ -167,7 +167,7 @@ export default function Chat() {
                   name="storeUrl"
                   placeholder="example.myshopify.com"
                   value={storeUrl}
-                  onChange={(e) => setStoreUrl(e.target.value)}
+                  onChange={(e) => setStoreUrl(e.target.value.trim())}
                 />
                 {!isStoreUrlValid && (
                   <p className="text-sm text-red-500">

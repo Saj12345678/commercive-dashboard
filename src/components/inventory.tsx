@@ -214,7 +214,9 @@ export default function Inventory({ data }: InventoryProps) {
                       </Typography>
                     </Tooltip>
                     <Typography variant="body2" color="textSecondary">
-                      {item.color}
+                      {item.color.length > 10
+                        ? item.color.slice(0, 7) + "..."
+                        : item.color}
                     </Typography>
                   </TableCell>
                   <TableCell>

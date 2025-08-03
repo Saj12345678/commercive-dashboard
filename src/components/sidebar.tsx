@@ -9,7 +9,6 @@ import HouseIcon from "./images/home";
 import InventoryIcon from "./images/inventory";
 import ShipmentIcon from "./images/shipment";
 import SettingIcon from "./images/setting";
-import { Menu, MenuItem } from "@mui/material";
 import Image from "next/image";
 import LogoIcon from "./images/full-logo";
 import { toast } from "react-toastify";
@@ -18,7 +17,6 @@ import { MdOutlineClose } from "react-icons/md";
 import InputField from "./ui/custom-inputfild";
 import CustomButton from "./ui/custom-button";
 import { BsCopy } from "react-icons/bs";
-import CustomSelection from "./ui/custom-select";
 import { useStoreContext } from "@/context/StoreContext";
 import { FiPlus } from "react-icons/fi";
 import { IoIosMore } from "react-icons/io";
@@ -35,6 +33,19 @@ const data = [
     title: "Home",
     href: "/home",
     icon: <HouseIcon width={20} height={20} color={"#000000"} />,
+  },
+  {
+    title: "New Quote",
+    href: "/support",
+    icon: (
+      <BiSupport
+        color={"#000000"}
+        style={{
+          width: "20px",
+          height: "20px",
+        }}
+      />
+    ),
   },
   {
     title: "Inventory",
@@ -62,7 +73,15 @@ const adminData = [
   {
     title: "New Quote",
     href: "/admin/support",
-    icon: <BiSupport width={30} height={30} color={"#000000"} />,
+    icon: (
+      <BiSupport
+        color={"#000000"}
+        style={{
+          width: "20px",
+          height: "20px",
+        }}
+      />
+    ),
   },
   {
     title: "Inventory",
@@ -121,7 +140,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             .replace("/admin/", "")
             .trim()
             .toLowerCase();
-          console.log("userData.visible_pages :>> ", userData.visible_pages);
+          // console.log("userData.visible_pages :>> ", userData.visible_pages);
           return (userData.visible_pages ?? [])
             .map((page: string) => page?.trim().toLowerCase())
             .includes(pageName);
@@ -394,12 +413,12 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
       >
         <div
           className={`flex flex-col ${
-            isCollapsed ? "gap-5" : "gap-8"
+            isCollapsed ? "gap-5" : "gap-5"
           } justify-between h-full px-3 pb-3`}
         >
           <div
             className={`flex flex-col ${
-              isCollapsed ? "gap-5" : "gap-8"
+              isCollapsed ? "gap-5" : "gap-5"
             } h-full`}
           >
             <div className="flex flex-col gap-2 relative">
@@ -594,7 +613,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 label={'Select store'}
             /> */}
             <div
-              className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar`}
+              className={`flex flex-col gap-0 overflow-y-auto custom-scrollbar`}
             >
               {sidebarData.map((link, index) => {
                 return (
@@ -667,7 +686,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
           )}
           {!pathName?.includes("/admin") && (
             <div
-              className={`w-full flex flex-col bg-[#9474E4] border-2 border-[#F4F4F7] rounded-[24px] py-8 px-4 gap-4 ${
+              className={`w-full flex flex-col bg-[#9474E4] border-2 border-[#F4F4F7] rounded-[24px] py-5 px-4 gap-4 ${
                 isCollapsed && "hidden"
               }`}
               style={{
@@ -879,7 +898,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             /> */}
               {/* Links Section */}
               <div
-                className={`flex flex-col gap-2 overflow-y-auto custom-scrollbar bg-white`}
+                className={`flex flex-col gap-0 overflow-y-auto custom-scrollbar bg-white`}
               >
                 {sidebarData.map((link, index) => (
                   <div key={index}>
@@ -935,7 +954,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             )}
 
             {/* Footer Section */}
-            {!pathName?.includes("/admin") && (
+            {/* {!pathName?.includes("/admin") && (
               <div
                 className={`w-full flex flex-col bg-[#9474E4] border-2 border-[#F4F4F7] rounded-[24px] py-8 px-4 gap-4 }`}
                 style={{
@@ -958,7 +977,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   + Invite People
                 </Button>
               </div>
-            )}
+            )} */}
           </div>
         </div>
       )}

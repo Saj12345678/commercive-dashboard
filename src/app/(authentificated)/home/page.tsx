@@ -521,8 +521,8 @@ export default function Home() {
           else if (available < 50) stockStatus = "Low Stock";
           return {
             image: item.product_image,
-            color: "#" + Math.floor(Math.random() * 16777215).toString(16),
-            name: `${item.sku}`,
+            color: item.product_name || "", //"#" + Math.floor(Math.random() * 16777215).toString(16),
+            name: item.sku || "NO SKU",
             product_id: item.product_id,
             stockMeter: available + committed,
             stockStatus,
@@ -550,11 +550,6 @@ export default function Home() {
       handleFetchData();
     }
   }, [currentDateRange, compareDateRange, selectedStore]);
-
-  const customColors = {
-    color: "#4CAF50", // Range start and end date color
-    backgroundColor: "#DFF0D8", // Background color for the selected range
-  };
 
   const [isChecked, setIsChecked] = useState(false);
 
