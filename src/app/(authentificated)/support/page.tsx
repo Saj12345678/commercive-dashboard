@@ -27,7 +27,6 @@ export default async function Page() {
           />
           Your Quotes
         </Typography>
-        {/* Category Tabs */}
       </div>
       <TicketForm />
     </main>

@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import Image from "next/image";
-import { Button, IconButton } from "@mui/material";
+import { Button, CircularProgress, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { createClient } from "@/app/utils/supabase/client";
 import { useStoreContext } from "@/context/StoreContext";
+import { usePathname } from "next/navigation";
 
 export default function Chat() {
   const supabase = createClient();
@@ -21,6 +22,8 @@ export default function Chat() {
   const [isEmailValid, setEmailValid] = useState(true);
   const [isStoreUrlValid, setStoreUrlValid] = useState(true);
   const [isIssueValid, setIssueValid] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const pathname = usePathname();
 
   const handleSubmit = async () => {
     if (name === "") {
@@ -39,7 +42,7 @@ export default function Chat() {
       setIssueValid(false);
       return;
     }
-
+    setIsSaving(true);
     const { data, error } = await supabase
       .from("issues")
       .insert([
@@ -48,16 +51,19 @@ export default function Chat() {
           email: email || user?.email,
           store_url: storeUrl,
           issue: issue,
+          user_id: userinfo!.id,
         },
       ])
       .select();
 
     if (data) {
+      if (pathname === "/support") window.location.reload();
       toast.success("Submitted sucessfully");
       setChatOpen(false);
     } else {
       toast.error(error.message);
     }
+    setIsSaving(false);
   };
 
   const handleClose = () => {
@@ -70,7 +76,7 @@ export default function Chat() {
   };
 
   useEffect(() => {
-    if (user && window.location.pathname.includes("/admin/support")) {
+    if (user && window.location.pathname.includes("support")) {
       setChatOpen(true);
     }
   }, [user]);
@@ -199,6 +205,12 @@ export default function Chat() {
                 variant="contained"
                 className="!bg-[#4F12CA]"
                 onClick={handleSubmit}
+                disabled={isSaving}
+                loading={isSaving}
+                color="info"
+                loadingIndicator={
+                  <CircularProgress size={20} sx={{ color: "#fff" }} />
+                }
               >
                 Submit
               </Button>

@@ -117,7 +117,7 @@ export type Database = {
       }
       issues: {
         Row: {
-          confirmed: boolean | null
+          confirmed: boolean
           created_at: string
           email: string | null
           id: number
@@ -125,9 +125,10 @@ export type Database = {
           name: string | null
           phone_number: number | null
           store_url: string | null
+          user_id: string | null
         }
         Insert: {
-          confirmed?: boolean | null
+          confirmed?: boolean
           created_at?: string
           email?: string | null
           id?: number
@@ -135,9 +136,10 @@ export type Database = {
           name?: string | null
           phone_number?: number | null
           store_url?: string | null
+          user_id?: string | null
         }
         Update: {
-          confirmed?: boolean | null
+          confirmed?: boolean
           created_at?: string
           email?: string | null
           id?: number
@@ -145,8 +147,17 @@ export type Database = {
           name?: string | null
           phone_number?: number | null
           store_url?: string | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "issues_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       new_leads: {
         Row: {
@@ -197,7 +208,7 @@ export type Database = {
           fulfillments: Json | null
           id: string
           line_items: Json[] | null
-          order_id: number | null
+          order_id: number
           order_number: number
           order_status_url: string | null
           order_tags: string | null
@@ -226,7 +237,7 @@ export type Database = {
           fulfillments?: Json | null
           id?: string
           line_items?: Json[] | null
-          order_id?: number | null
+          order_id: number
           order_number: number
           order_status_url?: string | null
           order_tags?: string | null
@@ -255,7 +266,7 @@ export type Database = {
           fulfillments?: Json | null
           id?: string
           line_items?: Json[] | null
-          order_id?: number | null
+          order_id?: number
           order_number?: number
           order_status_url?: string | null
           order_tags?: string | null
@@ -542,7 +553,7 @@ export type Database = {
           created_at: string
           destination: Json | null
           id: string
-          order_id: string | null
+          order_id: number
           shipment_status: string | null
           status: string
           store_location: string | null
@@ -558,7 +569,7 @@ export type Database = {
           created_at?: string
           destination?: Json | null
           id?: string
-          order_id?: string | null
+          order_id: number
           shipment_status?: string | null
           status: string
           store_location?: string | null
@@ -574,7 +585,7 @@ export type Database = {
           created_at?: string
           destination?: Json | null
           id?: string
-          order_id?: string | null
+          order_id?: number
           shipment_status?: string | null
           status?: string
           store_location?: string | null
@@ -586,7 +597,15 @@ export type Database = {
           tracking_urls?: Json | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "trackings_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "order"
+            referencedColumns: ["order_id"]
+          },
+        ]
       }
       user: {
         Row: {
