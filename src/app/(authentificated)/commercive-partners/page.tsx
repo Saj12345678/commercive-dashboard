@@ -173,7 +173,9 @@ export default function CommercivePartners() {
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [referralLink, setReferralLink] = useState("");
+  const [referralLink, setReferralLink] = useState(
+    "https://docs.google.com/forms/d/e/1FAIpQLSfZ5jDq1QT3-gh5nKVpOS-PSxrbA6LWixPz4ud6ZhavD6W7rg/viewform?usp=header"
+  );
   const [tooltipMessage, setTooltipMessage] = useState("");
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const [tooltipInfoMessage, setTooltipInfoMessage] = useState("");
@@ -214,36 +216,7 @@ export default function CommercivePartners() {
   const [userId, setUserId] = useState<string>();
 
   const handleAffiliateClick = async () => {
-    setLoading(true);
-    try {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        toast.error("Unable to fetch user information.");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("user")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error || !data?.referral_code) {
-        toast.error("Unable to fetch referral code.");
-        return;
-      }
-
-      setReferralLink(
-        `${process.env.NEXT_PUBLIC_CLIENT_URL}/signUp?referral=${data.referral_code}`
-      );
-      setModalOpen(true);
-    } finally {
-      setLoading(false);
-    }
+    setModalOpen(true);
   };
 
   const closeModal = () => {
@@ -1015,7 +988,9 @@ export default function CommercivePartners() {
                   type="text"
                   className="!h-10 !text-[#929292] text-sm"
                   label={""}
-                  value={referralLink}
+                  value={
+                    "https://docs.google.com/forms/d/e/1FAIpQLSfZ5jDq1QT3-gh5nKVpOS-PSxrbA6LWixPz4ud6ZhavD6W7rg/viewform?usp=header"
+                  }
                   onChange={handleReferralLinkChange}
                   bgColor={"#F5F5F5"}
                   boxBorder={"border-transparent"}

@@ -114,7 +114,8 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const supabase = createClient();
   const pathName = usePathname();
   const router = useRouter();
-  const { selectedStore, setSelectedStore, stores } = useStoreContext();
+  const { selectedStore, setSelectedStore, stores, affiliate } =
+    useStoreContext();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userData, setUserData] = useState<any>({});
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -274,36 +275,18 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   };
 
   const handleAffiliateClick = async () => {
-    setLoading(true);
-    try {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        toast.error("Unable to fetch user information.");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("user")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error || !data?.referral_code) {
-        toast.error("Unable to fetch referral code.");
-        return;
-      }
-
-      setReferralLink(
-        `${process.env.NEXT_PUBLIC_CLIENT_URL}/signUp?referral=${data.referral_code}`
-      );
-      setModalOpen(true);
-    } finally {
-      setLoading(false);
+    if (
+      !affiliate ||
+      affiliate.status == "Pending" ||
+      affiliate.status == "Declined"
+    ) {
+      router.push("/commercive-partners");
+      return;
     }
+    setReferralLink(
+      `https://docs.google.com/forms/d/e/1FAIpQLSfZ5jDq1QT3-gh5nKVpOS-PSxrbA6LWixPz4ud6ZhavD6W7rg/viewform?usp=header`
+    );
+    setModalOpen(true);
   };
 
   const closeModal = () => {
