@@ -129,7 +129,7 @@ export default function OrderDetails() {
       const { data: trackingData, error: trackingError } = await supabase
         .from("trackings")
         .select("*")
-        .eq("order_id", order_id as string)
+        .eq("order_id", Number(order_id))
         .single();
 
       if (trackingError) throw trackingError;

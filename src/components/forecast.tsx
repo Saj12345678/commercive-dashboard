@@ -80,7 +80,7 @@ export default function Forecast({ inventoryData }: InventoryProps) {
             <SearchIcon className="text-xl" />
             <TypeAnimation
               sequence={[
-                "Based on your recnet sales trends, here's what we recommend:",
+                "Based on your recent sales trends, here's what we recommend:",
                 1000,
               ]}
               cursor={false}
