@@ -100,7 +100,7 @@ export const StoreProvider: React.FC<{
         setChatOpen,
       }}
     >
-      <div className="flex flex-col h-[100dvh] w-full">
+      <div className="flex flex-col h-screen w-full">
         <div className="sticky flex top-0 z-5">
           {!pathName?.includes("/login") &&
             !pathName?.includes("/signUp") &&
@@ -109,7 +109,7 @@ export const StoreProvider: React.FC<{
               <Header toggleSidebar={toggleSidebar} />
             )}
         </div>
-        <div className="flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <div
             className={`flex w-full h-full ${
               pathName?.includes("/admin") && "bg-[#1b1838] p-4"
