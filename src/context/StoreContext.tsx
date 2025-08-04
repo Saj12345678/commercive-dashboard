@@ -8,25 +8,28 @@ import Sidebar from "@/components/sidebar";
 import LabelBottomNavigation from "@/components/bottom-navigation";
 import { Flip, ToastContainer } from "react-toastify";
 import Chat from "@/components/chat";
-import { StoreRow, UserRow } from "@/app/utils/types";
+import { AffiliateRequestRow, StoreRow, UserRow } from "@/app/utils/types";
 
 interface StoreContextProps {
   userinfo?: UserRow;
-  updateUserinfo: () => void;
+  updateUserinfo: () => Promise<void>;
+  updateAffiliate: () => Promise<void>;
   selectedStore: StoreRow | null;
   setSelectedStore: React.Dispatch<React.SetStateAction<StoreRow | null>>;
   stores: StoreRow[];
   allStores: StoreRow[];
   chatOpen: boolean;
   setChatOpen: (data: boolean) => void;
+  affiliate: AffiliateRequestRow | null;
 }
 
 const StoreContext = createContext<StoreContextProps | undefined>(undefined);
 
 export const StoreProvider: React.FC<{
   initialUserinfo?: UserRow;
+  iniitialAffilateRow: AffiliateRequestRow | null;
   children: React.ReactNode;
-}> = ({ initialUserinfo, children }) => {
+}> = ({ initialUserinfo, iniitialAffilateRow, children }) => {
   const supabase = createClient();
   const pathName = usePathname();
 
@@ -36,6 +39,7 @@ export const StoreProvider: React.FC<{
   const [chatOpen, setChatOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [userinfo, setUserinfo] = useState(initialUserinfo);
+  const [affiliate, setAffiliate] = useState(iniitialAffilateRow);
 
   const updateUserinfo = async () => {
     if (!userinfo) return;
@@ -45,6 +49,16 @@ export const StoreProvider: React.FC<{
       .eq("id", userinfo.id)
       .single();
     setUserinfo(data!);
+  };
+
+  const updateAffiliate = async () => {
+    if (!userinfo) return;
+    const { data: affilate } = await supabase
+      .from("affiliates")
+      .select()
+      .eq("user_id", userinfo.id)
+      .single();
+    setAffiliate(affilate);
   };
 
   const toggleSidebar = () => {
@@ -74,6 +88,8 @@ export const StoreProvider: React.FC<{
   return (
     <StoreContext.Provider
       value={{
+        affiliate,
+        updateAffiliate,
         userinfo,
         updateUserinfo,
         selectedStore,
@@ -85,7 +101,7 @@ export const StoreProvider: React.FC<{
       }}
     >
       <div className="flex flex-col h-[100dvh] w-full">
-        <div className="flex sticky top-0 z-50">
+        <div className="sticky flex top-0 z-5">
           {!pathName?.includes("/login") &&
             !pathName?.includes("/signUp") &&
             !pathName?.includes("/error") &&

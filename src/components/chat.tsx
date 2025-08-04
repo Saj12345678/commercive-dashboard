@@ -101,7 +101,7 @@ export default function Chat() {
   }, [selectedStore]);
 
   return (
-    <div className="fixed bottom-16 sm:bottom-5 right-5">
+    <div className="fixed bottom-16 sm:bottom-5 right-5 z-20">
       <div className="relative">
         <button
           className="p-3 border-4 rounded-full border-white chat-bg shadow-sm shadow-[#3E3E3E]"

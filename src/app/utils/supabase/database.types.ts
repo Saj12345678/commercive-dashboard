@@ -76,6 +76,35 @@ export type Database = {
           },
         ]
       }
+      affiliates: {
+        Row: {
+          created_at: string
+          id: number
+          status: Database["public"]["Enums"]["AFFILIATE_STATUS"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          status: Database["public"]["Enums"]["AFFILIATE_STATUS"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          status?: Database["public"]["Enums"]["AFFILIATE_STATUS"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory: {
         Row: {
           back_orders: number | null
@@ -660,7 +689,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      AFFILIATE_STATUS: "Pending" | "Approved" | "Declined" | "None"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -787,6 +816,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      AFFILIATE_STATUS: ["Pending", "Approved", "Declined", "None"],
+    },
   },
 } as const

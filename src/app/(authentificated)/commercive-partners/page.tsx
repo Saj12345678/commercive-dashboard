@@ -5,7 +5,7 @@ import { MdOutlineClose } from "react-icons/md";
 import { toast } from "react-toastify";
 import FeatureCard, { FeatureCardSkeleton } from "@/components/feature-card";
 import CustomModal from "@/components/ui/modal";
-import { createClient } from "../utils/supabase/client";
+import { createClient } from "../../utils/supabase/client";
 import {
   Table,
   TableBody,
@@ -20,15 +20,20 @@ import {
   Tooltip,
 } from "@mui/material";
 import { DateRangePicker, Range } from "react-date-range";
-import "../(authentificated)/home/home.css";
+import "../../(authentificated)/home/home.css";
 import CustomButton from "@/components/ui/custom-button";
 import InputField from "@/components/ui/custom-inputfild";
 import { BsCopy } from "react-icons/bs";
 import { useRouter } from "next/navigation";
 import { CiCalendar } from "react-icons/ci";
-import { User } from "@supabase/supabase-js";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
+import { AffiliateRequest } from "./AffiliateRequest";
+import { useStoreContext } from "@/context/StoreContext";
 
 export default function CommercivePartners() {
+  const { affiliate } = useStoreContext();
+
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
   const comparePickerRef = useRef<HTMLDivElement | null>(null);
   const supabase = createClient();
@@ -190,14 +195,7 @@ export default function CommercivePartners() {
       bgColor: "#FFEBD6",
       series: [0, 0, 0, 0, 0],
     },
-    {
-      name: "Pending Earnings",
-      amount: "0",
-      percentage: "0%",
-      color: "#47A83C",
-      bgColor: "#BFFBB7",
-      series: [0, 0, 0, 0, 0],
-    },
+
     {
       name: "Wallet",
       amount: "1393.72",
@@ -409,7 +407,6 @@ export default function CommercivePartners() {
         .select("*")
         .gte("created_at", formattedStartDate)
         .lt("created_at", formattedEndDate);
-
       const { data: pastWeekOrders, error: pastWeekError } = await supabase
         .from("order")
         .select("*")
@@ -622,8 +619,8 @@ export default function CommercivePartners() {
   return (
     <>
       <main
-        // style={{ height: "calc(100vh - 70px)" }}
-        className="flex flex-col w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
+        style={{ height: "calc(100vh - 70px)" }}
+        className="relative flex flex-col w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
         {/* {loading && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -1075,6 +1072,9 @@ export default function CommercivePartners() {
             </div>
           </CustomModal>
         )}
+        {(!affiliate ||
+          affiliate.status == "Pending" ||
+          affiliate.status == "Declined") && <AffiliateRequest />}
       </main>
     </>
   );

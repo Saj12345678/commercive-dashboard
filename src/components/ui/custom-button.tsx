@@ -26,7 +26,7 @@ const CustomButton = ({
   const { pending: formPending } = useFormStatus();
 
   const handleButtonClick = async () => {
-    if (typeof callback === "function" && !disabled) {
+    if (typeof callback === "function" && !disabled && !interactingAPI) {
       await callback();
     }
   };

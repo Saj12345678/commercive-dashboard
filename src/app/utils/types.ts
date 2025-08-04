@@ -3,3 +3,5 @@ import { Database } from "./supabase/database.types";
 export type StoreRow = Database["public"]["Tables"]["stores"]["Row"];
 export type UserRow = Database["public"]["Tables"]["user"]["Row"];
 export type IssueRow = Database["public"]["Tables"]["issues"]["Row"];
+export type AffiliateRequestRow =
+  Database["public"]["Tables"]["affiliates"]["Row"];

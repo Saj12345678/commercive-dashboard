@@ -8,7 +8,7 @@ import { StoreProvider } from "@/context/StoreContext";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import { createServerSideClient } from "./utils/supabase/server";
-import { UserRow } from "./utils/types";
+import { AffiliateRequestRow, UserRow } from "./utils/types";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,10 +26,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   let userinfo: UserRow | undefined = undefined;
+  let affiliateRow: AffiliateRequestRow | null = null;
   const supabase = await createServerSideClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   if (user) {
     const { data } = await supabase
       .from("user")
@@ -37,14 +39,26 @@ export default async function RootLayout({
       .eq("id", user.id)
       .single();
     userinfo = data!;
+    const { data: affilate } = await supabase
+      .from("affiliates")
+      .select()
+      .eq("user_id", user.id)
+      .single();
+    affiliateRow = affilate;
   }
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="overflow-hidden">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased max-h-screen overflow-auto relative`}
         cz-shortcut-listen="true"
       >
-        <StoreProvider initialUserinfo={userinfo}>{children}</StoreProvider>
+        <StoreProvider
+          initialUserinfo={userinfo}
+          iniitialAffilateRow={affiliateRow}
+        >
+          {children}
+        </StoreProvider>
       </body>
     </html>
   );
