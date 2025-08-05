@@ -16,6 +16,7 @@ export default function Chat() {
   const [user, setUser] = useState<any>(null);
   const [name, setName] = useState(userinfo?.user_name || "");
   const [email, setEmail] = useState(userinfo?.email || "");
+  const [phone, setPhone] = useState(userinfo?.phone_number || "");
   const [storeUrl, setStoreUrl] = useState(selectedStore?.store_url || "");
   const [issue, setIssue] = useState("");
   const [isNameValid, setNameValid] = useState(true);
@@ -45,15 +46,14 @@ export default function Chat() {
     setIsSaving(true);
     const { data, error } = await supabase
       .from("issues")
-      .insert([
-        {
-          name: name,
-          email: email || user?.email,
-          store_url: storeUrl,
-          issue: issue,
-          user_id: userinfo!.id,
-        },
-      ])
+      .insert({
+        name: name,
+        email: email || user?.email,
+        store_url: storeUrl,
+        issue: issue,
+        user_id: userinfo!.id,
+        phone_number: phone,
+      })
       .select();
 
     if (data) {
@@ -68,9 +68,6 @@ export default function Chat() {
 
   const handleClose = () => {
     setChatOpen(false);
-    setName("");
-    setEmail("");
-    setStoreUrl("");
     setIssue("");
     setUser(null);
   };
@@ -155,6 +152,27 @@ export default function Chat() {
                   placeholder="example@email.com"
                   value={email || user?.email}
                   onChange={(e) => setEmail(e.target.value.trim())}
+                />
+                {!isEmailValid && (
+                  <p className="text-sm text-red-500">
+                    Please input your email
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="font-semibold" htmlFor="email">
+                  Phone
+                </label>
+                <input
+                  className="px-2 py-1 border rounded"
+                  name="phone"
+                  placeholder="12345678"
+                  value={phone}
+                  type="tel"
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                  inputMode="numeric"
+                  pattern="[0-9]{8,}"
                 />
                 {!isEmailValid && (
                   <p className="text-sm text-red-500">

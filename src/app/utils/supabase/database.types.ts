@@ -166,7 +166,7 @@ export type Database = {
           id: number
           issue: string | null
           name: string | null
-          phone_number: number | null
+          phone_number: string | null
           store_url: string | null
           user_id: string | null
         }
@@ -177,7 +177,7 @@ export type Database = {
           id?: number
           issue?: string | null
           name?: string | null
-          phone_number?: number | null
+          phone_number?: string | null
           store_url?: string | null
           user_id?: string | null
         }
@@ -188,7 +188,7 @@ export type Database = {
           id?: number
           issue?: string | null
           name?: string | null
-          phone_number?: number | null
+          phone_number?: string | null
           store_url?: string | null
           user_id?: string | null
         }
