@@ -65,15 +65,27 @@ export default function Ticket() {
         field: "reply",
         headerName: "Reply",
         customRender: (row: any) => (
-          <button className="bg-transparent text-[#FFFFFF] border py-1 px-2 rounded-md">
+          <a
+            className="bg-transparent text-[#FFFFFF] border py-1 px-2 rounded-md"
+            href={`https://wa.me/${row.phone_number}`}
+            target="_blank"
+          >
             Reply
-          </button>
+          </a>
         ),
       },
       {
         field: "phone_number",
         headerName: "Phone Number",
-        customRender: (row: any) => <span>{row.phone_number}</span>,
+        customRender: (row: any) => (
+          <a
+            href={`https://wa.me/${row.phone_number}`}
+            style={{ textDecoration: "underline" }}
+            target="_blank"
+          >
+            {row.phone_number}
+          </a>
+        ),
       },
       {
         field: "confirmed",
