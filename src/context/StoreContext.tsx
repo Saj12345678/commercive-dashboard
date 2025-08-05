@@ -28,13 +28,14 @@ const StoreContext = createContext<StoreContextProps | undefined>(undefined);
 export const StoreProvider: React.FC<{
   initialUserinfo?: UserRow;
   iniitialAffilateRow: AffiliateRequestRow | null;
+  initialAllStore: StoreRow[];
   children: React.ReactNode;
-}> = ({ initialUserinfo, iniitialAffilateRow, children }) => {
+}> = ({ initialUserinfo, iniitialAffilateRow, initialAllStore, children }) => {
   const supabase = createClient();
   const pathName = usePathname();
 
   const [stores, setStores] = useState<StoreRow[]>([]);
-  const [allStores, setAllStores] = useState<StoreRow[]>([]);
+  const [allStores, setAllStores] = useState<StoreRow[]>(initialAllStore);
   const [selectedStore, setSelectedStore] = useState<StoreRow | null>(null);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

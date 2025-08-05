@@ -8,7 +8,7 @@ import { StoreProvider } from "@/context/StoreContext";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import { createServerSideClient } from "./utils/supabase/server";
-import { AffiliateRequestRow, UserRow } from "./utils/types";
+import { AffiliateRequestRow, StoreRow, UserRow } from "./utils/types";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +27,7 @@ export default async function RootLayout({
 }>) {
   let userinfo: UserRow | undefined = undefined;
   let affiliateRow: AffiliateRequestRow | null = null;
+  let initialAllStore: StoreRow[] = [];
   const supabase = await createServerSideClient();
   const {
     data: { user },
@@ -45,6 +46,8 @@ export default async function RootLayout({
       .eq("user_id", user.id)
       .single();
     affiliateRow = affilate;
+    const { data: allStoreData } = await supabase.from("stores").select();
+    initialAllStore = allStoreData || [];
   }
 
   return (
@@ -56,6 +59,7 @@ export default async function RootLayout({
         <StoreProvider
           initialUserinfo={userinfo}
           iniitialAffilateRow={affiliateRow}
+          initialAllStore={initialAllStore}
         >
           {children}
         </StoreProvider>
