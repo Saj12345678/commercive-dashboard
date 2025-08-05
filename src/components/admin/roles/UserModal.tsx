@@ -59,7 +59,7 @@ export const UserModal: FC<UserModalProps> = ({
       .from("store_to_user")
       .delete()
       .eq("user_id", selectedUser.id);
-    if (selectedRole.value == "admin" || selectedRole.value == "employee") {
+    if (selectedRole.value == "user") {
       const storeToUserRows: Database["public"]["Tables"]["store_to_user"]["Insert"][] =
         storeFilter.map((store) => ({
           user_id: selectedUser.id,
@@ -107,8 +107,7 @@ export const UserModal: FC<UserModalProps> = ({
             ))}
           </Select>
         </div>
-        {(selectedRole.value == "admin" ||
-          selectedRole.value == "employee") && (
+        {selectedRole.value == "user" && (
           <div>
             <Autocomplete
               multiple
