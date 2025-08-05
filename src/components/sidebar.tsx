@@ -114,8 +114,15 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const supabase = createClient();
   const pathName = usePathname();
   const router = useRouter();
-  const { selectedStore, setSelectedStore, stores, affiliate } =
-    useStoreContext();
+  const {
+    selectedStore,
+    setSelectedStore,
+    stores: userStores,
+    affiliate,
+    allStores,
+    userinfo,
+  } = useStoreContext();
+  const stores = userinfo?.role == "user" ? userStores : allStores;
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userData, setUserData] = useState<any>({});
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
