@@ -5,14 +5,14 @@ import { createClient } from "@/app/utils/supabase/client";
 import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
 import { toast } from "react-toastify";
+import { PayoutRow } from "@/app/utils/types";
 
 export default function Payout() {
   const supabase = createClient();
-  const [payoutsData, setPayoutsData] = useState<any>([]);
+  const [payoutsData, setPayoutsData] = useState<PayoutRow[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedPayout, setSelectedPayout] = useState<string[]>([]);
   let limit = 5;
 
   const handlePagination = (curPage: number) => {
@@ -33,7 +33,7 @@ export default function Payout() {
       {
         field: "amount",
         headerName: "Amount",
-        customRender: (row: any) => <span>{row.amount}</span>,
+        customRender: (row: any) => <span>${row.amount}</span>,
       },
       {
         field: "paypal_address",
@@ -125,34 +125,20 @@ export default function Payout() {
     fetchPayoutsData(page);
   }, [page]);
 
-  const handleCheckboxClick = async (id: string) => {
-    setSelectedPayout((prevSelectedPayout) => {
-      const isCurrentlySelected = prevSelectedPayout.includes(id);
-      const newSelectionState = !isCurrentlySelected;
-
-      const updatedPayouts = newSelectionState
-        ? [...prevSelectedPayout, id]
-        : prevSelectedPayout.filter((ticketId) => ticketId !== id);
-
-      return updatedPayouts;
-    });
-
-    const isCurrentlySelected = selectedPayout.includes(id);
-    const newSelectionState = !isCurrentlySelected;
-
+  const handleCheckboxClick = async (row: PayoutRow) => {
     // Update Supabase
-    const { data, error }: any = await supabase
+    const { data, error } = await supabase
       .from("payouts")
-      .update({ completed: newSelectionState })
-      .eq("id", id)
+      .update({ completed: !row.completed })
+      .eq("id", row.id)
       .select();
 
-    if (data[0]?.completed) {
+    if (data?.[0]?.completed) {
       toast("Payment Completed successfully.");
     } else {
       toast("Payment uncompleted successfully.");
     }
-    fetchPayoutsData(page);
+    await fetchPayoutsData(page);
     if (error) {
       console.error("Error updating Supabase:", error.message);
       toast.error("Failed to update Supabase.");
