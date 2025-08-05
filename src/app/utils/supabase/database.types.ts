@@ -74,6 +74,13 @@ export type Database = {
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "admin_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_role_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       affiliates: {
@@ -99,8 +106,15 @@ export type Database = {
           {
             foreignKeyName: "affiliates_user_id_fkey"
             columns: ["user_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_role_view"
             referencedColumns: ["id"]
           },
         ]
@@ -184,6 +198,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issues_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_role_view"
             referencedColumns: ["id"]
           },
         ]
@@ -401,6 +422,13 @@ export type Database = {
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payouts_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "user_role_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       referrals: {
@@ -548,6 +576,13 @@ export type Database = {
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "store_to_user_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_role_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       stores: {
@@ -680,7 +715,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_role_view: {
+        Row: {
+          id: string | null
+          role: string | null
+        }
+        Insert: {
+          id?: string | null
+          role?: string | null
+        }
+        Update: {
+          id?: string | null
+          role?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_admin_ids: {

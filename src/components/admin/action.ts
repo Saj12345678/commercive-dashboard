@@ -20,6 +20,7 @@ export const signUpByAdmin = async (formData: {
     email: formData.email,
     password: formData.password,
     user_metadata: formData,
+    email_confirm: true,
   });
   console.log("new  user :>> ", data, error);
   return { data, error };

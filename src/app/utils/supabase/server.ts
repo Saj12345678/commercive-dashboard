@@ -37,12 +37,12 @@ export async function createAdminClient() {
     error: userError,
   } = await supabase.auth.getUser();
   if (user) {
-    const { data } = await supabase
-      .from("admin")
+    const { data, error } = await supabase
+      .from("user_role_view")
       .select()
-      .eq("user_id", user.id)
+      .eq("id", user.id)
       .single();
-    if (data) {
+    if (data?.role == "admin") {
       const adminSupabase = createClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY!,

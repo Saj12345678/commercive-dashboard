@@ -256,7 +256,7 @@ export default function Roles() {
       try {
         const { data, error } = await signUpByAdmin({
           email: formData.email,
-          password: "",
+          password: formData.password,
           referral_code: "",
           first_name: formData.first_name,
           last_name: formData.last_name,
