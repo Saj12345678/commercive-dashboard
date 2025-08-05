@@ -70,19 +70,19 @@ const adminData = [
     href: "/admin/home",
     icon: <HouseIcon width={20} height={20} color={"#000000"} />,
   },
-  {
-    title: "New Quote",
-    href: "/admin/support",
-    icon: (
-      <BiSupport
-        color={"#000000"}
-        style={{
-          width: "20px",
-          height: "20px",
-        }}
-      />
-    ),
-  },
+  // {
+  //   title: "New Quote",
+  //   href: "/admin/support",
+  //   icon: (
+  //     <BiSupport
+  //       color={"#000000"}
+  //       style={{
+  //         width: "20px",
+  //         height: "20px",
+  //       }}
+  //     />
+  //   ),
+  // },
   {
     title: "Inventory",
     href: "/admin/inventory",
