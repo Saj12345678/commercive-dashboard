@@ -796,52 +796,6 @@ export default function CommercivePartners() {
         </div>
 
         <div className="flex w-full flex-col gap-3 py-2">
-          <div className="flex flex-col sm:flex-row justify-between max-sm:gap-1 sm:items-center">
-            <div className="flex">
-              <p className="text-[#AAA2BF] pr-2">Showing</p>
-              <p className="text-[#AAA2BF] font-semibold">
-                {(currentPage - 1) * itemsPerPage + 1} -{" "}
-                {Math.min(currentPage * itemsPerPage, totalItems)} of{" "}
-                {totalItems}
-              </p>
-            </div>
-
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              justifyContent="end"
-            >
-              <Button
-                variant="contained"
-                onClick={prevPage}
-                disabled={currentPage === 1}
-                sx={{
-                  cursor: "pointer",
-                  background: "#F4F4F7",
-                  color: "black",
-                  fontWeight: "bold",
-                  boxShadow: "none",
-                }}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="contained"
-                onClick={nextPage}
-                disabled={currentPage >= totalPages || totalItems === 0}
-                sx={{
-                  cursor: "pointer",
-                  background: "#F4F4F7",
-                  color: "black",
-                  fontWeight: "bold",
-                  boxShadow: "none",
-                }}
-              >
-                Next
-              </Button>
-            </Stack>
-          </div>
           <div className="w-full overflow-auto custom-scrollbar">
             <div style={{ minWidth: 600 }}>
               <TableContainer
@@ -969,6 +923,52 @@ export default function CommercivePartners() {
                 </Table>
               </TableContainer>
             </div>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-between max-sm:gap-1 sm:items-center">
+            <div className="flex">
+              <p className="text-[#AAA2BF] pr-2">Showing</p>
+              <p className="text-[#AAA2BF] font-semibold">
+                {(currentPage - 1) * itemsPerPage + 1} -{" "}
+                {Math.min(currentPage * itemsPerPage, totalItems)} of{" "}
+                {totalItems}
+              </p>
+            </div>
+
+            <Stack
+              direction="row"
+              spacing={2}
+              alignItems="center"
+              justifyContent="end"
+            >
+              <Button
+                variant="contained"
+                onClick={prevPage}
+                disabled={currentPage === 1}
+                sx={{
+                  cursor: "pointer",
+                  background: "#F4F4F7",
+                  color: "black",
+                  fontWeight: "bold",
+                  boxShadow: "none",
+                }}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="contained"
+                onClick={nextPage}
+                disabled={currentPage >= totalPages || totalItems === 0}
+                sx={{
+                  cursor: "pointer",
+                  background: "#F4F4F7",
+                  color: "black",
+                  fontWeight: "bold",
+                  boxShadow: "none",
+                }}
+              >
+                Next
+              </Button>
+            </Stack>
           </div>
         </div>
         {isModalOpen && (
