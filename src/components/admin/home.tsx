@@ -14,15 +14,7 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { createClient } from "@/app/utils/supabase/client";
 import { StoreRow } from "@/app/utils/types";
-
-export interface InventoryData {
-  image: string;
-  color: string;
-  name: string;
-  stockMeter: number;
-  stockStatus: string;
-  backorders: number;
-}
+import { InventoryItem } from "@/app/(authentificated)/home/page";
 
 export default function Home() {
   const supabase = createClient();
@@ -214,7 +206,7 @@ export default function Home() {
       series: [0, 0, 0, 0, 0],
     },
   ]);
-  const [inventoryData, setInventoryData] = useState<InventoryData[]>([]);
+  const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [loadingCard, setLoadingCard] = useState(true);
 
@@ -524,9 +516,9 @@ export default function Home() {
           if (available === 0) stockStatus = "No Stock";
           else if (available < 50) stockStatus = "Low Stock";
           return {
-            image: "",
-            color: "#" + Math.floor(Math.random() * 16777215).toString(16),
-            name: `${item.sku}`,
+            image: item.product_image,
+            color: item.product_name || "",
+            name: item.sku || "NO SKU",
             product_id: item.product_id,
             stockMeter: available + committed,
             stockStatus,

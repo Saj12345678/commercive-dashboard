@@ -197,7 +197,6 @@ export default function CommercivePartners() {
       bgColor: "#FFEBD6",
       series: [0, 0, 0, 0, 0],
     },
-
     {
       name: "Wallet",
       amount: "1393.72",

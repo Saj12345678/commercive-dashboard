@@ -327,9 +327,7 @@ export default function Partner() {
         field: "user_name",
         headerName: "User",
         customRender: (row: any) => {
-          return (
-              <p>{row?.user_name ? row?.user_name : '-'}</p>
-          );
+          return <p>{row?.user_name ? row?.user_name : "-"}</p>;
         },
       },
       {
@@ -551,10 +549,10 @@ export default function Partner() {
                   <div className="flex flex-col relative w-full">
                     <InputField
                       name="store_name"
-                      placeholder="Enter store name"
+                      placeholder="Enter store url"
                       type="text"
                       className="mt-[8px]"
-                      label={`Store name`}
+                      label={`Store URL`}
                       value={formData.store_name}
                       onChange={(e: any) =>
                         handleOnChange(e, { store_name: e.target.value })
@@ -571,10 +569,10 @@ export default function Partner() {
                   <div className="flex flex-col relative w-full">
                     <InputField
                       name="referred_store_name"
-                      placeholder="Enter referred store name"
+                      placeholder="Enter referred store url"
                       type="text"
                       className="mt-[8px]"
-                      label={`Referred store name`}
+                      label={`Referred Store URL`}
                       value={formData.referred_store_name}
                       onChange={(e: any) =>
                         handleOnChange(e, {
