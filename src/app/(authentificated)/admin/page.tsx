@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import Partner from "@/components/admin/partner";
+import Partner from "@/components/admin/partner/partner";
 import Ticket from "@/components/admin/ticket";
 import Roles from "@/components/admin/roles/roles";
 import Inventory from "@/components/admin/inventory";

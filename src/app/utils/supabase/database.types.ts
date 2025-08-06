@@ -396,6 +396,7 @@ export type Database = {
           created_at: string
           id: string
           paypal_address: string | null
+          store_url: string
           userId: string
         }
         Insert: {
@@ -404,6 +405,7 @@ export type Database = {
           created_at?: string
           id?: string
           paypal_address?: string | null
+          store_url: string
           userId?: string
         }
         Update: {
@@ -412,9 +414,17 @@ export type Database = {
           created_at?: string
           id?: string
           paypal_address?: string | null
+          store_url?: string
           userId?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "payouts_store_url_fkey"
+            columns: ["store_url"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["store_url"]
+          },
           {
             foreignKeyName: "payouts_userId_fkey"
             columns: ["userId"]
@@ -465,7 +475,22 @@ export type Database = {
           store_url?: string
           user_name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_store_url_fkey"
+            columns: ["referred_store_url"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["store_url"]
+          },
+          {
+            foreignKeyName: "referrals_store_url_fkey"
+            columns: ["store_url"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["store_url"]
+          },
+        ]
       }
       session: {
         Row: {
@@ -694,6 +719,23 @@ export type Database = {
       }
     }
     Views: {
+      referral_view: {
+        Row: {
+          count: number | null
+          order_count: number | null
+          referred_store_url: string | null
+          total_amount: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_store_url_fkey"
+            columns: ["referred_store_url"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["store_url"]
+          },
+        ]
+      }
       user_role_view: {
         Row: {
           id: string | null

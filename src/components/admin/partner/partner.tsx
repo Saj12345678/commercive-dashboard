@@ -4,17 +4,18 @@ import CustomTable from "@/components/ui/custom-table";
 import { useEffect, useState } from "react";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
-import CustomButton from "../ui/custom-button";
+import CustomButton from "../../ui/custom-button";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { createClient } from "@/app/utils/supabase/client";
 import { FiPlus } from "react-icons/fi";
-import CustomModal from "../ui/modal";
-import InputField from "../ui/custom-inputfild";
+import CustomModal from "../../ui/modal";
+import InputField from "../../ui/custom-inputfild";
 import { toast } from "react-toastify";
 import { Autocomplete, TextField } from "@mui/material";
 import { useStoreContext } from "@/context/StoreContext";
 import { ReferralRow, StoreRow } from "@/app/utils/types";
 import { Database } from "@/app/utils/supabase/database.types";
+import { WalletTable } from "./WalletTable";
 
 const defaultHeaders = [
   "user_name",
@@ -70,6 +71,7 @@ export default function Partner() {
   const [storeFilter, setStoreFilter] = useState<StoreRow | null>(allStores[0]);
   const [referredStoreFilter, setReferredStoreFilter] =
     useState<StoreRow | null>(allStores[0]);
+  const [triggerKey, setTriggerKey] = useState(0);
 
   // Handle input changes
   const handleOnChange = (updatedField: Partial<typeof formData>) => {
@@ -386,6 +388,7 @@ export default function Partner() {
       } else {
         setReferralsData(data || []);
         setTotalRecords(count || 0); // Update total records
+        setTriggerKey(triggerKey + 1);
       }
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -733,6 +736,7 @@ export default function Partner() {
         onCheckboxClick={handleSelectEdit}
         onDelete={handleDelete}
       />
+      <WalletTable triggerKey={triggerKey} />
     </div>
   );
 }
