@@ -75,24 +75,24 @@ export const signup = async (
     };
   }
 
-  if (referral && user?.user?.id) {
-    const { error: referralError } = await supabase.from("referrals").insert({
-      referred_by: referral,
-      user_id: user.user.id,
-    });
+  // if (referral && user?.user?.id) {
+  //   const { error: referralError } = await supabase.from("referrals").insert({
+  //     referred_by: referral,
+  //     user_id: user.user.id,
+  //   });
 
-    if (referralError) {
-      console.error("Error adding referral:", referralError);
-      return {
-        success: false,
-        errors: "referral_creation_failed",
-      };
-    }
+  //   if (referralError) {
+  //     console.error("Error adding referral:", referralError);
+  //     return {
+  //       success: false,
+  //       errors: "referral_creation_failed",
+  //     };
+  //   }
 
-    if (user) {
-      return { success: true, message: "SignUp Successfully" };
-    }
-  }
+  //   if (user) {
+  //     return { success: true, message: "SignUp Successfully" };
+  //   }
+  // }
 
   revalidatePath("/", "layout");
   return redirect("/login");

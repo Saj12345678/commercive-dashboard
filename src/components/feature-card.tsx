@@ -7,6 +7,7 @@ import CustomButton from "./ui/custom-button";
 import InputField from "./ui/custom-inputfild";
 import { toast } from "react-toastify";
 import { createClient } from "@/app/utils/supabase/client";
+import { useStoreContext } from "@/context/StoreContext";
 
 export interface FeatureCardProps {
   data?: any;
@@ -27,6 +28,7 @@ export default function FeatureCard({
   const [address, setAddress] = useState<string>("");
   const [selectedAmount, setSelectedAmount] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const { selectedStore } = useStoreContext();
 
   const handlePayoutChange = (e: any) => {
     const { name, value } = e.target;
@@ -47,6 +49,7 @@ export default function FeatureCard({
           amount: Number(selectedAmount),
           paypal_address: address,
           userId: userId,
+          store_url: selectedStore?.store_url!,
         })
         .select();
 

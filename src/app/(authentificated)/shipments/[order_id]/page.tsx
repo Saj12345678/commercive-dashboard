@@ -176,7 +176,7 @@ export default function OrderDetails() {
       if (orderError) throw orderError;
       if (orderData && orderData.shipping_address) {
         try {
-          const shippingLocationData = JSON.parse(orderData.shipping_address);
+          const shippingLocationData = orderData.shipping_address as any;
           if (shippingLocationData) {
             const formatted = [
               shippingLocationData.address1,
