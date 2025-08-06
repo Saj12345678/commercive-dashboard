@@ -32,15 +32,6 @@ const defaultHeaders = [
 
 type ReferralInsert = Database["public"]["Tables"]["referrals"]["Insert"];
 
-const initialFormData: ReferralInsert = {
-  user_name: "",
-  email: "",
-  store_url: "",
-  referred_store_url: "",
-  commission_rate: 0,
-  quantity_of_order: 0,
-  paypal_address: "",
-};
 const initialError = {
   user_name: "",
   email: "",
@@ -62,6 +53,16 @@ export default function Partner() {
   const [isLoading, setIsLoading] = useState(false);
   const [editData, setEditData] = useState<any>({});
   let limit = 5;
+
+  const initialFormData: ReferralInsert = {
+    user_name: "",
+    email: "",
+    store_url: allStores[0].store_url,
+    referred_store_url: allStores[0].store_url,
+    commission_rate: 0.2,
+    quantity_of_order: 0,
+    paypal_address: "",
+  };
 
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
@@ -92,9 +93,10 @@ export default function Partner() {
 
   // Custom validation
   const validateForm = () => {
-    const newErrors: any = {};
+    const newErrors = {} as typeof initialError;
 
-    if (!formData.user_name?.trim()) newErrors.user = "User name is required.";
+    if (!formData.user_name?.trim())
+      newErrors.user_name = "User name is required.";
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
@@ -103,15 +105,18 @@ export default function Partner() {
     }
 
     if (!formData.store_url.trim())
-      newErrors.store_name = "Store name is required.";
-    if (!formData.referred_store_url.trim())
-      newErrors.referred_store_name = "Referred store name is required.";
-    if (!formData.commission_rate) {
+      newErrors.store_url = "Store name is required.";
+    if (
+      !formData.referred_store_url.trim() ||
+      formData.store_url == formData.referred_store_url
+    )
+      newErrors.referred_store_url = "Referred store name is required.";
+    if (formData.commission_rate == 0) {
       newErrors.commission_rate = "Commission rate is required.";
     } else if (isNaN(Number(formData.commission_rate))) {
       newErrors.commission_rate = "Commission rate must be a number.";
     }
-    if (!formData.quantity_of_order) {
+    if (formData.quantity_of_order == 0) {
       newErrors.quantity_of_order = "Order QTY is required.";
     } else if (isNaN(Number(formData.quantity_of_order))) {
       newErrors.quantity_of_order = "Order QTY must be a number.";
@@ -119,7 +124,7 @@ export default function Partner() {
     if (!formData.paypal_address?.trim()) {
       newErrors.paypal_address = "Paypal address is required.";
     }
-
+    console.log("newErrors :>> ", newErrors);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -319,7 +324,6 @@ export default function Partner() {
     notFoundData: "No Data found",
     actionPresent: true,
     actionList: ["edit", "delete"],
-    onActionClick: handleActionMenu,
     columns: [
       {
         field: "user_name",
@@ -344,8 +348,8 @@ export default function Partner() {
         },
       },
       {
-        field: "store_name",
-        headerName: "Store Name",
+        field: "store_url",
+        headerName: "Store URL",
       },
       {
         field: "commission_rate",
@@ -353,19 +357,16 @@ export default function Partner() {
         customRender: (row: any) => <p>{row.commission_rate || 0}%</p>,
       },
       {
-        field: "order_number",
-        headerName: "Order Number",
-      },
-      {
         field: "quantity_of_order",
         headerName: "Order QTY",
       },
       {
-        field: "total_commission",
         headerName: "Commission",
-        customRender: (row: any) => {
+        customRender: (row: ReferralRow) => {
           return (
-            <p className="text-[#4aaa40]">${row?.total_commission || 0}</p>
+            <p className="text-[#4aaa40]">
+              ${(row.commission_rate * row.quantity_of_order).toFixed(2)}
+            </p>
           );
         },
       },
@@ -451,7 +452,7 @@ export default function Partner() {
           <CustomModal onClose={closeAddNewModal} maxWidth={"max-w-[800px]"}>
             <div className="flex flex-col gap-6">
               <h2 className="text-lg font-semibold">Add New</h2>
-              <div className="flex flex-col gap-6 max-sm:h-full max-sm:max-h-[350px] custom-scrollbar overflow-y-auto">
+              <div className="flex flex-col gap-6 max-sm:h-full max-sm:max-h-[350px]">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full">
                     <InputField
@@ -501,6 +502,7 @@ export default function Partner() {
                         value={storeFilter}
                         onChange={(event, newValue) => {
                           setStoreFilter(newValue);
+                          // handleOnChange()
                         }}
                         renderInput={(params) => (
                           <TextField
@@ -536,6 +538,11 @@ export default function Partner() {
                         }}
                       />
                     </div>
+                    {errors?.store_url && (
+                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                        {errors?.store_url}
+                      </p>
+                    )}
                   </div>
                   <div className="flex flex-col relative w-full gap-2">
                     <label htmlFor="">Referred Store Name</label>
@@ -581,14 +588,19 @@ export default function Partner() {
                         }}
                       />
                     </div>
+                    {errors?.referred_store_url && (
+                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                        {errors?.referred_store_url}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full">
                     <InputField
-                      name="paypal_address"
+                      name="email"
                       placeholder="Enter Paypal Address"
-                      type="text"
+                      type="email"
                       className="mt-[8px]"
                       label={`Paypal address`}
                       value={formData.paypal_address || ""}
@@ -634,7 +646,7 @@ export default function Partner() {
                         handleOnChange(e, { commission_rate: e.target.value })
                       }
                     />
-                    {errors?.commission_rate && (
+                    {errors.commission_rate && (
                       <p className="text-red-500 absolute text-sm -bottom-[20px] message">
                         {errors?.commission_rate}
                       </p>
