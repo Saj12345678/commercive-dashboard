@@ -46,12 +46,11 @@ export default function Partner() {
   const supabase = createClient();
   const { allStores } = useStoreContext();
 
-  const [referralsData, setReferralsData] = useState([]);
+  const [referralsData, setReferralsData] = useState<ReferralRow[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [editData, setEditData] = useState<any>({});
   let limit = 5;
 
   const initialFormData: ReferralInsert = {
@@ -65,6 +64,7 @@ export default function Partner() {
   };
 
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState(initialError);
   const [storeFilter, setStoreFilter] = useState<StoreRow | null>(allStores[0]);
@@ -72,10 +72,7 @@ export default function Partner() {
     useState<StoreRow | null>(allStores[0]);
 
   // Handle input changes
-  const handleOnChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    updatedField: Partial<typeof formData>
-  ) => {
+  const handleOnChange = (updatedField: Partial<typeof formData>) => {
     setFormData((prev) => ({
       ...prev,
       ...updatedField,
@@ -105,12 +102,12 @@ export default function Partner() {
     }
 
     if (!formData.store_url.trim())
-      newErrors.store_url = "Store name is required.";
+      newErrors.store_url = "Store URL is required.";
     if (
       !formData.referred_store_url.trim() ||
       formData.store_url == formData.referred_store_url
     )
-      newErrors.referred_store_url = "Referred store name is required.";
+      newErrors.referred_store_url = "Invalid Referred Store URL.";
     if (formData.commission_rate == 0) {
       newErrors.commission_rate = "Commission rate is required.";
     } else if (isNaN(Number(formData.commission_rate))) {
@@ -129,13 +126,13 @@ export default function Partner() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = async (id: any) => {
+  const handleSave = async () => {
     if (validateForm()) {
       setLoading(true);
       try {
         let data, error;
 
-        if (id) {
+        if (formData.id) {
           // Update existing data
           ({ data, error } = await supabase
             .from("referrals")
@@ -148,7 +145,7 @@ export default function Partner() {
               quantity_of_order: formData.quantity_of_order,
               paypal_address: formData.paypal_address,
             } as ReferralRow)
-            .eq("id", id));
+            .eq("id", formData.id));
         } else {
           ({ data, error } = await supabase.from("referrals").insert({
             user_name: formData.user_name,
@@ -165,11 +162,12 @@ export default function Partner() {
           toast.error(error.message);
         } else {
           toast.success(
-            id ? "Data updated successfully:" : "Data added successfully:"
+            formData.id
+              ? "Data updated successfully:"
+              : "Data added successfully:"
           );
           fetchReferralsData(page);
         }
-        setEditData({});
       } catch (error) {
         console.error("Unexpected error:", error);
       }
@@ -283,40 +281,35 @@ export default function Partner() {
     }
   };
 
-  const deleteRow = async (id: any) => {
+  const deleteRow = async () => {
+    setIsLoading(true);
     try {
-      const { error } = await supabase.from("referrals").delete().eq("id", id);
+      const { error } = await supabase
+        .from("referrals")
+        .delete()
+        .eq("id", formData.id!);
       if (error) {
         toast("Failed to delete the row.");
       } else {
-        // Update state after deletion
-        setReferralsData((prev) => prev.filter((row: any) => row.id !== id));
+        await fetchReferralsData(page);
         toast("Row deleted successfully.");
-        fetchReferralsData(page);
+        setDeleteModalOpen(false);
+        setFormData(initialFormData);
       }
     } catch (error) {
       toast("An unexpected error occurred.");
     }
+    setIsLoading(false);
   };
 
-  const handleActionMenu = (value: string, row: ReferralRow) => {
-    if (value === "edit") {
-      setFormData({
-        user_name: row.user_name || "",
-        email: row.email || "",
-        store_url: row.store_url || "",
-        referred_store_url: row.referred_store_url || "",
-        commission_rate: row.commission_rate,
-        quantity_of_order: row.quantity_of_order,
-        paypal_address: row.paypal_address || "",
-      });
-      setEditData(row);
-      setAddNewModalOpen(true);
-    }
+  const handleDelete = (row: ReferralRow) => {
+    setFormData(row);
+    setDeleteModalOpen(true);
+  };
 
-    if (value === "delete") {
-      deleteRow(row.id);
-    }
+  const handleSelectEdit = async (row: ReferralRow) => {
+    setFormData(row);
+    setAddNewModalOpen(true);
   };
 
   const tableConfig = {
@@ -349,7 +342,12 @@ export default function Partner() {
       },
       {
         field: "store_url",
-        headerName: "Store URL",
+        headerName: "Store URL / Referred Store URL",
+        customRender: (row: ReferralRow) => (
+          <p>
+            {row.store_url} <br />({row.referred_store_url})
+          </p>
+        ),
       },
       {
         field: "commission_rate",
@@ -378,7 +376,7 @@ export default function Partner() {
     setIsLoading(true);
     try {
       const start = (currentPage - 1) * limit;
-      const { data, count, error }: any = await supabase
+      const { data, count, error } = await supabase
         .from("referrals")
         .select("*", { count: "exact" }) // Fetch data with exact count
         .range(start, start + limit - 1);
@@ -451,7 +449,9 @@ export default function Partner() {
         {addNewModalOpen && (
           <CustomModal onClose={closeAddNewModal} maxWidth={"max-w-[800px]"}>
             <div className="flex flex-col gap-6">
-              <h2 className="text-lg font-semibold">Add New</h2>
+              <h2 className="text-lg font-semibold">
+                {formData.id ? "Update" : "Add new"}
+              </h2>
               <div className="flex flex-col gap-6 max-sm:h-full max-sm:max-h-[350px]">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full">
@@ -463,7 +463,7 @@ export default function Partner() {
                       label={`User`}
                       value={formData.user_name}
                       onChange={(e: any) =>
-                        handleOnChange(e, { user_name: e.target.value })
+                        handleOnChange({ user_name: e.target.value })
                       }
                     />
                     {errors?.user_name && (
@@ -481,7 +481,7 @@ export default function Partner() {
                       label={`Email`}
                       value={formData.email}
                       onChange={(e: any) =>
-                        handleOnChange(e, { email: e.target.value })
+                        handleOnChange({ email: e.target.value })
                       }
                     />
                     {errors?.email && (
@@ -494,15 +494,15 @@ export default function Partner() {
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full gap-2">
-                    <label htmlFor="">Store Name</label>
+                    <label htmlFor="">Store URL</label>
                     <div className="flex w-full">
                       <Autocomplete
                         options={allStores}
-                        getOptionLabel={(option) => option.store_name}
+                        getOptionLabel={(option) => option.store_url}
                         value={storeFilter}
                         onChange={(event, newValue) => {
                           setStoreFilter(newValue);
-                          // handleOnChange()
+                          handleOnChange({ store_url: newValue?.store_url });
                         }}
                         renderInput={(params) => (
                           <TextField
@@ -545,14 +545,17 @@ export default function Partner() {
                     )}
                   </div>
                   <div className="flex flex-col relative w-full gap-2">
-                    <label htmlFor="">Referred Store Name</label>
+                    <label htmlFor="">Referred Store URL</label>
                     <div className="flex w-full">
                       <Autocomplete
                         options={allStores}
-                        getOptionLabel={(option) => option.store_name}
+                        getOptionLabel={(option) => option.store_url}
                         value={referredStoreFilter}
                         onChange={(event, newValue) => {
                           setReferredStoreFilter(newValue);
+                          handleOnChange({
+                            referred_store_url: newValue?.store_url,
+                          });
                         }}
                         renderInput={(params) => (
                           <TextField
@@ -605,7 +608,7 @@ export default function Partner() {
                       label={`Paypal address`}
                       value={formData.paypal_address || ""}
                       onChange={(e: any) =>
-                        handleOnChange(e, { paypal_address: e.target.value })
+                        handleOnChange({ paypal_address: e.target.value })
                       }
                     />
                     {errors?.paypal_address && (
@@ -623,7 +626,7 @@ export default function Partner() {
                       label={`Order QTY`}
                       value={formData.quantity_of_order.toString()}
                       onChange={(e: any) =>
-                        handleOnChange(e, { quantity_of_order: e.target.value })
+                        handleOnChange({ quantity_of_order: e.target.value })
                       }
                     />
                     {errors?.quantity_of_order && (
@@ -643,7 +646,7 @@ export default function Partner() {
                       label={`Commission Rate`}
                       value={formData.commission_rate.toString()}
                       onChange={(e: any) =>
-                        handleOnChange(e, { commission_rate: e.target.value })
+                        handleOnChange({ commission_rate: e.target.value })
                       }
                     />
                     {errors.commission_rate && (
@@ -668,12 +671,33 @@ export default function Partner() {
               </div>
               <div className="flex justify-end w-full">
                 <CustomButton
-                  label={"Save"}
-                  callback={() => {
-                    handleSave(editData.id ? editData.id : undefined);
-                  }}
+                  label={formData.id ? "Update" : "Add"}
+                  callback={handleSave}
                   className="bg-[#342d5f] text-[#5e568f]"
                   interactingAPI={loading}
+                />
+              </div>
+            </div>
+          </CustomModal>
+        )}
+        {deleteModalOpen && (
+          <CustomModal
+            onClose={() => {
+              setDeleteModalOpen(false);
+              setFormData(initialFormData);
+            }}
+            maxWidth={"max-w-[400px]"}
+          >
+            <div className="flex flex-col gap-6">
+              <h2 className="text-lg font-semibold">Delete the Row?</h2>
+
+              <div className="flex justify-end w-full">
+                <CustomButton
+                  label={"OK"}
+                  callback={deleteRow}
+                  className="bg-[#342d5f] text-[#5e568f]"
+                  interactingAPI={isLoading}
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -706,8 +730,8 @@ export default function Partner() {
         isLoading={isLoading}
         limit={limit}
         showCheckbox={true}
-        onCheckboxClick={() => {}}
-        onDelete={() => {}}
+        onCheckboxClick={handleSelectEdit}
+        onDelete={handleDelete}
       />
     </div>
   );

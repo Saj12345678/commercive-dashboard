@@ -1,24 +1,16 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import CustomTable from "@/components/ui/custom-table";
 import CustomButton from "../../ui/custom-button";
 import { createClient } from "@/app/utils/supabase/client";
 import CustomModal from "../../ui/modal";
-import {
-  Autocomplete,
-  Checkbox,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from "@mui/material";
+
 import { FiPlus } from "react-icons/fi";
 import InputField from "../../ui/custom-inputfild";
 import { useStoreContext } from "@/context/StoreContext";
 import { StoreRow } from "@/app/utils/types";
-import { deleteUserByAdmin, signUpByAdmin } from "../action";
 
 const initialFormData = {
   store_name: "",
