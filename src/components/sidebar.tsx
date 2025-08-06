@@ -20,7 +20,7 @@ import { BsCopy } from "react-icons/bs";
 import { useStoreContext } from "@/context/StoreContext";
 import { FiPlus } from "react-icons/fi";
 import { IoIosMore } from "react-icons/io";
-import { BiSupport } from "react-icons/bi";
+import { BiSupport, BiStore } from "react-icons/bi";
 import { StoreRow } from "@/app/utils/types";
 
 export interface SidebarProps {
@@ -70,19 +70,19 @@ const adminData = [
     href: "/admin/home",
     icon: <HouseIcon width={20} height={20} color={"#000000"} />,
   },
-  // {
-  //   title: "New Quote",
-  //   href: "/admin/support",
-  //   icon: (
-  //     <BiSupport
-  //       color={"#000000"}
-  //       style={{
-  //         width: "20px",
-  //         height: "20px",
-  //       }}
-  //     />
-  //   ),
-  // },
+  {
+    title: "Stores",
+    href: "/admin/stores",
+    icon: (
+      <BiStore
+        color={"#000000"}
+        style={{
+          width: "20px",
+          height: "20px",
+        }}
+      />
+    ),
+  },
   {
     title: "Inventory",
     href: "/admin/inventory",

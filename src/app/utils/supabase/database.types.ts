@@ -263,7 +263,7 @@ export type Database = {
           order_status_url: string | null
           order_tags: string | null
           processed_at: string | null
-          shipping_address: string | null
+          shipping_address: Json | null
           shipping_costs: number | null
           shipping_costs_usd: string | null
           store_url: string | null
@@ -292,7 +292,7 @@ export type Database = {
           order_status_url?: string | null
           order_tags?: string | null
           processed_at?: string | null
-          shipping_address?: string | null
+          shipping_address?: Json | null
           shipping_costs?: number | null
           shipping_costs_usd?: string | null
           store_url?: string | null
@@ -321,7 +321,7 @@ export type Database = {
           order_status_url?: string | null
           order_tags?: string | null
           processed_at?: string | null
-          shipping_address?: string | null
+          shipping_address?: Json | null
           shipping_costs?: number | null
           shipping_costs_usd?: string | null
           store_url?: string | null
@@ -433,58 +433,37 @@ export type Database = {
       }
       referrals: {
         Row: {
-          commission_rate: number | null
+          commission_rate: number
           created_at: string
-          customer_number: string | null
-          email: string | null
+          email: string
           id: number
-          order_number: string | null
-          order_time: string | null
           paypal_address: string | null
-          quantity_of_order: number | null
-          referred_by: string | null
-          referred_store_name: string | null
-          reffered_by_id: string | null
-          store_name: string | null
-          total_commission: number | null
-          user_id: string | null
-          user_name: string | null
+          quantity_of_order: number
+          referred_store_url: string
+          store_url: string
+          user_name: string
         }
         Insert: {
-          commission_rate?: number | null
+          commission_rate: number
           created_at?: string
-          customer_number?: string | null
-          email?: string | null
+          email: string
           id?: number
-          order_number?: string | null
-          order_time?: string | null
           paypal_address?: string | null
-          quantity_of_order?: number | null
-          referred_by?: string | null
-          referred_store_name?: string | null
-          reffered_by_id?: string | null
-          store_name?: string | null
-          total_commission?: number | null
-          user_id?: string | null
-          user_name?: string | null
+          quantity_of_order: number
+          referred_store_url: string
+          store_url: string
+          user_name: string
         }
         Update: {
-          commission_rate?: number | null
+          commission_rate?: number
           created_at?: string
-          customer_number?: string | null
-          email?: string | null
+          email?: string
           id?: number
-          order_number?: string | null
-          order_time?: string | null
           paypal_address?: string | null
-          quantity_of_order?: number | null
-          referred_by?: string | null
-          referred_store_name?: string | null
-          reffered_by_id?: string | null
-          store_name?: string | null
-          total_commission?: number | null
-          user_id?: string | null
-          user_name?: string | null
+          quantity_of_order?: number
+          referred_store_url?: string
+          store_url?: string
+          user_name?: string
         }
         Relationships: []
       }

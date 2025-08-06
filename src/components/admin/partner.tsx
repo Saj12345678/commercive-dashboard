@@ -11,6 +11,10 @@ import { FiPlus } from "react-icons/fi";
 import CustomModal from "../ui/modal";
 import InputField from "../ui/custom-inputfild";
 import { toast } from "react-toastify";
+import { Autocomplete, TextField } from "@mui/material";
+import { useStoreContext } from "@/context/StoreContext";
+import { ReferralRow, StoreRow } from "@/app/utils/types";
+import { Database } from "@/app/utils/supabase/database.types";
 
 const defaultHeaders = [
   "user_name",
@@ -26,8 +30,31 @@ const defaultHeaders = [
   "email",
 ];
 
+type ReferralInsert = Database["public"]["Tables"]["referrals"]["Insert"];
+
+const initialFormData: ReferralInsert = {
+  user_name: "",
+  email: "",
+  store_url: "",
+  referred_store_url: "",
+  commission_rate: 0,
+  quantity_of_order: 0,
+  paypal_address: "",
+};
+const initialError = {
+  user_name: "",
+  email: "",
+  store_url: "",
+  referred_store_url: "",
+  commission_rate: "",
+  quantity_of_order: "",
+  paypal_address: "",
+};
+
 export default function Partner() {
   const supabase = createClient();
+  const { allStores } = useStoreContext();
+
   const [referralsData, setReferralsData] = useState([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
@@ -37,30 +64,11 @@ export default function Partner() {
   let limit = 5;
 
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
-  const initialFormData = {
-    user: "",
-    email: "",
-    store_name: "",
-    referred_store_name: "",
-    commission_rate: "",
-    order_number: "",
-    quantity_of_order: "",
-    paypal_address: "",
-    total_commission: "",
-  };
   const [formData, setFormData] = useState(initialFormData);
-  const initialError = {
-    user: "",
-    email: "",
-    store_name: "",
-    referred_store_name: "",
-    commission_rate: "",
-    order_number: "",
-    quantity_of_order: "",
-    paypal_address: "",
-    total_commission: "",
-  };
   const [errors, setErrors] = useState(initialError);
+  const [storeFilter, setStoreFilter] = useState<StoreRow | null>(allStores[0]);
+  const [referredStoreFilter, setReferredStoreFilter] =
+    useState<StoreRow | null>(allStores[0]);
 
   // Handle input changes
   const handleOnChange = (
@@ -74,7 +82,7 @@ export default function Partner() {
     setErrors((prev) => ({
       ...prev,
       ...Object.keys(updatedField).reduce((acc, key) => {
-        acc[key as keyof typeof formData] = "";
+        acc[key as keyof typeof errors] = "";
         return acc;
       }, {} as typeof errors),
     }));
@@ -86,7 +94,7 @@ export default function Partner() {
   const validateForm = () => {
     const newErrors: any = {};
 
-    if (!formData.user.trim()) newErrors.user = "User name is required.";
+    if (!formData.user_name?.trim()) newErrors.user = "User name is required.";
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
@@ -94,26 +102,22 @@ export default function Partner() {
       newErrors.email = "Please enter a valid email address.";
     }
 
-    if (!formData.store_name.trim())
+    if (!formData.store_url.trim())
       newErrors.store_name = "Store name is required.";
-    if (!formData.referred_store_name.trim())
+    if (!formData.referred_store_url.trim())
       newErrors.referred_store_name = "Referred store name is required.";
-    if (!formData.commission_rate.trim()) {
+    if (!formData.commission_rate) {
       newErrors.commission_rate = "Commission rate is required.";
     } else if (isNaN(Number(formData.commission_rate))) {
       newErrors.commission_rate = "Commission rate must be a number.";
     }
-    if (!formData.order_number.trim())
-      newErrors.order_number = "Order number is required.";
-    if (!formData.quantity_of_order.trim()) {
+    if (!formData.quantity_of_order) {
       newErrors.quantity_of_order = "Order QTY is required.";
     } else if (isNaN(Number(formData.quantity_of_order))) {
       newErrors.quantity_of_order = "Order QTY must be a number.";
     }
-    if (!formData.paypal_address.trim()) {
-      newErrors.paypal_address = "Commission is required.";
-    } else if (isNaN(Number(formData.total_commission))) {
-      newErrors.commission = "Commission must be a number.";
+    if (!formData.paypal_address?.trim()) {
+      newErrors.paypal_address = "Paypal address is required.";
     }
 
     setErrors(newErrors);
@@ -131,37 +135,33 @@ export default function Partner() {
           ({ data, error } = await supabase
             .from("referrals")
             .update({
-              user_name: formData.user,
+              user_name: formData.user_name,
               email: formData.email,
-              store_name: formData.store_name,
-              referred_store_name: formData.referred_store_name,
-              commission_rate: Number(formData.commission_rate),
-              order_number: formData.order_number,
-              quantity_of_order: Number(formData.quantity_of_order),
+              store_url: formData.store_url,
+              referred_store_url: formData.referred_store_url,
+              commission_rate: formData.commission_rate,
+              quantity_of_order: formData.quantity_of_order,
               paypal_address: formData.paypal_address,
-              total_commission: Number(formData.total_commission),
-            })
+            } as ReferralRow)
             .eq("id", id));
         } else {
-          ({ data, error } = await supabase.from("referrals").insert([
-            {
-              user_name: formData.user,
-              email: formData.email,
-              store_name: formData.store_name,
-              referred_store_name: formData.referred_store_name,
-              commission_rate: Number(formData.commission_rate),
-              order_number: formData.order_number,
-              quantity_of_order: Number(formData.quantity_of_order),
-              paypal_address: formData.paypal_address,
-              total_commission: Number(formData.total_commission),
-            },
-          ]));
+          ({ data, error } = await supabase.from("referrals").insert({
+            user_name: formData.user_name,
+            email: formData.email,
+            store_url: formData.store_url,
+            referred_store_url: formData.referred_store_url,
+            commission_rate: Number(formData.commission_rate),
+            quantity_of_order: Number(formData.quantity_of_order),
+            paypal_address: formData.paypal_address,
+          }));
         }
 
         if (error) {
-          toast("Failed to save data. Please try again.");
+          toast.error(error.message);
         } else {
-          toast(id ? "Data updated successfully:" : "Data added successfully:");
+          toast.success(
+            id ? "Data updated successfully:" : "Data added successfully:"
+          );
           fetchReferralsData(page);
         }
         setEditData({});
@@ -294,18 +294,16 @@ export default function Partner() {
     }
   };
 
-  const handleActionMenu = (value: string, row: any) => {
+  const handleActionMenu = (value: string, row: ReferralRow) => {
     if (value === "edit") {
       setFormData({
-        user: row.user_name || "",
+        user_name: row.user_name || "",
         email: row.email || "",
-        store_name: row.store_name || "",
-        referred_store_name: row.referred_store_name || "",
-        commission_rate: row.commission_rate?.toString() || "",
-        order_number: row.order_number || "",
-        quantity_of_order: row.quantity_of_order?.toString() || "",
+        store_url: row.store_url || "",
+        referred_store_url: row.referred_store_url || "",
+        commission_rate: row.commission_rate,
+        quantity_of_order: row.quantity_of_order,
         paypal_address: row.paypal_address || "",
-        total_commission: row.total_commission?.toString() || "",
       });
       setEditData(row);
       setAddNewModalOpen(true);
@@ -345,13 +343,14 @@ export default function Partner() {
           return <div>{formatDate(row.created_at)}</div>;
         },
       },
-      // {
-      //   field: "store_name",
-      //   headerName: "Store Name",
-      // },
+      {
+        field: "store_name",
+        headerName: "Store Name",
+      },
       {
         field: "commission_rate",
         headerName: "Commission Rate",
+        customRender: (row: any) => <p>{row.commission_rate || 0}%</p>,
       },
       {
         field: "order_number",
@@ -365,7 +364,9 @@ export default function Partner() {
         field: "total_commission",
         headerName: "Commission",
         customRender: (row: any) => {
-          return <p className="text-[#4aaa40]">{row?.total_commission}</p>;
+          return (
+            <p className="text-[#4aaa40]">${row?.total_commission || 0}</p>
+          );
         },
       },
     ],
@@ -459,21 +460,21 @@ export default function Partner() {
                       type="text"
                       className="mt-[8px]"
                       label={`User`}
-                      value={formData.user}
+                      value={formData.user_name}
                       onChange={(e: any) =>
-                        handleOnChange(e, { user: e.target.value })
+                        handleOnChange(e, { user_name: e.target.value })
                       }
                     />
-                    {errors?.user && (
+                    {errors?.user_name && (
                       <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.user}
+                        {errors?.user_name}
                       </p>
                     )}
                   </div>
                   <div className="flex flex-col relative w-full">
                     <InputField
                       name="email"
-                      placeholder="Enter your email"
+                      placeholder="Enter user email"
                       type="email"
                       className="mt-[8px]"
                       label={`Email`}
@@ -489,15 +490,146 @@ export default function Partner() {
                     )}
                   </div>
                 </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex flex-col relative w-full gap-2">
+                    <label htmlFor="">Store Name</label>
+                    <div className="flex w-full">
+                      <Autocomplete
+                        options={allStores}
+                        getOptionLabel={(option) => option.store_name}
+                        value={storeFilter}
+                        onChange={(event, newValue) => {
+                          setStoreFilter(newValue);
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            // label="Select store"
+                            variant="outlined"
+                            fullWidth
+                            sx={{
+                              "& .MuiOutlinedInput-root": {
+                                // color: "white",
+                                padding: "0px 10px !important",
+                                "& fieldset": { borderColor: "#403a6b" },
+                                "&:hover fieldset": { borderColor: "#403a6b" },
+                                "&.Mui-focused fieldset": {
+                                  borderColor: "#403a6b",
+                                },
+                              },
+                              "& .MuiInputLabel-root": { color: "white" },
+                              "& .MuiInputLabel-root.Mui-focused": {
+                                color: "white",
+                              },
+                              width: "100%",
+                            }}
+                            className="tests"
+                          />
+                        )}
+                        isOptionEqualToValue={(option, value) =>
+                          option.id === value.id
+                        }
+                        clearOnEscape
+                        sx={{
+                          width: "100%",
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col relative w-full gap-2">
+                    <label htmlFor="">Referred Store Name</label>
+                    <div className="flex w-full">
+                      <Autocomplete
+                        options={allStores}
+                        getOptionLabel={(option) => option.store_name}
+                        value={referredStoreFilter}
+                        onChange={(event, newValue) => {
+                          setReferredStoreFilter(newValue);
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            // label="Select store"
+                            variant="outlined"
+                            fullWidth
+                            sx={{
+                              "& .MuiOutlinedInput-root": {
+                                // color: "white",
+                                padding: "0px 10px !important",
+                                "& fieldset": { borderColor: "#403a6b" },
+                                "&:hover fieldset": { borderColor: "#403a6b" },
+                                "&.Mui-focused fieldset": {
+                                  borderColor: "#403a6b",
+                                },
+                              },
+                              "& .MuiInputLabel-root": { color: "white" },
+                              "& .MuiInputLabel-root.Mui-focused": {
+                                color: "white",
+                              },
+                              width: "100%",
+                            }}
+                            className="tests"
+                          />
+                        )}
+                        isOptionEqualToValue={(option, value) =>
+                          option.id === value.id
+                        }
+                        clearOnEscape
+                        sx={{
+                          width: "100%",
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex flex-col relative w-full">
+                    <InputField
+                      name="paypal_address"
+                      placeholder="Enter Paypal Address"
+                      type="text"
+                      className="mt-[8px]"
+                      label={`Paypal address`}
+                      value={formData.paypal_address || ""}
+                      onChange={(e: any) =>
+                        handleOnChange(e, { paypal_address: e.target.value })
+                      }
+                    />
+                    {errors?.paypal_address && (
+                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                        {errors?.paypal_address}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col relative w-full">
+                    <InputField
+                      name="quantity_of_order"
+                      placeholder="Enter order QTY"
+                      type="number"
+                      className="mt-[8px]"
+                      label={`Order QTY`}
+                      value={formData.quantity_of_order.toString()}
+                      onChange={(e: any) =>
+                        handleOnChange(e, { quantity_of_order: e.target.value })
+                      }
+                    />
+                    {errors?.quantity_of_order && (
+                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                        {errors?.quantity_of_order}
+                      </p>
+                    )}
+                  </div>
+                </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full">
                     <InputField
                       name="commission_rate"
                       placeholder="Enter commission rate"
-                      type="text"
+                      type="number"
                       className="mt-[8px]"
                       label={`Commission Rate`}
-                      value={formData.commission_rate}
+                      value={formData.commission_rate.toString()}
                       onChange={(e: any) =>
                         handleOnChange(e, { commission_rate: e.target.value })
                       }
@@ -510,118 +642,16 @@ export default function Partner() {
                   </div>
                   <div className="flex flex-col relative w-full">
                     <InputField
-                      name="order_number"
-                      placeholder="Enter order number"
+                      name="commission"
+                      placeholder="Enter commission"
                       type="text"
                       className="mt-[8px]"
-                      label={`Order Number`}
-                      value={formData.order_number}
-                      onChange={(e: any) =>
-                        handleOnChange(e, { order_number: e.target.value })
-                      }
+                      label={`Commission`}
+                      value={(
+                        formData.commission_rate * formData.quantity_of_order
+                      ).toFixed(2)}
                     />
-                    {errors?.order_number && (
-                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.order_number}
-                      </p>
-                    )}
                   </div>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex flex-col relative w-full">
-                    <InputField
-                      name="quantity_of_order"
-                      placeholder="Enter order QTY"
-                      type="text"
-                      className="mt-[8px]"
-                      label={`Order QTY`}
-                      value={formData.quantity_of_order}
-                      onChange={(e: any) =>
-                        handleOnChange(e, { quantity_of_order: e.target.value })
-                      }
-                    />
-                    {errors?.quantity_of_order && (
-                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.quantity_of_order}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex flex-col relative w-full">
-                    <InputField
-                      name="store_name"
-                      placeholder="Enter store url"
-                      type="text"
-                      className="mt-[8px]"
-                      label={`Store URL`}
-                      value={formData.store_name}
-                      onChange={(e: any) =>
-                        handleOnChange(e, { store_name: e.target.value })
-                      }
-                    />
-                    {errors?.store_name && (
-                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.store_name}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex flex-col relative w-full">
-                    <InputField
-                      name="referred_store_name"
-                      placeholder="Enter referred store url"
-                      type="text"
-                      className="mt-[8px]"
-                      label={`Referred Store URL`}
-                      value={formData.referred_store_name}
-                      onChange={(e: any) =>
-                        handleOnChange(e, {
-                          referred_store_name: e.target.value,
-                        })
-                      }
-                    />
-                    {errors?.referred_store_name && (
-                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.referred_store_name}
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex flex-col relative w-full">
-                    <InputField
-                      name="paypal_address"
-                      placeholder="Enter Paypal Address"
-                      type="text"
-                      className="mt-[8px]"
-                      label={`Paypal address`}
-                      value={formData.paypal_address}
-                      onChange={(e: any) =>
-                        handleOnChange(e, { paypal_address: e.target.value })
-                      }
-                    />
-                    {errors?.paypal_address && (
-                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.paypal_address}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex flex-col relative w-full">
-                  <InputField
-                    name="commission"
-                    placeholder="Enter commission"
-                    type="text"
-                    className="mt-[8px]"
-                    label={`Commission`}
-                    value={formData.total_commission}
-                    onChange={(e: any) =>
-                      handleOnChange(e, { total_commission: e.target.value })
-                    }
-                  />
-                  {errors?.total_commission && (
-                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                      {errors?.total_commission}
-                    </p>
-                  )}
                 </div>
               </div>
               <div className="flex justify-end w-full">
@@ -637,6 +667,7 @@ export default function Partner() {
             </div>
           </CustomModal>
         )}
+
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <p className="text-[#5e568f]">
             Showing {(page - 1) * limit + 1}-
@@ -662,6 +693,9 @@ export default function Partner() {
         tableConfig={tableConfig}
         isLoading={isLoading}
         limit={limit}
+        showCheckbox={true}
+        onCheckboxClick={() => {}}
+        onDelete={() => {}}
       />
     </div>
   );

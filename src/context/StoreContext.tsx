@@ -14,6 +14,7 @@ interface StoreContextProps {
   userinfo?: UserRow;
   updateUserinfo: () => Promise<void>;
   updateAffiliate: () => Promise<void>;
+  fetchStoreData: () => Promise<void>;
   selectedStore: StoreRow | null;
   setSelectedStore: React.Dispatch<React.SetStateAction<StoreRow | null>>;
   stores: StoreRow[];
@@ -94,6 +95,7 @@ export const StoreProvider: React.FC<{
         userinfo,
         updateUserinfo,
         selectedStore,
+        fetchStoreData,
         setSelectedStore,
         stores,
         allStores,

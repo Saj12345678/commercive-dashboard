@@ -579,14 +579,11 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-1 w-full md:w-1/2 ">
             <Autocomplete
               options={allStores}
-              getOptionLabel={(option) =>
-                option.store_name === "satish-dev"
-                  ? "Golf Pro"
-                  : option.store_name
-              }
+              getOptionLabel={(option) => option.store_name}
               value={storeFilter}
               onChange={(event, newValue) => {
-                setStoreFilter(newValue), setSelectedStore(newValue);
+                setStoreFilter(newValue);
+                setSelectedStore(newValue);
               }}
               renderInput={(params) => (
                 <TextField
