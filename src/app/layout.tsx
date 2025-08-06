@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 import { createServerSideClient } from "./utils/supabase/server";
 import { AffiliateRequestRow, StoreRow, UserRow } from "./utils/types";
+import NextTopLoader from "nextjs-toploader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,6 +57,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased max-h-screen overflow-auto relative`}
         cz-shortcut-listen="true"
       >
+        <NextTopLoader />
         <StoreProvider
           initialUserinfo={userinfo}
           iniitialAffilateRow={affiliateRow}
