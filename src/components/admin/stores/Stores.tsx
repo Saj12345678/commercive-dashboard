@@ -229,6 +229,21 @@ export function Stores() {
           );
         },
       },
+      {
+        field: "store_url",
+        headerName: "Installed APP?",
+        customRender: (row: StoreRow) => {
+          return (
+            <div className="flex gap-2">
+              <div>
+                <p className="text-white">
+                  {row.is_inventory_fetched ? "Installed" : "N/A"}
+                </p>
+              </div>
+            </div>
+          );
+        },
+      },
     ],
     rows: stores || [],
   };
