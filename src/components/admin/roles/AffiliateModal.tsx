@@ -37,13 +37,18 @@ export const AffiliateUpdateModal: FC<AffiliateUpdateModalProps> = ({
   const [selectedRole, setSelectedRole] = useState(selectedUser.status);
   const [saving, setSaving] = useState(false);
   const [customerID, setCustomerID] = useState(selectedUser.customer_id);
+  const [formURL, setFormURL] = useState(selectedUser.form_url);
 
   const handleUpdate = async () => {
     console.log("selectedRole :>> ", selectedRole);
     setSaving(true);
     const { error } = await supabase
       .from("affiliates")
-      .update({ status: selectedRole, customer_id: customerID })
+      .update({
+        status: selectedRole,
+        customer_id: customerID,
+        form_url: formURL,
+      })
       .eq("id", selectedUser.id);
     console.log("error :>> ", error);
     await fetchUsers();
@@ -69,7 +74,7 @@ export const AffiliateUpdateModal: FC<AffiliateUpdateModalProps> = ({
             ))}
           </Select>
         </div>
-        <div className="flex flex-col relative w-full">
+        <div>
           <InputField
             name="customer_id"
             placeholder="Enter customer id"
@@ -78,6 +83,17 @@ export const AffiliateUpdateModal: FC<AffiliateUpdateModalProps> = ({
             label="Customer ID"
             value={customerID || ""}
             onChange={(e: any) => setCustomerID(e.target.value)}
+          />
+        </div>
+        <div>
+          <InputField
+            name="form_url"
+            placeholder="Enter Google Form URL"
+            type="text"
+            className="mt-[8px]"
+            label="Google Form URL"
+            value={customerID || ""}
+            onChange={(e: any) => setFormURL(e.target.value)}
           />
         </div>
 

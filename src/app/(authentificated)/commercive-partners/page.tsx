@@ -781,7 +781,7 @@ export default function CommercivePartners() {
           </div>
         </div>
 
-        <div className="flex flex-row overflow-auto whitespace-nowrap custom-scrollbar">
+        <div className="flex flex-row gap-4 overflow-auto whitespace-nowrap custom-scrollbar">
           {loadingCard ? (
             <FeatureCardSkeleton page="commercive" />
           ) : (

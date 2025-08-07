@@ -87,6 +87,7 @@ export type Database = {
         Row: {
           created_at: string
           customer_id: string | null
+          form_url: string | null
           id: number
           status: Database["public"]["Enums"]["AFFILIATE_STATUS"]
           store_url: string | null
@@ -95,6 +96,7 @@ export type Database = {
         Insert: {
           created_at?: string
           customer_id?: string | null
+          form_url?: string | null
           id?: number
           status: Database["public"]["Enums"]["AFFILIATE_STATUS"]
           store_url?: string | null
@@ -103,6 +105,7 @@ export type Database = {
         Update: {
           created_at?: string
           customer_id?: string | null
+          form_url?: string | null
           id?: number
           status?: Database["public"]["Enums"]["AFFILIATE_STATUS"]
           store_url?: string | null

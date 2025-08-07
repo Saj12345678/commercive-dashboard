@@ -195,46 +195,46 @@ export default function Affiliate() {
   };
 
   const handleSave = async (id: any) => {
-    if (isLoading) return;
-    if (validateForm()) {
-      setSaving(true);
-      try {
-        const { data, error } = await signUpByAdmin({
-          email: formData.email,
-          password: formData.password,
-          referral_code: "",
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          user_name: formData.user,
-          phone_number: formData.phone_number,
-          role: formData.role || "user",
-          visible_store: formData.store,
-          visible_pages: [],
-        });
-        if (error instanceof Error) {
-          toast.error(
-            error.message || "Failed to save data. Please try again."
-          );
-          setSaving(false);
-          return;
-        } else {
-          toast(id ? "Data updated successfully" : "Data added successfully");
-          fetchUsersData();
-          setEditData({});
-        }
-      } catch (error: unknown) {
-        console.error("Unexpected error:", error);
-        if (error instanceof Error) {
-          toast.error(error.message);
-        } else {
-          toast.error("An unexpected error occurred");
-        }
-      }
-      setSaving(false);
-      setStoreFilter([]);
-      setFormData(initialFormData);
-      setAddNewModalOpen(false);
-    }
+    // if (isLoading) return;
+    // if (validateForm()) {
+    //   setSaving(true);
+    //   try {
+    //     const { data, error } = await signUpByAdmin({
+    //       email: formData.email,
+    //       password: formData.password,
+    //       referral_code: "",
+    //       first_name: formData.first_name,
+    //       last_name: formData.last_name,
+    //       user_name: formData.user,
+    //       phone_number: formData.phone_number,
+    //       role: formData.role || "user",
+    //       visible_store: formData.store,
+    //       visible_pages: [],
+    //     });
+    //     if (error instanceof Error) {
+    //       toast.error(
+    //         error.message || "Failed to save data. Please try again."
+    //       );
+    //       setSaving(false);
+    //       return;
+    //     } else {
+    //       toast(id ? "Data updated successfully" : "Data added successfully");
+    //       fetchUsersData();
+    //       setEditData({});
+    //     }
+    //   } catch (error: unknown) {
+    //     console.error("Unexpected error:", error);
+    //     if (error instanceof Error) {
+    //       toast.error(error.message);
+    //     } else {
+    //       toast.error("An unexpected error occurred");
+    //     }
+    //   }
+    //   setSaving(false);
+    //   setStoreFilter([]);
+    //   setFormData(initialFormData);
+    //   setAddNewModalOpen(false);
+    // }
   };
 
   const tableConfig = {
@@ -257,26 +257,26 @@ export default function Affiliate() {
         },
       },
       {
-        field: "first_name",
-        headerName: "First Name",
+        field: "user_name",
+        headerName: "User Name",
         customRender: (row: AffiliateRow) => {
           return (
             <div className="flex gap-2">
               <div>
-                <p className="text-white">{row.user.first_name}</p>
+                <p className="text-white">{row.user.user_name}</p>
               </div>
             </div>
           );
         },
       },
       {
-        field: "last_name",
-        headerName: "Last Name",
+        field: "form_url",
+        headerName: "Form URL",
         customRender: (row: AffiliateRow) => {
           return (
             <div className="flex gap-2">
               <div>
-                <p className="text-white">{row.user.last_name}</p>
+                <p className="text-white">{row.form_url?.slice(0, 9)}...</p>
               </div>
             </div>
           );
@@ -399,11 +399,11 @@ export default function Affiliate() {
                 </div>
                 <div className="flex flex-col relative w-full">
                   <InputField
-                    name="password"
-                    placeholder="Enter Password"
+                    name="customer_id"
+                    placeholder="Enter Customer ID"
                     type="text"
                     className="mt-[8px]"
-                    label={`Password`}
+                    label={`Customer ID`}
                     value={formData.password || ""}
                     onChange={(e: any) =>
                       handleAddNewUserChange(e, { password: e.target.value })
@@ -416,141 +416,24 @@ export default function Affiliate() {
                   )}
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex flex-col relative w-full">
-                  <InputField
-                    name="first_name"
-                    placeholder="Enter First name"
-                    type="text"
-                    className="mt-[8px]"
-                    label={`First Name`}
-                    value={formData.first_name || ""}
-                    onChange={(e: any) =>
-                      handleAddNewUserChange(e, { first_name: e.target.value })
-                    }
-                  />
-                  {errors?.first_name && (
-                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                      {errors?.first_name}
-                    </p>
-                  )}
-                </div>
-                <div className="flex flex-col relative w-full">
-                  <InputField
-                    name="last_name"
-                    placeholder="Enter last name"
-                    type="text"
-                    className="mt-[8px]"
-                    label={`Last Name`}
-                    value={formData.last_name || ""}
-                    onChange={(e: any) =>
-                      handleAddNewUserChange(e, { last_name: e.target.value })
-                    }
-                  />
-                  {errors?.last_name && (
-                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                      {errors?.last_name}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex flex-col relative w-full">
-                  <InputField
-                    name="user"
-                    placeholder="Enter user name"
-                    type="text"
-                    className="mt-[8px]"
-                    label={`User Name`}
-                    value={formData.user || ""}
-                    onChange={(e: any) =>
-                      handleAddNewUserChange(e, { user: e.target.value })
-                    }
-                  />
-                  {errors?.user && (
-                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                      {errors?.user}
-                    </p>
-                  )}
-                </div>
-                <div className="flex flex-col relative w-full">
-                  <InputField
-                    name="phone_number"
-                    placeholder="Enter Phone Number"
-                    type="text"
-                    className="mt-[8px]"
-                    label={`Phone Number`}
-                    value={formData.phone_number || ""}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      const value = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
-                      if (value.length <= 11) {
-                        handleAddNewUserChange(e, { phone_number: value });
-                      }
-                    }}
-                  />
-                  {errors?.phone_number && (
-                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                      {errors?.phone_number}
-                    </p>
-                  )}
-                </div>
-              </div>
               <div className="flex flex-col relative w-full">
-                <InputLabel>Role</InputLabel>
-                <select
-                  name="Role"
-                  id=""
-                  className="border border-color-[#D4D77D] border-opacity-5 p-[9px] mt-2.5 rounded-md focus-within:outline-none"
-                  value={formData.role || ""}
-                  onChange={(e) =>
-                    handleAddNewUserChange(e, { role: e.target.value })
+                <InputField
+                  name="form_url"
+                  placeholder="Enter Google Form URL"
+                  type="text"
+                  className="mt-[8px]"
+                  label={`Google Form URL`}
+                  value={formData.first_name || ""}
+                  onChange={(e: any) =>
+                    handleAddNewUserChange(e, { first_name: e.target.value })
                   }
-                >
-                  {roleOptions.map((option) => (
-                    <option
-                      key={option.value}
-                      value={option.value}
-                      className="focus-within:outline-none"
-                    >
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                />
+                {errors?.first_name && (
+                  <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                    {errors?.first_name}
+                  </p>
+                )}
               </div>
-              {(formData.role === "admin" || formData.role === "employee") && (
-                <div className="flex flex-col sm:flex-row gap-3">
-                  {formData.role === "admin" && (
-                    <div className="flex flex-col relative w-full">
-                      <Autocomplete
-                        multiple
-                        options={pageOptions}
-                        disableCloseOnSelect
-                        getOptionLabel={(option) => option.label || ""}
-                        value={storePage}
-                        onChange={handlePageChange}
-                        isOptionEqualToValue={(option, value) =>
-                          option.value === value.value
-                        }
-                        clearOnEscape
-                        renderOption={(props, option, { selected }) => (
-                          <MenuItem {...props} key={option.value}>
-                            <Checkbox checked={selected} key={option.value} />
-                            {option.label}
-                          </MenuItem>
-                        )}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Select pages"
-                            variant="outlined"
-                            fullWidth
-                          />
-                        )}
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
             <div className="flex justify-end w-full">
               <CustomButton
@@ -592,7 +475,7 @@ export default function Affiliate() {
             label={"Add New"}
             className="w-max"
             prefixIcon={<FiPlus size={24} />}
-            callback={handleNewOpenModal}
+            // callback={handleNewOpenModal}
           />
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
