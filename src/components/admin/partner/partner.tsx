@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import CustomButton from "../../ui/custom-button";
-import { MdOutlineFileDownload } from "react-icons/md";
+import { MdOutlineFileDownload, MdOutlineFileUpload } from "react-icons/md";
 import { createClient } from "@/app/utils/supabase/client";
 import { FiPlus } from "react-icons/fi";
 import CustomModal from "../../ui/modal";
@@ -398,7 +398,7 @@ export default function Partner() {
               className="flex cursor-pointer bg-[#4F11C9] text-[#F4F4F4] font-semibold py-2 px-4 rounded-[8px]"
             >
               <span>
-                <MdOutlineFileDownload size={24} color="#F4F4F4" />
+                <MdOutlineFileUpload size={24} color="#F4F4F4" />
               </span>
               Upload CSV
             </label>
