@@ -17,24 +17,29 @@ import {
 import { FiPlus } from "react-icons/fi";
 import InputField from "../../ui/custom-inputfild";
 import { useStoreContext } from "@/context/StoreContext";
-import { StoreRow, UserRow } from "@/app/utils/types";
+import {
+  AffiliateRequestRow,
+  AffiliateRow,
+  StoreRow,
+  UserRow,
+} from "@/app/utils/types";
 import { deleteUserByAdmin, signUpByAdmin } from "../action";
 import { Database } from "@/app/utils/supabase/database.types";
 import { roleOptions } from "@/app/utils/constants";
 import { UserModal } from "./UserModal";
-import Affiliate from "./Affiliate";
+import { AffiliateUpdateModal } from "./AffiliateModal";
 
-export default function Roles() {
+export default function Affiliate() {
   const supabase = createClient();
-  const [usersData, setUsersData] = useState<UserRow[]>([]);
+  const [usersData, setUsersData] = useState<AffiliateRow[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [saving, setSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<UserRow>();
+  const [selectedUser, setSelectedUser] = useState<AffiliateRow>();
   const [selectedRole, setSelectedRole] = useState<any>(null);
   const { allStores: storeData } = useStoreContext();
-  const [roleModalOpen, setRoleModalOpen] = useState(false);
+  const [udpateModalOpen, setUpdateModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
   const [editData, setEditData] = useState<any>({});
@@ -98,42 +103,6 @@ export default function Roles() {
     }));
   };
 
-  const handleStoreChange = (_: any, newValue: StoreRow[]) => {
-    const isSelectAllClicked = newValue.some(
-      (item) => item.id === "all_stores"
-    );
-
-    if (isSelectAllClicked) {
-      const allStoresSelected = storeData.length === storeFilter.length;
-      const updatedSelection = allStoresSelected ? [] : storeData;
-
-      setStoreFilter(updatedSelection);
-      const selectedStores = updatedSelection.map((store) => store.id);
-
-      setFormData((prev) => ({ ...prev, store: selectedStores }));
-      setErrors((prev) => ({
-        ...prev,
-        store:
-          selectedStores.length === 0
-            ? "Please select at least one store."
-            : "",
-      }));
-    } else {
-      setStoreFilter(newValue);
-      const selectedStores = newValue.map((store) => store.id);
-
-      setFormData((prev) => ({ ...prev, store: selectedStores }));
-      setErrors((prev) => ({
-        ...prev,
-        store:
-          selectedStores.length === 0
-            ? "Please select at least one store."
-            : "",
-      }));
-    }
-  };
-  const optionsWithSelectAll = [...storeData];
-
   const handlePageChange = (
     _: any,
     newValue: { label: string; value: string }[]
@@ -145,7 +114,7 @@ export default function Roles() {
   };
 
   const handleRoleOpenModal = () => {
-    setRoleModalOpen(true);
+    setUpdateModalOpen(true);
   };
 
   const handleNewOpenModal = () => {
@@ -153,7 +122,7 @@ export default function Roles() {
   };
 
   const closeRoleModal = () => {
-    setRoleModalOpen(false);
+    setUpdateModalOpen(false);
     setSelectedRole(null);
   };
 
@@ -167,49 +136,24 @@ export default function Roles() {
   const handlePagination = (curPage: number) => {
     setPage(curPage);
   };
-  const handleCheckboxClick = (user: UserRow) => {
+  const handleCheckboxClick = (user: AffiliateRow) => {
     handleRoleOpenModal();
     setSelectedUser(user);
   };
-  const handleOnDelete = (user: UserRow) => {
+  const handleOnDelete = (user: AffiliateRow) => {
     setDeleteModalOpen(true);
     setSelectedUser(user);
   };
 
-  const handleRoleUpdate = async () => {
-    setSaving(true);
-    try {
-      if (!selectedRole) {
-        toast.error("Please select a role.");
-        return;
-      }
-      await supabase
-        .from("user")
-        .update({ role: selectedRole.value })
-        .eq("id", selectedUser!.id);
-
-      toast.success("Roles updated successfully.");
-
-      fetchUsersData();
-      closeRoleModal();
-      setSelectedUser(undefined);
-    } catch (error) {
-      console.error("Error updating roles:", error);
-      toast.error("Failed to update roles. Please try again.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const handleDelete = async () => {
     setSaving(true);
-    const { error } = await deleteUserByAdmin(selectedUser!.id);
-    if (!error) {
-      await fetchUsersData();
-      toast.success("User deleted successfully!");
-    } else {
-      toast.error("Error");
-    }
+    // const { error } = await deleteUserByAdmin(selectedUser!.id);
+    // if (!error) {
+    //   await fetchUsersData();
+    //   toast.success("User deleted successfully!");
+    // } else {
+    //   toast.error("Error");
+    // }
     setSaving(false);
     setDeleteModalOpen(false);
     setSelectedUser(undefined);
@@ -302,24 +246,11 @@ export default function Roles() {
       {
         field: "email",
         headerName: "Email",
-        customRender: (row: any) => {
+        customRender: (row: AffiliateRow) => {
           return (
             <div className="flex gap-2">
               <div>
-                <p className="text-white">{row?.email}</p>
-              </div>
-            </div>
-          );
-        },
-      },
-      {
-        field: "referral_code",
-        headerName: "Referral Code",
-        customRender: (row: any) => {
-          return (
-            <div className="flex gap-2">
-              <div>
-                <p className="text-white">{row?.referral_code}</p>
+                <p className="text-white">{row.user.email}</p>
               </div>
             </div>
           );
@@ -328,11 +259,11 @@ export default function Roles() {
       {
         field: "first_name",
         headerName: "First Name",
-        customRender: (row: any) => {
+        customRender: (row: AffiliateRow) => {
           return (
             <div className="flex gap-2">
               <div>
-                <p className="text-white">{row?.first_name}</p>
+                <p className="text-white">{row.user.first_name}</p>
               </div>
             </div>
           );
@@ -341,50 +272,47 @@ export default function Roles() {
       {
         field: "last_name",
         headerName: "Last Name",
-        customRender: (row: any) => {
+        customRender: (row: AffiliateRow) => {
           return (
             <div className="flex gap-2">
               <div>
-                <p className="text-white">{row?.last_name}</p>
+                <p className="text-white">{row.user.last_name}</p>
               </div>
             </div>
           );
         },
       },
       {
-        field: "user_name",
-        headerName: "User Name",
-        customRender: (row: any) => {
+        field: "customer_id",
+        headerName: "Customer ID",
+        customRender: (row: AffiliateRow) => {
           return (
             <div className="flex gap-2">
               <div>
-                <p className="text-white">{row?.user_name}</p>
+                <p className="text-white">{row.customer_id}</p>
               </div>
             </div>
           );
         },
       },
       {
-        field: "phone_number",
-        headerName: "Phone Number",
-        customRender: (row: any) => {
+        field: "status",
+        headerName: "Status",
+        customRender: (row: AffiliateRow) => {
           return (
             <div className="flex gap-2">
               <div>
-                <p className="text-white">{row?.phone_number}</p>
-              </div>
-            </div>
-          );
-        },
-      },
-      {
-        field: "role",
-        headerName: "Role",
-        customRender: (row: any) => {
-          return (
-            <div className="flex gap-2">
-              <div>
-                <p className="text-white">{row?.role}</p>
+                <p
+                  className={`${
+                    row.status == "Approved"
+                      ? "text-green-500"
+                      : row.status == "Pending"
+                      ? "text-yellow-400"
+                      : "text-white"
+                  }`}
+                >
+                  {row.status}
+                </p>
               </div>
             </div>
           );
@@ -399,8 +327,8 @@ export default function Roles() {
     try {
       const start = (page - 1) * limit;
       const { data, count, error } = await supabase
-        .from("user")
-        .select("*", { count: "exact" }) // Fetch data with exact count
+        .from("affiliates")
+        .select("*, user(*)", { count: "exact" }) // Fetch data with exact count
         .range(start, start + limit - 1);
 
       if (error) {
@@ -436,10 +364,10 @@ export default function Roles() {
 
   return (
     <div className="flex flex-col w-full gap-5">
-      <h1 className="text-2xl text-white">Roles</h1>
+      <h1 className="text-2xl text-white">Affiliates</h1>
 
-      {roleModalOpen && selectedUser && (
-        <UserModal
+      {udpateModalOpen && selectedUser && (
+        <AffiliateUpdateModal
           selectedUser={selectedUser}
           onClose={closeRoleModal}
           fetchUsers={fetchUsersData}
@@ -696,7 +624,6 @@ export default function Roles() {
         onCheckboxClick={handleCheckboxClick}
         onDelete={handleOnDelete}
       />
-      <Affiliate />
     </div>
   );
 }

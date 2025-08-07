@@ -8,3 +8,6 @@ export type AffiliateRequestRow =
 export type PayoutRow = Database["public"]["Tables"]["payouts"]["Row"];
 export type ReferralRow = Database["public"]["Tables"]["referrals"]["Row"];
 export type WalletRow = Database["public"]["Views"]["referral_view"]["Row"];
+export type AffiliateRow = AffiliateRequestRow & {
+  user: UserRow;
+};
