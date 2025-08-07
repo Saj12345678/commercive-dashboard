@@ -35,15 +35,17 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
     actionList: ["edit", "delete"],
     columns: [
       {
-        field: "store_url",
-        headerName: "Referred Store URL",
-        customRender: (row: WalletRow) => <p>{row.referred_store_url}</p>,
+        field: "customer_number",
+        headerName: "Customer",
+        customRender: (row: WalletRow) => <p>{row.customer_number}</p>,
       },
       {
+        field: "order_qty",
         headerName: "Order QTY",
         customRender: (row: WalletRow) => <p>{row.order_count || 0}</p>,
       },
       {
+        field: "total",
         headerName: "Total Commission",
         customRender: (row: WalletRow) => {
           return (

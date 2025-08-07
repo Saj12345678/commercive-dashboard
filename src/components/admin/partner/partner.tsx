@@ -1,7 +1,7 @@
 "use client";
 
 import CustomTable from "@/components/ui/custom-table";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import CustomButton from "../../ui/custom-button";
@@ -16,63 +16,62 @@ import { useStoreContext } from "@/context/StoreContext";
 import { ReferralRow, StoreRow } from "@/app/utils/types";
 import { Database } from "@/app/utils/supabase/database.types";
 import { WalletTable } from "./WalletTable";
+import { excelToTimestampZ } from "@/app/utils/date";
 
 const defaultHeaders = [
-  "user_name",
-  "referred_by",
-  "reffered_by_id",
+  "time",
+  "customer_number",
   "store_name",
   "commission_rate",
   "order_number",
   "quantity_of_order",
   "total_commission",
-  "order_time",
-  "customer_number",
-  "email",
 ];
 
 type ReferralInsert = Database["public"]["Tables"]["referrals"]["Insert"];
 
 const initialError = {
-  user_name: "",
-  email: "",
-  store_url: "",
+  store_name: "",
   referred_store_url: "",
   commission_rate: "",
   quantity_of_order: "",
-  paypal_address: "",
+  order_number: "",
+  customer_number: "",
+  order_time: "",
 };
 
 export default function Partner() {
   const supabase = createClient();
   const { allStores } = useStoreContext();
 
+  let limit = 5;
+  const initialFormData: ReferralInsert = {
+    store_name: allStores[0].store_name,
+    commission_rate: 0.2,
+    quantity_of_order: 0,
+    customer_number: "",
+    order_number: "",
+    uuid: "",
+    order_time: "",
+  };
+
+  const [storeFilter, setStoreFilter] = useState<StoreRow | null>(allStores[0]);
   const [referralsData, setReferralsData] = useState<ReferralRow[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  let limit = 5;
-
-  const initialFormData: ReferralInsert = {
-    user_name: "",
-    email: "",
-    store_url: allStores[0].store_url,
-    referred_store_url: allStores[0].store_url,
-    commission_rate: 0.2,
-    quantity_of_order: 0,
-    paypal_address: "",
-  };
-
   const [addNewModalOpen, setAddNewModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState(initialError);
-  const [storeFilter, setStoreFilter] = useState<StoreRow | null>(allStores[0]);
   const [referredStoreFilter, setReferredStoreFilter] =
     useState<StoreRow | null>(allStores[0]);
   const [triggerKey, setTriggerKey] = useState(0);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [uploadStore, setUploadStore] = useState(allStores[0]);
 
+  const fileRef = useRef<HTMLInputElement>(null);
   // Handle input changes
   const handleOnChange = (updatedField: Partial<typeof formData>) => {
     setFormData((prev) => ({
@@ -88,28 +87,30 @@ export default function Partner() {
     }));
   };
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const dateRegex = /^(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
   // Custom validation
   const validateForm = () => {
     const newErrors = {} as typeof initialError;
 
-    if (!formData.user_name?.trim())
-      newErrors.user_name = "User name is required.";
+    if (!formData.customer_number?.trim())
+      newErrors.customer_number = "Customer number is required.";
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required.";
-    } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address.";
+    if (!formData.order_number?.trim()) {
+      newErrors.order_number = "Order number is required.";
     }
 
-    if (!formData.store_url.trim())
-      newErrors.store_url = "Store URL is required.";
-    if (
-      !formData.referred_store_url.trim() ||
-      formData.store_url == formData.referred_store_url
-    )
-      newErrors.referred_store_url = "Invalid Referred Store URL.";
+    if (!dateRegex.test(formData.order_time.split("T")[0])) {
+      newErrors.order_time = "Invalid Order time.";
+    }
+
+    if (!formData.store_name.trim())
+      newErrors.store_name = "Store URL is required.";
+    // if (
+    //   !formData.referred_store_url.trim() ||
+    //   formData.store_name == formData.referred_store_url
+    // )
+    newErrors.referred_store_url = "Invalid Referred Store URL.";
     if (formData.commission_rate == 0) {
       newErrors.commission_rate = "Commission rate is required.";
     } else if (isNaN(Number(formData.commission_rate))) {
@@ -120,9 +121,9 @@ export default function Partner() {
     } else if (isNaN(Number(formData.quantity_of_order))) {
       newErrors.quantity_of_order = "Order QTY must be a number.";
     }
-    if (!formData.paypal_address?.trim()) {
-      newErrors.paypal_address = "Paypal address is required.";
-    }
+    // if (!formData.paypal_address?.trim()) {
+    //   newErrors.paypal_address = "Paypal address is required.";
+    // }
     console.log("newErrors :>> ", newErrors);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -139,24 +140,24 @@ export default function Partner() {
           ({ data, error } = await supabase
             .from("referrals")
             .update({
-              user_name: formData.user_name,
-              email: formData.email,
-              store_url: formData.store_url,
-              referred_store_url: formData.referred_store_url,
+              store_name: formData.store_name,
               commission_rate: formData.commission_rate,
               quantity_of_order: formData.quantity_of_order,
-              paypal_address: formData.paypal_address,
+              order_number: formData.order_number,
+              customer_number: formData.customer_number,
+              uuid: `${formData.customer_number}-${formData.order_number}`,
+              order_time: formData.order_time,
             } as ReferralRow)
             .eq("id", formData.id));
         } else {
           ({ data, error } = await supabase.from("referrals").insert({
-            user_name: formData.user_name,
-            email: formData.email,
-            store_url: formData.store_url,
-            referred_store_url: formData.referred_store_url,
+            store_name: formData.store_name,
             commission_rate: Number(formData.commission_rate),
             quantity_of_order: Number(formData.quantity_of_order),
-            paypal_address: formData.paypal_address,
+            customer_number: formData.customer_number,
+            order_number: formData.order_number,
+            order_time: formData.order_time,
+            uuid: `${formData.customer_number}-${formData.order_number}`,
           }));
         }
 
@@ -193,16 +194,16 @@ export default function Partner() {
     setPage(curPage);
   };
 
-  const uploadToSupabase = async (data: any[]) => {
+  const uploadToSupabase = async (data: ReferralInsert[]) => {
     try {
       const { data: insertedData, error } = await supabase
         .from("referrals")
-        .insert(data);
+        .upsert(data);
       if (error) {
         toast("Failed to upload data to Supabase.");
       } else {
+        await fetchReferralsData(page);
         toast(`Successfully uploaded rows to Supabase.`);
-        fetchReferralsData(page);
       }
     } catch (error) {
       toast("An unexpected error occurred.");
@@ -214,34 +215,11 @@ export default function Partner() {
   const handleFileUpload = (file: File) => {
     setIsLoading(true);
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
-    if (fileExtension === "csv") {
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true, // Ensure empty lines are not skipped
-        complete: function (results) {
-          const data = results.data;
-          // Filter out rows with all empty values (empty rows)
-          const filteredData = data.filter((row: any) =>
-            Object.values(row).some((value) => value !== null)
-          );
-
-          const sanitizedData = filteredData.map((row: any) => ({
-            customer_number: row["Customer number"] || "",
-            email: row["Email"] || "",
-            order_time: row["Time"] || "",
-            referred_store_name: row["Referred store name"] || "",
-            store_name: row["Store name"] || "",
-            commission_rate: row["Commission\n(Per order)"] || "",
-            order_number: row["Order number"] || "",
-            quantity_of_order: row["Quantity of orders"] || "",
-            paypal_address: "",
-            total_commission: row["Total Commission"] || "",
-          }));
-
-          uploadToSupabase(sanitizedData);
-        },
-      });
-    } else if (fileExtension === "xls" || fileExtension === "xlsx") {
+    if (
+      fileExtension === "xls" ||
+      fileExtension === "xlsx" ||
+      fileExtension === "csv"
+    ) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = new Uint8Array(e.target!.result as ArrayBuffer);
@@ -253,17 +231,17 @@ export default function Partner() {
           blankrows: false,
           defval: "",
         });
-        const sanitizedData = parsedData.map((row: any) => ({
-          customer_number: row["Customer number"] || "",
-          email: row["Email"] || "",
-          order_time: row["Time"] || "",
-          store_name: row["Store name"] || "",
-          referred_store_name: row["Referred store name"] || "",
-          commission_rate: row["Commission\n(Per order)"] || "",
-          order_number: row["Order number"] || "",
-          quantity_of_order: row["Quantity of orders"] || "",
-          paypal_address: "",
-          total_commission: row["Total Commission"] || "",
+        console.log("parsedData :>> ", parsedData.shift());
+        const sanitizedData = parsedData.map((row) => ({
+          // customer_number: row["Customer number"] || "",
+          order_time: excelToTimestampZ(parseInt(row["time"])),
+          store_name: row["store_name"] || "",
+          referred_store_url: referredStoreFilter!.store_url,
+          commission_rate: Number(row["commission_rate"]) || 0,
+          order_number: row["order_number"] || "",
+          quantity_of_order: Number(row["quantity_of_order"]) || 0,
+          customer_number: row["customer_number"],
+          uuid: `${row["customer_number"]}-${row["order_number"]}`,
         }));
 
         uploadToSupabase(sanitizedData);
@@ -321,46 +299,32 @@ export default function Partner() {
     actionList: ["edit", "delete"],
     columns: [
       {
-        field: "user_name",
-        headerName: "User",
-        customRender: (row: any) => {
-          return <p>{row?.user_name ? row?.user_name : "-"}</p>;
-        },
+        field: "order_time",
+        headerName: "Order Time",
+        customRender: (row: ReferralRow) => (
+          <div>{row.order_time.split("T")[0]}</div>
+        ),
       },
       {
-        field: "created_at",
-        headerName: "Time Created",
-        customRender: (row: any) => {
-          const formatDate = (dateString: string) => {
-            const date = new Date(dateString);
-            const year = date.getFullYear();
-            const month = date.getMonth() + 1; // Months are zero-based
-            const day = date.getDate();
-            return `${year}/${month}/${day}`;
-          };
-
-          return <div>{formatDate(row.created_at)}</div>;
-        },
+        field: "customer_number",
+        headerName: "Customer Number",
       },
       {
         field: "store_url",
-        headerName: "Store URL / Referred Store URL",
-        customRender: (row: ReferralRow) => (
-          <p>
-            {row.store_url} <br />({row.referred_store_url})
-          </p>
-        ),
+        headerName: "Store Name",
+        customRender: (row: ReferralRow) => <p>{row.store_name}</p>,
       },
       {
         field: "commission_rate",
         headerName: "Commission Rate",
-        customRender: (row: any) => <p>{row.commission_rate || 0}%</p>,
+        customRender: (row: any) => <p>{row.commission_rate || 0}$</p>,
       },
       {
         field: "quantity_of_order",
         headerName: "Order QTY",
       },
       {
+        field: "commission",
         headerName: "Commission",
         customRender: (row: ReferralRow) => {
           return (
@@ -381,8 +345,8 @@ export default function Partner() {
       const { data, count, error } = await supabase
         .from("referrals")
         .select("*", { count: "exact" }) // Fetch data with exact count
-        .range(start, start + limit - 1);
-
+        .range(start, start + limit - 1)
+        .order("id");
       if (error) {
         console.error("Error fetching referrals data:", error);
       } else {
@@ -410,6 +374,10 @@ export default function Partner() {
     }
   };
 
+  const handleUploadClick = () => {
+    fileRef.current?.click();
+  };
+
   // Fetch data whenever the page changes
   useEffect(() => {
     fetchReferralsData(page);
@@ -421,32 +389,33 @@ export default function Partner() {
       <div className="flex flex-col sm:flex-row w-full justify-between gap-3">
         <div className="flex gap-3">
           <CustomButton
-            label={"Add New"}
             className="w-max"
+            label="Add New"
             prefixIcon={<FiPlus size={24} />}
             callback={handleAddNewOpenModal}
           />
           <div className="flex gap-4 items-center">
-            <input
-              type="file"
-              id="selectedFile"
-              name="selectedFile"
-              accept=".csv,.xls,.xlsx"
-              onChange={handleFileChange}
-              className="hidden"
-              onClick={(e: any) => {
-                e.target.value = null;
-              }}
-            />
             <label
               htmlFor="selectedFile"
               className="flex cursor-pointer bg-[#4F11C9] text-[#F4F4F4] font-semibold py-2 px-4 rounded-[8px]"
             >
               <span>
                 <MdOutlineFileDownload size={24} color="#F4F4F4" />
-              </span>{" "}
+              </span>
               Upload CSV
             </label>
+            <input
+              className="hidden"
+              type="file"
+              id="selectedFile"
+              name="selectedFile"
+              accept=".csv,.xls,.xlsx"
+              onChange={handleFileChange}
+              onClick={(e: any) => {
+                e.target.value = null;
+              }}
+              ref={fileRef}
+            />
           </div>
         </div>
         {addNewModalOpen && (
@@ -459,37 +428,37 @@ export default function Partner() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full">
                     <InputField
-                      name="user"
-                      placeholder="Enter user name"
+                      name="customer_number"
+                      placeholder="Enter customer number"
                       type="text"
                       className="mt-[8px]"
-                      label={`User`}
-                      value={formData.user_name}
+                      label={`Customer Number`}
+                      value={formData.customer_number || ""}
                       onChange={(e: any) =>
-                        handleOnChange({ user_name: e.target.value })
+                        handleOnChange({ customer_number: e.target.value })
                       }
                     />
-                    {errors?.user_name && (
+                    {errors?.customer_number && (
                       <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.user_name}
+                        {errors?.customer_number}
                       </p>
                     )}
                   </div>
                   <div className="flex flex-col relative w-full">
                     <InputField
-                      name="email"
-                      placeholder="Enter user email"
-                      type="email"
+                      name="order_number"
+                      placeholder="Enter order number"
+                      type="text"
                       className="mt-[8px]"
-                      label={`Email`}
-                      value={formData.email}
+                      label={`Order Number`}
+                      value={formData.order_number || ""}
                       onChange={(e: any) =>
-                        handleOnChange({ email: e.target.value })
+                        handleOnChange({ order_number: e.target.value })
                       }
                     />
-                    {errors?.email && (
+                    {errors?.order_number && (
                       <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.email}
+                        {errors?.order_number}
                       </p>
                     )}
                   </div>
@@ -497,57 +466,26 @@ export default function Partner() {
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full gap-2">
-                    <label htmlFor="">Store URL</label>
-                    <div className="flex w-full">
-                      <Autocomplete
-                        options={allStores}
-                        getOptionLabel={(option) => option.store_url}
-                        value={storeFilter}
-                        onChange={(event, newValue) => {
-                          setStoreFilter(newValue);
-                          handleOnChange({ store_url: newValue?.store_url });
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            // label="Select store"
-                            variant="outlined"
-                            fullWidth
-                            sx={{
-                              "& .MuiOutlinedInput-root": {
-                                // color: "white",
-                                padding: "0px 10px !important",
-                                "& fieldset": { borderColor: "#403a6b" },
-                                "&:hover fieldset": { borderColor: "#403a6b" },
-                                "&.Mui-focused fieldset": {
-                                  borderColor: "#403a6b",
-                                },
-                              },
-                              "& .MuiInputLabel-root": { color: "white" },
-                              "& .MuiInputLabel-root.Mui-focused": {
-                                color: "white",
-                              },
-                              width: "100%",
-                            }}
-                            className="tests"
-                          />
-                        )}
-                        isOptionEqualToValue={(option, value) =>
-                          option.id === value.id
+                    <div className="flex flex-col relative w-full">
+                      <InputField
+                        name="store_name"
+                        placeholder="Enter Store Name"
+                        type="text"
+                        className="mt-[8px]"
+                        label={`Store Name`}
+                        value={formData.store_name}
+                        onChange={(e: any) =>
+                          handleOnChange({ store_name: e.target.value })
                         }
-                        clearOnEscape
-                        sx={{
-                          width: "100%",
-                        }}
                       />
+                      {errors?.store_name && (
+                        <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                          {errors?.store_name}
+                        </p>
+                      )}
                     </div>
-                    {errors?.store_url && (
-                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.store_url}
-                      </p>
-                    )}
                   </div>
-                  <div className="flex flex-col relative w-full gap-2">
+                  {/* <div className="flex flex-col relative w-full gap-2">
                     <label htmlFor="">Referred Store URL</label>
                     <div className="flex w-full">
                       <Autocomplete
@@ -599,24 +537,24 @@ export default function Partner() {
                         {errors?.referred_store_url}
                       </p>
                     )}
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full">
                     <InputField
-                      name="email"
-                      placeholder="Enter Paypal Address"
-                      type="email"
+                      name="order_time"
+                      placeholder="YYYY-MM-DD"
+                      type="text"
                       className="mt-[8px]"
-                      label={`Paypal address`}
-                      value={formData.paypal_address || ""}
+                      label={`Order Time (YYYY-MM-DD)`}
+                      value={formData.order_time.split("T")[0]}
                       onChange={(e: any) =>
-                        handleOnChange({ paypal_address: e.target.value })
+                        handleOnChange({ order_time: e.target.value })
                       }
                     />
-                    {errors?.paypal_address && (
+                    {errors?.order_time && (
                       <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.paypal_address}
+                        {errors?.order_time}
                       </p>
                     )}
                   </div>
@@ -689,16 +627,15 @@ export default function Partner() {
               setDeleteModalOpen(false);
               setFormData(initialFormData);
             }}
-            maxWidth={"max-w-[400px]"}
+            maxWidth="max-w-[400px]"
           >
             <div className="flex flex-col gap-6">
               <h2 className="text-lg font-semibold">Delete the Row?</h2>
-
               <div className="flex justify-end w-full">
                 <CustomButton
-                  label={"OK"}
-                  callback={deleteRow}
                   className="bg-[#342d5f] text-[#5e568f]"
+                  label="OK"
+                  callback={deleteRow}
                   interactingAPI={isLoading}
                   disabled={isLoading}
                 />
@@ -720,8 +657,8 @@ export default function Partner() {
               disabled={page === 1}
             />
             <CustomButton
-              label={"Next"}
               className="bg-[#342d5f] text-[#5e568f]"
+              label={"Next"}
               callback={handleNext}
               disabled={page >= Math.ceil(totalRecords / limit)}
             />

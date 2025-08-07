@@ -88,21 +88,31 @@ export type Database = {
           created_at: string
           id: number
           status: Database["public"]["Enums"]["AFFILIATE_STATUS"]
+          store_url: string | null
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: number
           status: Database["public"]["Enums"]["AFFILIATE_STATUS"]
+          store_url?: string | null
           user_id: string
         }
         Update: {
           created_at?: string
           id?: number
           status?: Database["public"]["Enums"]["AFFILIATE_STATUS"]
+          store_url?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "affiliates_store_url_fkey"
+            columns: ["store_url"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["store_url"]
+          },
           {
             foreignKeyName: "affiliates_user_id_fkey"
             columns: ["user_id"]
@@ -445,52 +455,37 @@ export type Database = {
         Row: {
           commission_rate: number
           created_at: string
-          email: string
+          customer_number: string
           id: number
-          paypal_address: string | null
+          order_number: string
+          order_time: string
           quantity_of_order: number
-          referred_store_url: string
-          store_url: string
-          user_name: string
+          store_name: string
+          uuid: string
         }
         Insert: {
           commission_rate: number
           created_at?: string
-          email: string
+          customer_number: string
           id?: number
-          paypal_address?: string | null
+          order_number: string
+          order_time: string
           quantity_of_order: number
-          referred_store_url: string
-          store_url: string
-          user_name: string
+          store_name: string
+          uuid: string
         }
         Update: {
           commission_rate?: number
           created_at?: string
-          email?: string
+          customer_number?: string
           id?: number
-          paypal_address?: string | null
+          order_number?: string
+          order_time?: string
           quantity_of_order?: number
-          referred_store_url?: string
-          store_url?: string
-          user_name?: string
+          store_name?: string
+          uuid?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "referrals_referred_store_url_fkey"
-            columns: ["referred_store_url"]
-            isOneToOne: false
-            referencedRelation: "stores"
-            referencedColumns: ["store_url"]
-          },
-          {
-            foreignKeyName: "referrals_store_url_fkey"
-            columns: ["store_url"]
-            isOneToOne: false
-            referencedRelation: "stores"
-            referencedColumns: ["store_url"]
-          },
-        ]
+        Relationships: []
       }
       session: {
         Row: {
@@ -722,19 +717,11 @@ export type Database = {
       referral_view: {
         Row: {
           count: number | null
+          customer_number: string | null
           order_count: number | null
-          referred_store_url: string | null
           total_amount: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "referrals_referred_store_url_fkey"
-            columns: ["referred_store_url"]
-            isOneToOne: false
-            referencedRelation: "stores"
-            referencedColumns: ["store_url"]
-          },
-        ]
+        Relationships: []
       }
       user_role_view: {
         Row: {
