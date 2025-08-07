@@ -11,4 +11,4 @@ select
 from
   referrals
 group by
-  referrals.referred_store_url
+  referrals.customer_number

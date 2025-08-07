@@ -213,7 +213,7 @@ export default function Home() {
   // Function to calculate total earnings
   const calculateEarnings = (orders: any, weekOffset = 0, status = "paid") => {
     const totalEarning = orders.reduce((total: number, order: any) => {
-      const financialStatus = order.financial_status.trim();
+      const financialStatus = order.financial_status?.trim();
       const subTotal = parseFloat(order.sub_total_price);
 
       if (financialStatus === status.trim()) {
