@@ -32,7 +32,6 @@ type ReferralInsert = Database["public"]["Tables"]["referrals"]["Insert"];
 
 const initialError = {
   store_name: "",
-  referred_store_url: "",
   commission_rate: "",
   quantity_of_order: "",
   order_number: "",
@@ -110,7 +109,6 @@ export default function Partner() {
     //   !formData.referred_store_url.trim() ||
     //   formData.store_name == formData.referred_store_url
     // )
-    newErrors.referred_store_url = "Invalid Referred Store URL.";
     if (formData.commission_rate == 0) {
       newErrors.commission_rate = "Commission rate is required.";
     } else if (isNaN(Number(formData.commission_rate))) {
@@ -196,9 +194,9 @@ export default function Partner() {
 
   const uploadToSupabase = async (data: ReferralInsert[]) => {
     try {
-      const { data: insertedData, error } = await supabase
+      const { error } = await supabase
         .from("referrals")
-        .upsert(data);
+        .upsert(data, { onConflict: "uuid" });
       if (error) {
         toast("Failed to upload data to Supabase.");
       } else {
@@ -232,16 +230,16 @@ export default function Partner() {
           defval: "",
         });
         console.log("parsedData :>> ", parsedData.shift());
-        const sanitizedData = parsedData.map((row) => ({
+        const sanitizedData = parsedData.map((row, idx) => ({
           // customer_number: row["Customer number"] || "",
           order_time: excelToTimestampZ(parseInt(row["time"])),
           store_name: row["store_name"] || "",
-          referred_store_url: referredStoreFilter!.store_url,
+          // referred_store_url: referredStoreFilter!.store_url,
           commission_rate: Number(row["commission_rate"]) || 0,
           order_number: row["order_number"] || "",
           quantity_of_order: Number(row["quantity_of_order"]) || 0,
           customer_number: row["customer_number"],
-          uuid: `${row["customer_number"]}-${row["order_number"]}`,
+          uuid: `${idx}-${row["customer_number"]}-${row["order_number"]}`,
         }));
 
         uploadToSupabase(sanitizedData);

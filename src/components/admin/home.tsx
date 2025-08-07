@@ -770,7 +770,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="flex min-h-[165px] flex-row overflow-auto whitespace-nowrap custom-scrollbar">
+        <div className="flex min-h-[165px] flex-row gap-4 overflow-auto whitespace-nowrap custom-scrollbar">
           {loadingCard ? (
             <FeatureCardSkeleton page="home" />
           ) : (
@@ -782,11 +782,11 @@ export default function Home() {
           )}
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-4 w-full">
-          <div className="flex-1 bg-[#342d5f] border-[#373163] rounded-[20px] lg:w-[50%]">
+        <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2">
+          <div className="flex-1 bg-[#342d5f] border-[#373163] rounded-[20px]">
             <Inventory data={inventoryData} />
           </div>
-          <div className="flex-1 bg-[#342d5f] border-[#373163] rounded-[20px] lg:w-[50%]">
+          <div className="flex-1 bg-[#342d5f] border-[#373163] rounded-[20px]">
             <Summary selectedRange={currentDateRange} />
           </div>
         </div>
