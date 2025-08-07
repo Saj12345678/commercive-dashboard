@@ -92,7 +92,7 @@ export const AffiliateUpdateModal: FC<AffiliateUpdateModalProps> = ({
             type="text"
             className="mt-[8px]"
             label="Google Form URL"
-            value={customerID || ""}
+            value={formURL || ""}
             onChange={(e: any) => setFormURL(e.target.value)}
           />
         </div>

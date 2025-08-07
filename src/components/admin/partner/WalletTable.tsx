@@ -78,8 +78,8 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
       const { data, count, error } = await supabase
         .from("referral_view")
         .select("*", { count: "exact" }) // Fetch data with exact count
-        .range(start, start + limit - 1);
-
+        .range(start, start + limit - 1)
+        .order("total_amount", { ascending: false });
       if (error) {
         console.error("Error fetching referrals data:", error);
       } else {
