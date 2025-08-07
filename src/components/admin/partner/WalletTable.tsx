@@ -1,14 +1,17 @@
 import { createClient } from "@/app/utils/supabase/client";
-import { WalletRow } from "@/app/utils/types";
+import { AffiliateRow, WalletRow } from "@/app/utils/types";
 import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
 import { useEffect, useState } from "react";
 
 let limit = 5;
 
+const affiliateMap = new Map<string, AffiliateRow>();
+
 export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
   const supabase = createClient();
   const [referralsData, setReferralsData] = useState<WalletRow[]>([]);
+  const [affiliates, setAffiliates] = useState<AffiliateRow[]>([]);
   const [page, setPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +41,15 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
         field: "customer_number",
         headerName: "Customer",
         customRender: (row: WalletRow) => <p>{row.customer_number}</p>,
+      },
+      {
+        filed: "user",
+        headerName: "User",
+        customRender: (row: WalletRow) => (
+          <p>
+            {affiliateMap.get(row.customer_number || "")?.user.email || "---"}
+          </p>
+        ),
       },
       {
         field: "order_qty",
@@ -80,6 +92,19 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchAffiliates = async () => {
+      const { data } = await supabase.from("affiliates").select("*, user(*)");
+      (data || []).forEach((affiliate) => {
+        if (affiliate.customer_id) {
+          affiliateMap.set(affiliate.customer_id, affiliate);
+        }
+      });
+      setAffiliates(data || []);
+    };
+    fetchAffiliates();
+  }, []);
 
   useEffect(() => {
     fetchReferralsData(page);
