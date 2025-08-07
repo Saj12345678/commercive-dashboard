@@ -127,7 +127,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const [userData, setUserData] = useState<any>({});
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [loading, setLoading] = useState(false);
-  const [referralLink, setReferralLink] = useState("");
+  const [referralLink, setReferralLink] = useState(affiliate?.store_url || "");
   const [isModalOpen, setModalOpen] = useState(false);
   const [tooltipInfoMessage, setTooltipInfoMessage] = useState("");
   const [isInfoTooltipOpen, setInfoIsTooltipOpen] = useState(false);
@@ -290,9 +290,6 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
       router.push("/commercive-partners");
       return;
     }
-    setReferralLink(
-      `https://docs.google.com/forms/d/e/1FAIpQLSfZ5jDq1QT3-gh5nKVpOS-PSxrbA6LWixPz4ud6ZhavD6W7rg/viewform?usp=header`
-    );
     setModalOpen(true);
   };
 
@@ -988,7 +985,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 type="text"
                 className="!h-10 !text-[#929292] text-sm"
                 label={""}
-                value={referralLink}
+                value={affiliate?.form_url || ""}
                 onChange={handleReferralLinkChange}
                 bgColor={"#F5F5F5"}
                 boxBorder={"border-transparent"}

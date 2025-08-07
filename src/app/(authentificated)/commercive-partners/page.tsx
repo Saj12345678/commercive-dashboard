@@ -30,33 +30,38 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { AffiliateRequest } from "./AffiliateRequest";
 import { useStoreContext } from "@/context/StoreContext";
+import { ReferralRow } from "@/app/utils/types";
+
+const getSundayOfWeek = (date: Date) => {
+  const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
+  const diff = day === 0 ? 0 : -day; // Adjust when today is Sunday
+  return new Date(date.setDate(date.getDate() + diff));
+};
+
+const getSaturdayOfWeek = (date: Date) => {
+  const sunday = getSundayOfWeek(new Date(date));
+  return new Date(sunday.setDate(sunday.getDate() + 6));
+};
+
+const getSundayOfLastWeek = (date: Date) => {
+  const sunday = getSundayOfWeek(new Date(date));
+  return new Date(sunday.setDate(sunday.getDate() - 7)); // Go back 7 days
+};
+const getSaturdayOfLastWeek = (date: Date): Date => {
+  const lastSunday = getSundayOfLastWeek(new Date(date));
+  return new Date(lastSunday.setDate(lastSunday.getDate() + 6)); // Move forward 6 days
+};
+
+const itemsPerPage = 5;
 
 export default function CommercivePartners() {
+  const supabase = createClient();
   const { affiliate } = useStoreContext();
 
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
   const comparePickerRef = useRef<HTMLDivElement | null>(null);
-  const supabase = createClient();
-  const router = useRouter();
-  const getSundayOfWeek = (date: Date) => {
-    const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
-    const diff = day === 0 ? 0 : -day; // Adjust when today is Sunday
-    return new Date(date.setDate(date.getDate() + diff));
-  };
 
-  const getSaturdayOfWeek = (date: Date) => {
-    const sunday = getSundayOfWeek(new Date(date));
-    return new Date(sunday.setDate(sunday.getDate() + 6));
-  };
-
-  const getSundayOfLastWeek = (date: Date) => {
-    const sunday = getSundayOfWeek(new Date(date));
-    return new Date(sunday.setDate(sunday.getDate() - 7)); // Go back 7 days
-  };
-  const getSaturdayOfLastWeek = (date: Date): Date => {
-    const lastSunday = getSundayOfLastWeek(new Date(date));
-    return new Date(lastSunday.setDate(lastSunday.getDate() + 6)); // Move forward 6 days
-  };
+  const [totalItems, setTotalItems] = useState(itemsPerPage);
   const [showCurrentDateRange, setShowCurrentDateRange] =
     useState<boolean>(false);
   const [tmpCurrentDateRange, setTmpCurrentDateRange] = useState<Range[]>([
@@ -173,9 +178,6 @@ export default function CommercivePartners() {
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [referralLink, setReferralLink] = useState(
-    "https://docs.google.com/forms/d/e/1FAIpQLSfZ5jDq1QT3-gh5nKVpOS-PSxrbA6LWixPz4ud6ZhavD6W7rg/viewform?usp=header"
-  );
   const [tooltipMessage, setTooltipMessage] = useState("");
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
   const [tooltipInfoMessage, setTooltipInfoMessage] = useState("");
@@ -199,17 +201,14 @@ export default function CommercivePartners() {
     },
     {
       name: "Wallet",
-      amount: "1393.72",
+      amount: "0",
       percentage: "4%",
       color: "#7A94F6",
       bgColor: "#DDE4FC",
       series: [25, 30, 22, 40, 55],
     },
   ]);
-  const itemsPerPage = 2;
-  const [tableData, setTableData] = useState([
-    { image: "", name: "", email: "", amount: "", commission: "" },
-  ]);
+  const [tableData, setTableData] = useState<ReferralRow[]>([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [loadingCard, setLoadingCard] = useState(true);
   const [userId, setUserId] = useState<string>();
@@ -223,13 +222,13 @@ export default function CommercivePartners() {
   };
 
   const handleReferralLinkChange = (event: any) => {
-    setReferralLink(event.target.value);
+    // setReferralLink(event.target.value);
   };
 
   const handleReferralLinkCopy = () => {
-    if (referralLink) {
+    if (affiliate?.form_url) {
       navigator.clipboard
-        .writeText(referralLink)
+        .writeText(affiliate.form_url)
         .then(() => {
           setTooltipMessage("Copied!");
           setIsTooltipOpen(true);
@@ -248,7 +247,7 @@ export default function CommercivePartners() {
   };
   const handleLinkInfoCopy = () => {
     const textToCopy = `Hey! I just started using this fantastic Order Tracking App that keeps me updated on all my deliveries. It’s super convenient and saves me so much time! If you sign up with my link, we both get exclusive discounts on our next orders. Check it out!
-    ${referralLink}`;
+    ${affiliate?.form_url}`;
     if (textToCopy) {
       navigator.clipboard
         .writeText(textToCopy)
@@ -275,7 +274,7 @@ export default function CommercivePartners() {
     status: string
   ): number => {
     const totalEarning = orders.reduce((total: number, order: any) => {
-      const financialStatus = order.financial_status.trim();
+      const financialStatus = order.financial_status?.trim();
       const subTotal = parseFloat(order.sub_total_price);
 
       if (financialStatus === status.trim()) {
@@ -292,7 +291,6 @@ export default function CommercivePartners() {
     return (totalSpending * commissionRate).toFixed(2);
   };
 
-  const totalItems = tableData.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const nextPage = () => {
@@ -357,6 +355,7 @@ export default function CommercivePartners() {
   };
 
   const fetchOrders = async (currentDateRange: any, compareDateRange: any) => {
+    if (!affiliate?.customer_id) return;
     const formatDateForQuery = (date: Date) => {
       const isoString = date.toISOString();
       return isoString.split("Z")[0];
@@ -388,8 +387,14 @@ export default function CommercivePartners() {
       const { data: referral, error: referralsError } = await supabase
         .from("referrals")
         .select("*")
+        .match({ customer_number: affiliate.customer_id })
         .gte("created_at", formattedStartDate)
         .lte("created_at", formattedEndDate);
+      const { data: walletRow } = await supabase
+        .from("referral_view")
+        .select()
+        .eq("customer_number", affiliate.customer_id)
+        .single();
 
       const { data: pastWeekReferral, error: pastWeekReferralsError } =
         await supabase
@@ -402,7 +407,7 @@ export default function CommercivePartners() {
         console.error("Error fetching orders:", orderError, referralsError);
         setLoading(false);
       } else {
-        const totalEarnings = calculateEarnings(orderData, 0, "paid");
+        const totalEarnings = walletRow?.total_amount || 0;
         const pendingEarnings = calculateEarnings(orderData, 0, "pending");
         const totalEarningsPastWeek = calculateEarnings(
           pastWeekOrders,
@@ -453,7 +458,7 @@ export default function CommercivePartners() {
           }
         );
 
-        setTableData(updatedTableData);
+        // setTableData(updatedTableData);
 
         const pendingRecords = orderData.filter(
           (data) => data.financial_status?.trim().toLowerCase() === "pending"
@@ -546,59 +551,41 @@ export default function CommercivePartners() {
     }
   };
 
+  const fetchReferrals = async () => {
+    if (affiliate?.customer_id) {
+      setLoading(true);
+      const { data, count } = await supabase
+        .from("referrals")
+        .select("*", { count: "exact" })
+        .eq("customer_number", affiliate?.customer_id)
+        .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+        .order("quantity_of_order", { ascending: false });
+      setTotalItems(count || 0);
+      setTableData(data || []);
+      setLoading(false);
+      setLoadingCard(false);
+    } else {
+      setLoading(false);
+      setLoadingCard(false);
+    }
+  };
+
   useEffect(() => {
     if (currentDateRange && compareDateRange) {
       handleFetchData();
     }
   }, [currentDateRange, compareDateRange]);
 
-  const filteredData = tableData.filter(
-    (item) =>
-      item.name?.trim() !== "" &&
-      item.email?.trim() !== "" &&
-      item.amount?.trim() !== "" &&
-      item.commission?.trim() !== ""
-  );
-
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
   useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user?.id) {
-        router.push("/login");
-      }
-
-      setUserId(user?.id);
-    };
-
-    fetchUser();
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoadingCard(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
+    fetchReferrals();
+  }, [currentPage, itemsPerPage]);
 
   return (
     <>
       <main
-        style={{ height: "calc(100vh - 70px)" }}
+        style={{ maxHeight: "calc(100vh - 70px)" }}
         className="relative flex flex-col w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FAFAFA] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
-        {/* {loading && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="loader"></div>
-          </div>
-        )} */}
         <div className="flex flex-col md:flex-row w-full justify-between gap-2">
           <div className="flex flex-col gap-1">
             <div className="flex gap-2 items-center justify-center">
@@ -636,7 +623,7 @@ export default function CommercivePartners() {
             }}
             onClick={handleAffiliateClick}
           >
-            {loading ? "Generating..." : "Affiliate Link"}
+            Affiliate Link
           </Button>
         </div>
 
@@ -781,7 +768,7 @@ export default function CommercivePartners() {
           </div>
         </div>
 
-        <div className="flex flex-row gap-4 overflow-auto whitespace-nowrap custom-scrollbar">
+        <div className="flex flex-row gap-4 overflow-auto whitespace-nowrap custom-scrollbar min-h-[180px]">
           {loadingCard ? (
             <FeatureCardSkeleton page="commercive" />
           ) : (
@@ -807,7 +794,6 @@ export default function CommercivePartners() {
                     <TableRow>
                       <TableCell
                         style={{
-                          width: "30%",
                           color: "#454545",
                           fontWeight: "600",
                         }}
@@ -816,12 +802,11 @@ export default function CommercivePartners() {
                           variant="body1"
                           sx={{ color: "black", fontWeight: "bold" }}
                         >
-                          User
+                          Store Name
                         </Typography>
                       </TableCell>
                       <TableCell
                         style={{
-                          width: "50%",
                           color: "#454545",
                           fontWeight: "600",
                         }}
@@ -830,77 +815,46 @@ export default function CommercivePartners() {
                           variant="body1"
                           sx={{ color: "black", fontWeight: "bold" }}
                         >
-                          Order Amount
+                          Order QTY
                         </Typography>
                       </TableCell>
                       <TableCell
                         style={{
-                          width: "20%",
                           color: "#454545",
                           fontWeight: "600",
-                          textAlign: "end",
                         }}
                       >
                         <Typography
                           variant="body1"
                           sx={{ color: "black", fontWeight: "bold" }}
                         >
+                          Commision Rate
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography sx={{ color: "black", fontWeight: "bold" }}>
                           Commission
                         </Typography>
                       </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {paginatedData.length > 0 ? (
-                      paginatedData.map((item, index) => (
+                    {tableData.length > 0 ? (
+                      tableData.map((item, index) => (
                         <TableRow
                           key={index}
                           style={{ border: "2px solid #F4F4F7" }}
                         >
-                          <TableCell>
-                            <div style={{ display: "flex", gap: "16px" }}>
-                              <div
-                                style={{
-                                  backgroundColor: "#F4F4F7",
-                                  width: "48px",
-                                  height: "48px",
-                                  borderRadius: "8px",
-                                }}
-                              >
-                                {item.image}
-                              </div>
-                              <div>
-                                <Typography
-                                  variant="body1"
-                                  style={{
-                                    color: "#454545",
-                                    fontWeight: "600",
-                                  }}
-                                >
-                                  {item.name}
-                                </Typography>
-                                <Typography
-                                  variant="body2"
-                                  style={{ color: "#A8A8A9" }}
-                                >
-                                  {item.email}
-                                </Typography>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell
-                            style={{ color: "#454545", fontWeight: "600" }}
-                          >
-                            ${item.amount}
-                          </TableCell>
+                          <TableCell>{item.store_name}</TableCell>
+                          <TableCell>{item.quantity_of_order}</TableCell>
+                          <TableCell>${item.commission_rate}</TableCell>
                           <TableCell
                             style={{
                               color: "#47A83C",
                               fontWeight: "600",
-                              textAlign: "end",
                             }}
                           >
-                            ${item.commission}
+                            ${item.commission_rate * item.quantity_of_order}
                           </TableCell>
                         </TableRow>
                       ))
@@ -973,7 +927,7 @@ export default function CommercivePartners() {
         {isModalOpen && (
           <CustomModal maxWidth={"w-max"}>
             <div className="flex flex-col rounded p-2 gap-4">
-              <div className="flex justify-between">
+              <div className="flex justify-between cursor-pointer">
                 <p className="text-xl font-semibold">Share</p>
                 <MdOutlineClose size={24} onClick={closeModal} />
               </div>
@@ -987,10 +941,8 @@ export default function CommercivePartners() {
                   type="text"
                   className="!h-10 !text-[#929292] text-sm"
                   label={""}
-                  value={
-                    "https://docs.google.com/forms/d/e/1FAIpQLSfZ5jDq1QT3-gh5nKVpOS-PSxrbA6LWixPz4ud6ZhavD6W7rg/viewform?usp=header"
-                  }
-                  onChange={handleReferralLinkChange}
+                  value={affiliate?.form_url || ""}
+                  // onChange={handleReferralLinkChange}
                   bgColor={"#F5F5F5"}
                   boxBorder={"border-transparent"}
                   readOnly
@@ -1040,7 +992,7 @@ export default function CommercivePartners() {
                   link, we both get exclusive discounts on our next orders.
                   Check it out!
                   <br />
-                  {referralLink}
+                  {affiliate?.form_url || ""}
                 </p>
               </div>
             </div>

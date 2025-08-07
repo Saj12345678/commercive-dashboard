@@ -24,11 +24,11 @@ export default function FeatureCard({
   userId,
 }: FeatureCardProps) {
   const supabase = createClient();
+  const { selectedStore, userinfo } = useStoreContext();
   const [isModalOpen, setModalOpen] = useState(false);
-  const [address, setAddress] = useState<string>("");
+  const [address, setAddress] = useState<string>(userinfo!.email || "");
   const [selectedAmount, setSelectedAmount] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const { selectedStore } = useStoreContext();
 
   const handlePayoutChange = (e: any) => {
     const { name, value } = e.target;
@@ -78,7 +78,6 @@ export default function FeatureCard({
     setSelectedAmount("");
     setAddress("");
   };
-
   return (
     <>
       {data?.map((data: any, index: any) => (
