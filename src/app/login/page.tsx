@@ -3,15 +3,18 @@
 import CustomButton from "@/components/ui/custom-button";
 import { useRouter } from "next/navigation";
 import { login } from "./actions";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { ActionResponse } from "@/components/type-identifiers";
 import LogoIcon from "@/components/images/full-logo";
 import { createClient } from "../utils/supabase/client";
+import { IoIosEye } from "react-icons/io";
+import { IoEyeOff } from "react-icons/io5";
 
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
+  const [showPassword, setShowPassword] = useState(false);
   const [state, formAction] = useActionState<ActionResponse<void>, FormData>(
     login,
     null
@@ -58,7 +61,7 @@ export default function LoginPage() {
     };
 
     checkUser();
-  }, [supabase]);
+  }, []);
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
@@ -93,18 +96,26 @@ export default function LoginPage() {
                 className="w-full border-2 border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="block text-gray-600 mb-2">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 required
                 className="w-full border-2 border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              <div
+                className="absolute z-10 right-2.5 bottom-2.5 cursor-pointer"
+                onClick={() => {
+                  setShowPassword(!showPassword);
+                }}
+              >
+                {showPassword ? <IoEyeOff size={25} /> : <IoIosEye size={25} />}
+              </div>
             </div>
             <CustomButton
               type="submit"
