@@ -169,7 +169,7 @@ export default function Inventory() {
   };
 
   return (
-    <main className="flex flex-col h-full max-h-full w-full gap-3 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar">
+    <main className="flex flex-col h-full max-h-full w-full gap-3 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FAFAFA] p-4 md:p-8 overflow-auto custom-scrollbar">
       {/* {loading && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="loader"></div>
@@ -194,7 +194,9 @@ export default function Inventory() {
         {/* Category Tabs */}
       </div>
       <div className="flex flex-col sm:flex-row sm:items-center w-full gap-5 py-2">
-        <p className="text-[36px] font-bold ">{filteredData.length}</p>
+        <p className="text-[30px] font-bold whitespace-nowrap">
+          {selectedTab} - {filteredData.length}
+        </p>
         <div className="flex w-full flex-wrap gap-2 sm:gap-4">
           {[
             { label: "All", color: "gray" },

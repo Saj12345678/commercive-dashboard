@@ -178,14 +178,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [chartData, setChartData] = useState([
     {
-      name: "Unfulfilled Orders",
-      amount: "0",
-      percentage: "0%",
-      color: "#4F11C9",
-      bgColor: "#E5DCFB",
-      series: [0, 0, 0, 0, 0],
-    },
-    {
       name: "Total Sales",
       amount: "0",
       percentage: "0%",
@@ -195,8 +187,8 @@ export default function Home() {
     },
     {
       name: "Total Cost",
-      amount: "5356.62",
-      percentage: "15%",
+      amount: "0",
+      percentage: "0%",
       color: "#47A83C",
       bgColor: "#BFFBB7",
       series: [0, 0, 0, 0, 0],
@@ -207,6 +199,14 @@ export default function Home() {
       percentage: "0%",
       color: "#7A94F6",
       bgColor: "#DDE4FC",
+      series: [0, 0, 0, 0, 0],
+    },
+    {
+      name: "Unfulfilled Orders",
+      amount: "0",
+      percentage: "0%",
+      color: "#4F11C9",
+      bgColor: "#E5DCFB",
       series: [0, 0, 0, 0, 0],
     },
   ]);
@@ -578,7 +578,7 @@ export default function Home() {
     <>
       <main
         // style={{ height: "calc(100vh - 70px)" }}
-        className="flex flex-col h-full max-h-full w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] p-4 md:p-8 overflow-auto custom-scrollbar"
+        className="flex flex-col h-full max-h-full w-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FAFAFA] p-4 md:p-8 overflow-auto custom-scrollbar"
       >
         {/* {loading && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -768,7 +768,7 @@ export default function Home() {
           </div> */}
         </div>
 
-        <div className="flex min-h-[165px] flex-row overflow-auto whitespace-nowrap custom-scrollbar">
+        <div className="flex min-h-[165px] flex-row gap-4 overflow-auto whitespace-nowrap custom-scrollbar">
           {loadingCard ? (
             <FeatureCardSkeleton page="home" />
           ) : (
@@ -780,11 +780,11 @@ export default function Home() {
           )}
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-4 w-full">
-          <div className="flex-1 bg-white lg:w-[50%]">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-4">
+          <div className="flex-shrink flex-1">
             <Inventory data={inventoryData} />
           </div>
-          <div className="flex-1 bg-white lg:w-[50%]">
+          <div className="flex-shrink flex-1">
             <Summary selectedRange={currentDateRange} />
           </div>
         </div>

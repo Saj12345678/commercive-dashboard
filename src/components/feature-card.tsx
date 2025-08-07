@@ -82,10 +82,10 @@ export default function FeatureCard({
   return (
     <>
       {data?.map((data: any, index: any) => (
-        <div className="flex basis-1 flex-1" key={index}>
+        <div className="flex flex-1" key={index}>
           <div
             className={`flex flex-col w-full bg-[#ffffff] ${
-              index === 3 ? "mr-0" : "mr-6"
+              index === 3 ? "mr-0" : "mr-0"
             } pl-6 py-4 pr-4 flex-0 overflow-hidden custom-box-shadow`}
           >
             <div className="flex w-full flex-col gap-2">

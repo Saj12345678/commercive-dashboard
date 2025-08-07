@@ -208,7 +208,7 @@ export default function Chat() {
                   className="w-full px-2 py-1 border"
                   rows={5}
                   name="issue"
-                  placeholder="This is my issue."
+                  placeholder="Tell us what you'd like a quote for, or how we can help."
                   value={issue}
                   onChange={(e) => setIssue(e.target.value)}
                 />

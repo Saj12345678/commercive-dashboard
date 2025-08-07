@@ -54,7 +54,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex flex-col w-full h-screen p-4 md:p-8 max-h-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FCFCFC] overflow-auto custom-scrollbar">
+    <div className="flex flex-col w-full h-screen p-4 md:p-8 max-h-full gap-5 border-l-none md:border-l-2 border-t-2 border-[#F4F4F7] rounded-tl-0 md:rounded-tl-[24px] bg-[#FAFAFA] overflow-auto custom-scrollbar">
       <div className="flex flex-col gap-5 max-w-[400px] w-full">
         <InputField
           name="password"
