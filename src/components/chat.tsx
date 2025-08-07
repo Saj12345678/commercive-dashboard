@@ -202,7 +202,7 @@ export default function Chat() {
 
               <div className="flex flex-col gap-1">
                 <label className="font-semibold" htmlFor="issue">
-                  Please describe your issue
+                  Request a Quote or Help
                 </label>
                 <textarea
                   className="w-full px-2 py-1 border"

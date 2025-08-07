@@ -353,11 +353,11 @@ export default function Inventory() {
           onChange={handleItemsPerPageChange}
           className="border-2 rounded p-1"
         >
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-          <option value={25}>25</option>
-          <option value={50}>50</option>
+          <option value={5}>5 per page</option>
+          <option value={10}>10 per page</option>
+          <option value={20}>20 per page</option>
+          <option value={25}>25 per page</option>
+          <option value={50}>50 per page</option>
         </select>
 
         <div className="flex gap-2 items-center">
