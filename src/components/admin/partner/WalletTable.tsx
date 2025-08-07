@@ -112,24 +112,27 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
 
   return (
     <div>
-      <div className="flex justify-end items-center gap-3 w-full mb-4">
-        <p className="text-[#5e568f]">
-          Showing {(page - 1) * limit + 1}-
-          {Math.min(page * limit, totalRecords)} of {totalRecords}
-        </p>
+      <div className="flex mb-4 justify-between">
+        <h1 className="text-2xl text-white">Partner Summary</h1>
         <div className="flex items-center gap-3">
-          <CustomButton
-            label={"Previous"}
-            className="bg-[#342d5f] text-[#5e568f]"
-            callback={handlePrevious}
-            disabled={page === 1}
-          />
-          <CustomButton
-            label={"Next"}
-            className="bg-[#342d5f] text-[#5e568f]"
-            callback={handleNext}
-            disabled={page >= Math.ceil(totalRecords / limit)}
-          />
+          <p className="text-[#5e568f]">
+            Showing {(page - 1) * limit + 1}-
+            {Math.min(page * limit, totalRecords)} of {totalRecords}
+          </p>
+          <div className="flex items-center gap-3">
+            <CustomButton
+              label={"Previous"}
+              className="bg-[#342d5f] text-[#5e568f]"
+              callback={handlePrevious}
+              disabled={page === 1}
+            />
+            <CustomButton
+              label={"Next"}
+              className="bg-[#342d5f] text-[#5e568f]"
+              callback={handleNext}
+              disabled={page >= Math.ceil(totalRecords / limit)}
+            />
+          </div>
         </div>
       </div>
       <CustomTable
