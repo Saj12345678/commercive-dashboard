@@ -355,8 +355,6 @@ export default function Affiliate() {
 
   return (
     <div className="flex flex-col w-full gap-5">
-      <h1 className="text-2xl text-white">Affiliates</h1>
-
       {udpateModalOpen && selectedUser && (
         <AffiliateUpdateModal
           selectedUser={selectedUser}
@@ -460,14 +458,15 @@ export default function Affiliate() {
           </div>
         </CustomModal>
       )}
-      <div className="flex flex-col sm:flex-row w-full justify-between gap-3">
+      <div className="flex flex-col sm:flex-row w-full justify-between gap-3 mt-4">
         <div className="flex">
-          <CustomButton
+          {/* <CustomButton
             label={"Add New"}
             className="w-max"
             prefixIcon={<FiPlus size={24} />}
             // callback={handleNewOpenModal}
-          />
+          /> */}
+          <h1 className="text-2xl text-white">Affiliates</h1>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <p className="text-[#5e568f]">

@@ -6,10 +6,11 @@ import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
 import { toast } from "react-toastify";
 import { Button } from "@mui/material";
+import { IssueRow } from "@/app/utils/types";
 
 export default function Ticket() {
   const supabase = createClient();
-  const [ticketsData, setTicketsData] = useState([]);
+  const [ticketsData, setTicketsData] = useState<IssueRow[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +29,7 @@ export default function Ticket() {
     columns: [
       {
         field: "name",
-        headerName: "Name",
+        headerName: "User Name",
         customRender: (row: any) => <span>{row.name}</span>,
       },
       {
@@ -91,7 +92,13 @@ export default function Ticket() {
         field: "confirmed",
         headerName: "Confirmed",
         customRender: (row: any) => (
-          <span>{row.confirmed ? "True" : "False"}</span>
+          <span
+            className={`${
+              row.confirmed ? "text-green-500" : "text-yellow-400"
+            }`}
+          >
+            {row.confirmed ? "Solved" : "Pending"}
+          </span>
         ),
       },
     ],
@@ -102,11 +109,11 @@ export default function Ticket() {
     setIsLoading(true);
     try {
       const start = (currentPage - 1) * limit;
-      const { data, count, error }: any = await supabase
+      const { data, count, error } = await supabase
         .from("issues")
         .select("*", { count: "exact" }) // Fetch data with exact count
-        .range(start, start + limit - 1);
-
+        .range(start, start + limit - 1)
+        .order("created_at", { ascending: false });
       if (error) {
         console.error("Error fetching issues data:", error);
       } else {
@@ -136,29 +143,16 @@ export default function Ticket() {
     fetchTicketsData(page);
   }, [page]);
 
-  const handleCheckboxClick = async (id: number) => {
-    setSelectedTickets((prevSelectedTickets) => {
-      const isCurrentlySelected = prevSelectedTickets.includes(id);
-      const newSelectionState = !isCurrentlySelected;
-
-      const updatedTickets = newSelectionState
-        ? [...prevSelectedTickets, id]
-        : prevSelectedTickets.filter((ticketId) => ticketId !== id);
-
-      return updatedTickets;
-    });
-
-    const isCurrentlySelected = selectedTickets.includes(id);
-    const newSelectionState = !isCurrentlySelected;
-
+  const handleCheckboxClick = async (row: IssueRow) => {
     // Update Supabase
     const { data, error }: any = await supabase
       .from("issues")
-      .update({ confirmed: newSelectionState })
-      .eq("id", id)
-      .select();
+      .update({ confirmed: !row.confirmed })
+      .eq("id", row.id)
+      .select()
+      .single();
 
-    if (data[0]?.confirmed) {
+    if (data?.confirmed) {
       toast("Confirm successfully.");
     } else {
       toast("Disapprove successfully.");
@@ -172,8 +166,8 @@ export default function Ticket() {
 
   return (
     <div className="flex flex-col w-full gap-5">
-      <h1 className="text-2xl text-white">Tickets</h1>
-      <div className="flex flex-col sm:flex-row w-full justify-end gap-3">
+      <div className="flex flex-col sm:flex-row w-full justify-end gap-3 justify-between">
+        <h1 className="text-2xl text-white">Tickets</h1>
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <p className="text-[#5e568f]">
             Showing {(page - 1) * limit + 1}-
