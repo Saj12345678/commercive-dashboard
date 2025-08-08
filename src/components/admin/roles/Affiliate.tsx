@@ -28,6 +28,7 @@ import { Database } from "@/app/utils/supabase/database.types";
 import { roleOptions } from "@/app/utils/constants";
 import { UserModal } from "./UserModal";
 import { AffiliateUpdateModal } from "./AffiliateModal";
+import { getStatusColor } from "@/app/utils/utils";
 
 export default function Affiliate() {
   const supabase = createClient();
@@ -302,17 +303,7 @@ export default function Affiliate() {
           return (
             <div className="flex gap-2">
               <div>
-                <p
-                  className={`${
-                    row.status == "Approved"
-                      ? "text-green-500"
-                      : row.status == "Pending"
-                      ? "text-yellow-400"
-                      : "text-white"
-                  }`}
-                >
-                  {row.status}
-                </p>
+                <p className={`${getStatusColor(row.status)}`}>{row.status}</p>
               </div>
             </div>
           );

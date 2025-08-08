@@ -1,5 +1,6 @@
 import { createClient } from "@/app/utils/supabase/client";
 import { AffiliateRow, PayoutViewRow } from "@/app/utils/types";
+import { getStatusColor } from "@/app/utils/utils";
 import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
 import { useEffect, useState } from "react";
@@ -44,7 +45,9 @@ export const PayoutView = ({ triggerKey }: { triggerKey: number }) => {
       {
         filed: "user",
         headerName: "User",
-        customRender: (row: PayoutViewRow) => <p>{row.status}</p>,
+        customRender: (row: PayoutViewRow) => (
+          <p className={getStatusColor(row.status!)}>{row.status}</p>
+        ),
       },
       {
         field: "order_qty",
@@ -56,7 +59,7 @@ export const PayoutView = ({ triggerKey }: { triggerKey: number }) => {
         headerName: "Total Payout",
         customRender: (row: PayoutViewRow) => {
           return (
-            <p className="text-[#4aaa40]">
+            <p className={getStatusColor(row.status!)}>
               ${(row.total_amount || 0).toFixed(2)}
             </p>
           );

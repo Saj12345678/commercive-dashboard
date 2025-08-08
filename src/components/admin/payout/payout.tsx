@@ -11,6 +11,7 @@ import InputField from "../../ui/custom-inputfild";
 import { MenuItem, Select } from "@mui/material";
 import { AFFILIATE_STATUS } from "@/app/utils/constants";
 import { PayoutView } from "./PayoutView";
+import { getStatusColor } from "@/app/utils/utils";
 
 const initialError = {
   email: "",
@@ -89,7 +90,9 @@ export default function Payout() {
       {
         field: "status",
         headerName: "Status",
-        customRender: (row: any) => <span>{row.status}</span>,
+        customRender: (row: any) => (
+          <span className={getStatusColor(row.status)}>{row.status}</span>
+        ),
       },
     ],
     rows: payoutsData || [],
@@ -106,7 +109,8 @@ export default function Payout() {
       } = await supabase
         .from("payouts")
         .select("*, user(*)", { count: "exact" })
-        .range(start, start + limit - 1);
+        .range(start, start + limit - 1)
+        .order("created_at", { ascending: false });
 
       if (payoutError) {
         console.error("Error fetching payouts data:", payoutError);
