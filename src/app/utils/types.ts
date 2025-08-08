@@ -15,3 +15,7 @@ export type AffiliateRow = AffiliateRequestRow & {
 export type PayoutUserRow = PayoutRow & {
   user: UserRow;
 };
+export type PayoutViewRow =
+  Database["public"]["Views"]["payout_view"]["Row"] & {
+    user: UserRow | null;
+  };

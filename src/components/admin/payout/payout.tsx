@@ -6,10 +6,11 @@ import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
 import { toast } from "react-toastify";
 import { PayoutInsert, PayoutRow, PayoutUserRow } from "@/app/utils/types";
-import CustomModal from "../ui/modal";
-import InputField from "../ui/custom-inputfild";
+import CustomModal from "../../ui/modal";
+import InputField from "../../ui/custom-inputfild";
 import { MenuItem, Select } from "@mui/material";
 import { AFFILIATE_STATUS } from "@/app/utils/constants";
+import { PayoutView } from "./PayoutView";
 
 const initialError = {
   email: "",
@@ -37,6 +38,7 @@ export default function Payout() {
   const [formData, setFormData] = useState(initialFormData);
   const [errors, setErrors] = useState(initialError);
   const [isSaving, setIsSaving] = useState(false);
+  const [triggerKey, setTriggerKey] = useState(0);
 
   let limit = 5;
 
@@ -121,7 +123,6 @@ export default function Payout() {
         ...payout,
         name: payout.user.user_name,
       }));
-
       setPayoutsData(updatedPayouts);
       setTotalRecords(count || 0);
     } catch (error) {
@@ -180,6 +181,7 @@ export default function Payout() {
       if (error) {
         toast.error(error.message);
       } else {
+        setTriggerKey(triggerKey + 1);
         await fetchPayoutsData(page);
         toast.success("Update Row Success!");
       }
@@ -351,6 +353,7 @@ export default function Payout() {
         onCheckboxClick={handleCheckboxClick}
         onDelete={handleDelete}
       />
+      <PayoutView triggerKey={triggerKey} />
     </div>
   );
 }

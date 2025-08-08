@@ -720,6 +720,30 @@ export type Database = {
       }
     }
     Views: {
+      payout_view: {
+        Row: {
+          status: Database["public"]["Enums"]["AFFILIATE_STATUS"] | null
+          total_amount: number | null
+          total_count: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_role_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       referral_view: {
         Row: {
           count: number | null
