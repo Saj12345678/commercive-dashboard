@@ -14,20 +14,22 @@ export interface FeatureCardProps {
   page: any;
   dateRange?: any;
   userId?: string;
+  wallet?: number;
 }
-const amount = ["100", "500", "100", "Max"];
+const amount = [100, 500, 1000];
 
 export default function FeatureCard({
   data,
   page,
   dateRange,
   userId,
+  wallet,
 }: FeatureCardProps) {
   const supabase = createClient();
   const { selectedStore, userinfo } = useStoreContext();
   const [isModalOpen, setModalOpen] = useState(false);
   const [address, setAddress] = useState<string>(userinfo!.email || "");
-  const [selectedAmount, setSelectedAmount] = useState<string>("");
+  const [selectedAmount, setSelectedAmount] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const handlePayoutChange = (e: any) => {
@@ -48,7 +50,7 @@ export default function FeatureCard({
         .insert({
           amount: Number(selectedAmount),
           paypal_address: address,
-          userId: userId,
+          user_id: userId,
           store_url: selectedStore?.store_url!,
           status: "Pending",
         })
@@ -59,6 +61,8 @@ export default function FeatureCard({
       } else {
         if (data) {
           toast.success("Request payout successfully!");
+          window.location.reload();
+          return;
         }
         setAddress("");
         setModalOpen(false);
@@ -76,7 +80,7 @@ export default function FeatureCard({
 
   const closeModal = () => {
     setModalOpen(false);
-    setSelectedAmount("");
+    setSelectedAmount(0);
     setAddress("");
   };
   return (
@@ -178,22 +182,36 @@ export default function FeatureCard({
               <div className="">
                 <h2 className="text-lg font-semibold">Withdrawal</h2>
                 <div className="flex flex-col items-center gap-3 mt-2">
-                  <p className="text-3xl font-bold">
-                    $ {selectedAmount || "1393.73"}
-                  </p>
+                  <p className="text-3xl font-bold">$ {wallet || 0}</p>
                   <div className="flex gap-3">
-                    {amount.map((amt: any, index: any) => (
+                    {amount.map((amt, index) => (
                       <p
                         key={index}
                         className="text-sm font bold bg-slate-200 rounded-full px-4 py-1 cursor-pointer"
-                        onClick={() => setSelectedAmount(amt)}
+                        style={{
+                          backgroundColor:
+                            amt == selectedAmount ? "#f7a46d" : "",
+                        }}
+                        onClick={() => {
+                          if (amt < (wallet || 0)) setSelectedAmount(amt);
+                        }}
                       >
                         {`$${amt}`}
                       </p>
                     ))}
+                    <p
+                      className="text-sm font bold bg-slate-200 rounded-full px-4 py-1 cursor-pointer"
+                      onClick={() => setSelectedAmount(wallet || 0)}
+                      style={{
+                        backgroundColor:
+                          wallet == selectedAmount ? "#f7a46d" : "",
+                      }}
+                    >
+                      MAX
+                    </p>
                   </div>
                   <div className="w-full">
-                    <p>To</p>
+                    <p>Paypal Address</p>
                     <InputField
                       name="address"
                       placeholder="Enter your paypal address"
@@ -207,7 +225,7 @@ export default function FeatureCard({
                   </div>
                   <CustomButton
                     type="submit"
-                    label={"REQUEST PAYOUT"}
+                    label={`REQUEST PAYOUT ($${selectedAmount})`}
                     className="w-full whitespace-nowrap px-6 text-sm lg:h-full"
                     callback={handlePayoutSubmit}
                     interactingAPI={loading}

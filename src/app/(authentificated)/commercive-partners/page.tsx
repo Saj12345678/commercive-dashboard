@@ -30,7 +30,7 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { AffiliateRequest } from "./AffiliateRequest";
 import { useStoreContext } from "@/context/StoreContext";
-import { ReferralRow } from "@/app/utils/types";
+import { PayoutViewRow, ReferralRow } from "@/app/utils/types";
 
 const getSundayOfWeek = (date: Date) => {
   const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
@@ -56,11 +56,13 @@ const itemsPerPage = 5;
 
 export default function CommercivePartners() {
   const supabase = createClient();
-  const { affiliate } = useStoreContext();
+  const { affiliate, userinfo } = useStoreContext();
 
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
   const comparePickerRef = useRef<HTMLDivElement | null>(null);
 
+  const [payouts, setPayouts] = useState<PayoutViewRow[]>([]);
+  const [wallet, setWallet] = useState(0);
   const [totalItems, setTotalItems] = useState(itemsPerPage);
   const [showCurrentDateRange, setShowCurrentDateRange] =
     useState<boolean>(false);
@@ -94,87 +96,6 @@ export default function CommercivePartners() {
       key: "selection",
     },
   ]);
-  const handleApplyCurrentDateRange = () => {
-    setCurrentDateRange(tmpCurrentDateRange);
-    setShowCurrentDateRange(false);
-  };
-  const handleCurrentDateSelect = (ranges: any) => {
-    setTmpCurrentDateRange([ranges.selection]);
-    // setShowCurrentDateRange(false); // Hide after selection
-  };
-
-  const handleApplyTmpDateRange = () => {
-    setCompareDateRange(tmpCurrentDateRange);
-    setShowCompareDateRange(false);
-  };
-  const handleCompareDateSelect = (ranges: any) => {
-    setTmpCompareDateRange([ranges.selection]);
-  };
-
-  useEffect(() => {
-    // Current week (Monday to Today)
-    const today = new Date();
-    // Current week (Sunday to Saturday)
-    const thisSunday = getSundayOfWeek(new Date());
-    const thisSaturday = getSaturdayOfWeek(new Date());
-
-    // Last week (Sunday to Saturday)
-    const lastSunday = getSundayOfLastWeek(new Date());
-    const lastSaturday = getSaturdayOfLastWeek(new Date());
-    setCurrentDateRange([
-      {
-        startDate: thisSunday,
-        endDate: thisSaturday,
-        key: "selection",
-      },
-    ]);
-
-    setCompareDateRange([
-      {
-        startDate: lastSunday,
-        endDate: lastSaturday,
-        key: "selection",
-      },
-    ]);
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        currentPickerRef.current &&
-        !currentPickerRef.current.contains(event.target as Node)
-      ) {
-        setShowCurrentDateRange(false);
-      }
-    };
-
-    if (showCurrentDateRange) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showCurrentDateRange]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        comparePickerRef.current &&
-        !comparePickerRef.current.contains(event.target as Node)
-      ) {
-        setShowCompareDateRange(false);
-      }
-    };
-
-    if (showCompareDateRange) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showCompareDateRange]);
 
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -211,7 +132,6 @@ export default function CommercivePartners() {
   const [tableData, setTableData] = useState<ReferralRow[]>([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [loadingCard, setLoadingCard] = useState(true);
-  const [userId, setUserId] = useState<string>();
 
   const handleAffiliateClick = async () => {
     setModalOpen(true);
@@ -373,6 +293,10 @@ export default function CommercivePartners() {
     setLoading(true);
 
     try {
+      const { data: payouts } = await supabase
+        .from("payout_view")
+        .select("*, user(*)")
+        .eq("user_id", userinfo!.id);
       const { data: orderData, error: orderError } = await supabase
         .from("order")
         .select("*")
@@ -407,6 +331,13 @@ export default function CommercivePartners() {
         console.error("Error fetching orders:", orderError, referralsError);
         setLoading(false);
       } else {
+        let total_payout = 0;
+        payouts?.forEach((pay) => {
+          if (pay.status == "Approved" || pay.status == "Pending") {
+            total_payout += pay.total_amount!;
+          }
+        });
+
         const totalEarnings = walletRow?.total_amount || 0;
         const pendingEarnings = calculateEarnings(orderData, 0, "pending");
         const totalEarningsPastWeek = calculateEarnings(
@@ -495,8 +426,8 @@ export default function CommercivePartners() {
           formattedStartDate,
           formattedEndDate,
         });
-        setChartData((prevData: any) => {
-          return prevData.map((item: any) => {
+        setChartData((prevData) => {
+          return [...prevData].map((item) => {
             if (item.name === "Total Earnings") {
               return {
                 ...item,
@@ -510,6 +441,15 @@ export default function CommercivePartners() {
               return {
                 ...item,
                 amount: pendingEarnings.toFixed(2),
+                series:
+                  pendingEarning.length > 0 ? pendingEarning : [0, 0, 0, 0, 0],
+                percentage: pendingEarningsChange,
+              };
+            }
+            if (item.name === "Wallet") {
+              return {
+                ...item,
+                amount: (totalEarnings - total_payout).toFixed(2),
                 series:
                   pendingEarning.length > 0 ? pendingEarning : [0, 0, 0, 0, 0],
                 percentage: pendingEarningsChange,
@@ -535,8 +475,10 @@ export default function CommercivePartners() {
               };
             }
             return item;
-          });
+          }) as typeof chartData;
         });
+        setPayouts(payouts || []);
+        setWallet(totalEarnings - total_payout);
       }
     } catch (error) {
       console.error("Error in fetchOrders:", error);
@@ -569,6 +511,96 @@ export default function CommercivePartners() {
       setLoadingCard(false);
     }
   };
+
+  const handleApplyCurrentDateRange = () => {
+    setCurrentDateRange(tmpCurrentDateRange);
+    setShowCurrentDateRange(false);
+  };
+  const handleCurrentDateSelect = (ranges: any) => {
+    setTmpCurrentDateRange([ranges.selection]);
+    // setShowCurrentDateRange(false); // Hide after selection
+  };
+
+  const handleApplyTmpDateRange = () => {
+    setCompareDateRange(tmpCurrentDateRange);
+    setShowCompareDateRange(false);
+  };
+  const handleCompareDateSelect = (ranges: any) => {
+    setTmpCompareDateRange([ranges.selection]);
+  };
+
+  const getPayouts = async () => {
+    const { data } = await supabase
+      .from("payout_view")
+      .select("*, user(*)")
+      .eq("user_id", userinfo!.id);
+    setPayouts(data || []);
+  };
+
+  useEffect(() => {
+    // Current week (Monday to Today)
+    const today = new Date();
+    // Current week (Sunday to Saturday)
+    const thisSunday = getSundayOfWeek(new Date());
+    const thisSaturday = getSaturdayOfWeek(new Date());
+
+    // Last week (Sunday to Saturday)
+    const lastSunday = getSundayOfLastWeek(new Date());
+    const lastSaturday = getSaturdayOfLastWeek(new Date());
+    setCurrentDateRange([
+      {
+        startDate: thisSunday,
+        endDate: thisSaturday,
+        key: "selection",
+      },
+    ]);
+
+    setCompareDateRange([
+      {
+        startDate: lastSunday,
+        endDate: lastSaturday,
+        key: "selection",
+      },
+    ]);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        currentPickerRef.current &&
+        !currentPickerRef.current.contains(event.target as Node)
+      ) {
+        setShowCurrentDateRange(false);
+      }
+    };
+
+    if (showCurrentDateRange) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showCurrentDateRange]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        comparePickerRef.current &&
+        !comparePickerRef.current.contains(event.target as Node)
+      ) {
+        setShowCompareDateRange(false);
+      }
+    };
+
+    if (showCompareDateRange) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showCompareDateRange]);
 
   useEffect(() => {
     if (currentDateRange && compareDateRange) {
@@ -776,7 +808,8 @@ export default function CommercivePartners() {
               data={chartData}
               page={"commercive"}
               dateRange={compareDateRange}
-              userId={userId}
+              userId={userinfo!.id}
+              wallet={wallet}
             />
           )}
         </div>
@@ -1000,7 +1033,9 @@ export default function CommercivePartners() {
         )}
         {(!affiliate ||
           affiliate.status == "Pending" ||
-          affiliate.status == "Declined") && <AffiliateRequest />}
+          affiliate.status == "Declined") && (
+          <AffiliateRequest balance={wallet} />
+        )}
       </main>
     </>
   );

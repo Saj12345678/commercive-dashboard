@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { Typography } from "@mui/material";
 import { useStoreContext } from "@/context/StoreContext";
 
-export const AffiliateRequest = () => {
+export const AffiliateRequest = ({ balance }: { balance: number }) => {
   const supabase = createClient();
   const [isLoading, setIsLoading] = useState(false);
   const { affiliate, userinfo, updateAffiliate } = useStoreContext();
