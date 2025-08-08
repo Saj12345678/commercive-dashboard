@@ -1,4 +1,4 @@
-import { roleOptions } from "@/app/utils/constants";
+import { AFFILIATE_STATUS, roleOptions } from "@/app/utils/constants";
 import { createClient } from "@/app/utils/supabase/client";
 import { Database } from "@/app/utils/supabase/database.types";
 import { AffiliateRow, StoreRow, UserRow } from "@/app/utils/types";
@@ -14,12 +14,6 @@ import {
   TextField,
 } from "@mui/material";
 import { FC, useEffect, useState } from "react";
-
-const AFFILIATE_STATUS: Database["public"]["Enums"]["AFFILIATE_STATUS"][] = [
-  "Pending",
-  "Approved",
-  "Declined",
-];
 
 type AffiliateUpdateModalProps = {
   selectedUser: AffiliateRow;

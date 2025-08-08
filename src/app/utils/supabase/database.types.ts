@@ -407,31 +407,31 @@ export type Database = {
       }
       payouts: {
         Row: {
-          amount: number | null
-          completed: boolean | null
+          amount: number
           created_at: string
           id: string
-          paypal_address: string | null
-          store_url: string
-          userId: string
+          paypal_address: string
+          status: Database["public"]["Enums"]["AFFILIATE_STATUS"]
+          store_url: string | null
+          user_id: string
         }
         Insert: {
-          amount?: number | null
-          completed?: boolean | null
+          amount: number
           created_at?: string
           id?: string
-          paypal_address?: string | null
-          store_url: string
-          userId?: string
+          paypal_address: string
+          status: Database["public"]["Enums"]["AFFILIATE_STATUS"]
+          store_url?: string | null
+          user_id?: string
         }
         Update: {
-          amount?: number | null
-          completed?: boolean | null
+          amount?: number
           created_at?: string
           id?: string
-          paypal_address?: string | null
-          store_url?: string
-          userId?: string
+          paypal_address?: string
+          status?: Database["public"]["Enums"]["AFFILIATE_STATUS"]
+          store_url?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -442,15 +442,15 @@ export type Database = {
             referencedColumns: ["store_url"]
           },
           {
-            foreignKeyName: "payouts_userId_fkey"
-            columns: ["userId"]
+            foreignKeyName: "payouts_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "payouts_userId_fkey"
-            columns: ["userId"]
+            foreignKeyName: "payouts_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_role_view"
             referencedColumns: ["id"]

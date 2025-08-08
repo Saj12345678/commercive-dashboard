@@ -50,6 +50,7 @@ export default function FeatureCard({
           paypal_address: address,
           userId: userId,
           store_url: selectedStore?.store_url!,
+          status: "Pending",
         })
         .select();
 

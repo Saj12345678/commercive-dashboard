@@ -5,15 +5,54 @@ import { createClient } from "@/app/utils/supabase/client";
 import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
 import { toast } from "react-toastify";
-import { PayoutRow } from "@/app/utils/types";
+import { PayoutInsert, PayoutRow, PayoutUserRow } from "@/app/utils/types";
+import CustomModal from "../ui/modal";
+import InputField from "../ui/custom-inputfild";
+import { MenuItem, Select } from "@mui/material";
+import { AFFILIATE_STATUS } from "@/app/utils/constants";
+
+const initialError = {
+  email: "",
+  amount: "",
+  paypal_address: "",
+  status: "",
+};
+
+const initialFormData = {
+  email: "",
+  amount: 0,
+  paypal_address: "",
+  status: "Pending",
+};
 
 export default function Payout() {
   const supabase = createClient();
-  const [payoutsData, setPayoutsData] = useState<PayoutRow[]>([]);
+  const [payoutsData, setPayoutsData] = useState<PayoutUserRow[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [selectedPayout, setSelectedPayout] = useState<PayoutUserRow>();
+  const [formData, setFormData] = useState(initialFormData);
+  const [errors, setErrors] = useState(initialError);
+  const [isSaving, setIsSaving] = useState(false);
+
   let limit = 5;
+
+  const handleOnChange = (updatedField: Partial<typeof formData>) => {
+    setFormData((prev) => ({
+      ...prev,
+      ...updatedField,
+    }));
+    setErrors((prev) => ({
+      ...prev,
+      ...Object.keys(updatedField).reduce((acc, key) => {
+        acc[key as keyof typeof errors] = "";
+        return acc;
+      }, {} as typeof errors),
+    }));
+  };
 
   const handlePagination = (curPage: number) => {
     setPage(curPage);
@@ -26,9 +65,14 @@ export default function Payout() {
     actionList: ["checkbox"],
     columns: [
       {
+        field: "created_at",
+        headerName: "Payout Time",
+        customRender: (row: any) => <span>{row.created_at.split("T")[0]}</span>,
+      },
+      {
         field: "name",
-        headerName: "Name",
-        customRender: (row: any) => <span>{row.name ? row.name : "-"}</span>,
+        headerName: "User",
+        customRender: (row: any) => <span>{row.user.email}</span>,
       },
       {
         field: "amount",
@@ -41,11 +85,9 @@ export default function Payout() {
         customRender: (row: any) => <span>{row.paypal_address}</span>,
       },
       {
-        field: "completed",
-        headerName: "Completed",
-        customRender: (row: any) => (
-          <span>{row.completed ? "True" : "False"}</span>
-        ),
+        field: "status",
+        headerName: "Status",
+        customRender: (row: any) => <span>{row.status}</span>,
       },
     ],
     rows: payoutsData || [],
@@ -61,7 +103,7 @@ export default function Payout() {
         error: payoutError,
       } = await supabase
         .from("payouts")
-        .select("*", { count: "exact" })
+        .select("*, user(*)", { count: "exact" })
         .range(start, start + limit - 1);
 
       if (payoutError) {
@@ -75,29 +117,9 @@ export default function Payout() {
         return;
       }
 
-      // Extract unique user IDs
-      const userIds = [...new Set(payouts.map((payout) => payout.userId))];
-
-      // Fetch user details
-      const { data: users, error: usersError } = await supabase
-        .from("user")
-        .select("id, first_name, last_name")
-        .in("id", userIds);
-
-      if (usersError) {
-        console.error("Error fetching user data:", usersError);
-      }
-
-      // Create a mapping of userId to full name
-      const userMap = users?.reduce((acc, user) => {
-        acc[user.id] = `${user.first_name} ${user.last_name}`;
-        return acc;
-      }, {} as Record<string, string>);
-
-      // Merge user names into payout data
       const updatedPayouts = payouts.map((payout) => ({
         ...payout,
-        name: userMap?.[payout.userId] || "Unknown",
+        name: payout.user.user_name,
       }));
 
       setPayoutsData(updatedPayouts);
@@ -121,29 +143,74 @@ export default function Payout() {
     }
   };
 
+  const handleCheckboxClick = async (row: PayoutUserRow) => {
+    setSelectedPayout(row);
+    setFormData({
+      email: row.user.email!,
+      paypal_address: row.paypal_address,
+      amount: row.amount,
+      status: row.status,
+    });
+    setAddModalOpen(true);
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    const { data: user } = await supabase
+      .from("user")
+      .select()
+      .eq("email", formData.email)
+      .single();
+    if (!user) {
+      setErrors((prev) => ({ ...prev, email: "User not found" }));
+      toast.error("User not found!");
+      setIsSaving(false);
+      return;
+    }
+    if (selectedPayout) {
+      const { error } = await supabase
+        .from("payouts")
+        .update({
+          user_id: user.id,
+          amount: formData.amount,
+          paypal_address: formData.paypal_address,
+          status: formData.status as any,
+        })
+        .eq("id", selectedPayout.id);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        await fetchPayoutsData(page);
+        toast.success("Update Row Success!");
+      }
+    }
+    setIsSaving(false);
+  };
+
+  const handleDelete = (row: PayoutUserRow) => {
+    setSelectedPayout(row);
+    setDeleteModalOpen(true);
+  };
+
+  const deleteRow = async () => {
+    if (selectedPayout) {
+      const { error } = await supabase
+        .from("payouts")
+        .delete()
+        .eq("id", selectedPayout.id);
+      if (error) {
+        toast.error("Failed to delete the row.");
+      } else {
+        await fetchPayoutsData(page);
+        setDeleteModalOpen(false);
+        toast.success("Row deleted successfully.");
+      }
+    }
+  };
+
   useEffect(() => {
     fetchPayoutsData(page);
   }, [page]);
-
-  const handleCheckboxClick = async (row: PayoutRow) => {
-    // Update Supabase
-    const { data, error } = await supabase
-      .from("payouts")
-      .update({ completed: !row.completed })
-      .eq("id", row.id)
-      .select();
-
-    if (data?.[0]?.completed) {
-      toast("Payment Completed successfully.");
-    } else {
-      toast("Payment uncompleted successfully.");
-    }
-    await fetchPayoutsData(page);
-    if (error) {
-      console.error("Error updating Supabase:", error.message);
-      toast.error("Failed to update Supabase.");
-    }
-  };
 
   return (
     <div className="flex flex-col w-full gap-5">
@@ -171,12 +238,118 @@ export default function Payout() {
         </div>
       </div>
 
+      {addModalOpen && (
+        <CustomModal
+          onClose={() => setAddModalOpen(false)}
+          maxWidth={"max-w-[400px]"}
+        >
+          <div className="flex flex-col gap-6">
+            <h2 className="text-lg font-semibold">
+              {selectedPayout ? "Update" : "Add new"}
+            </h2>
+            <div className="flex flex-col gap-6 max-sm:h-full max-sm:max-h-[350px]">
+              <div className="flex flex-col relative w-full">
+                <InputField
+                  name="user_email"
+                  placeholder="Enter User Email"
+                  type="email"
+                  className="mt-[8px]"
+                  label={`User Email`}
+                  value={formData?.email || ""}
+                  onChange={(e: any) =>
+                    handleOnChange({ email: e.target.value })
+                  }
+                />
+                {errors?.email && (
+                  <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                    {errors?.email}
+                  </p>
+                )}
+              </div>
+              <div className="flex flex-col relative w-full">
+                <InputField
+                  name="amount"
+                  placeholder="Enter amount"
+                  type="number"
+                  className="mt-[8px]"
+                  label={`Amount($)`}
+                  value={formData.amount.toString() || ""}
+                  onChange={(e: any) =>
+                    handleOnChange({ amount: e.target.value })
+                  }
+                />
+                {errors?.amount && (
+                  <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                    {errors?.amount}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col relative w-full gap-2">
+                  <label>Status</label>
+                  <Select
+                    value={formData.status}
+                    onChange={(e: any) =>
+                      handleOnChange({ status: e.target.value })
+                    }
+                  >
+                    {AFFILIATE_STATUS.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors?.status && (
+                    <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                      {errors?.status}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end w-full mt-4">
+            <CustomButton
+              label={selectedPayout ? "Update" : "Add"}
+              callback={handleSave}
+              className="bg-[#342d5f] text-[#5e568f]"
+              interactingAPI={isSaving}
+            />
+          </div>
+        </CustomModal>
+      )}
+
+      {deleteModalOpen && (
+        <CustomModal
+          onClose={() => {
+            setDeleteModalOpen(false);
+            // setFormData(initialFormData);
+          }}
+          maxWidth="max-w-[400px]"
+        >
+          <div className="flex flex-col gap-6">
+            <h2 className="text-lg font-semibold">Delete the Row?</h2>
+            <div className="flex justify-end w-full">
+              <CustomButton
+                className="bg-[#342d5f] text-[#5e568f]"
+                label="OK"
+                callback={deleteRow}
+                interactingAPI={isLoading}
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+        </CustomModal>
+      )}
+
       <CustomTable
         tableConfig={tableConfig}
         isLoading={isLoading}
         limit={limit}
         showCheckbox
         onCheckboxClick={handleCheckboxClick}
+        onDelete={handleDelete}
       />
     </div>
   );
