@@ -30,9 +30,9 @@ export default function Inventory() {
   const [itemsPerPage, setItemsPerPage] = useState(20); // Default 20 items per page
 
   const fetchInventoryData = async () => {
-    if (!storeUrl) {
-      return;
-    }
+    // if (!storeUrl) {
+    //   return;
+    // }
 
     setLoading(true);
     try {
