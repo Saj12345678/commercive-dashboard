@@ -60,7 +60,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   const handleLogout = async () => {
     const { error } = await supabase?.auth?.signOut();
     if (!error) {
-      router.push("/login");
+      window.location.href = "/login";
     }
   };
 

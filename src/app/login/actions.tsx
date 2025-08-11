@@ -4,10 +4,7 @@ import { redirect } from "next/navigation";
 import { createServerSideClient } from "../utils/supabase/server";
 import { ActionResponse } from "@/components/type-identifiers";
 
-export const login = async (
-  prevState: any,
-  formData: FormData
-): Promise<ActionResponse<void>> => {
+export const login = async (prevState: any, formData: FormData) => {
   const supabase = await createServerSideClient();
 
   const email = formData.get("email") as string;
@@ -37,6 +34,8 @@ export const login = async (
   }
 
   const role = profile.role;
+  return { success: true, message: "Login successful", role };
+
   if (role === "admin") {
     redirect("/admin");
   } else {
@@ -45,5 +44,4 @@ export const login = async (
   }
 
   // fallback just in case
-  return { success: true, message: "Login successful" };
 };

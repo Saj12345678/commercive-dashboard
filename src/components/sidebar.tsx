@@ -252,6 +252,8 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
     const handleResize = () => {
       if (window.innerWidth <= 1024) {
         setIsCollapsed(true);
+      } else {
+        setIsCollapsed(false);
       }
     };
     handleResize();

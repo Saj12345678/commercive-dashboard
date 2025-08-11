@@ -15,17 +15,20 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
   const [showPassword, setShowPassword] = useState(false);
-  const [state, formAction] = useActionState<ActionResponse<void>, FormData>(
-    login,
-    null
-  );
-
+  const [state, formAction] = useActionState<
+    Awaited<ReturnType<typeof login>>,
+    FormData
+  >(login, {
+    success: false,
+    errors: "",
+  });
+  console.log("state :>> ", state);
   useEffect(() => {
     if (!state) {
       return;
     }
 
-    if (!state.success && state.errors) {
+    if (!state.success && state.errors && state.errors != "") {
       const errors = Array.isArray(state.errors)
         ? state.errors
         : [state.errors];
@@ -41,7 +44,11 @@ export default function LoginPage() {
       toast.success("Logged in successfully!", {
         toastId: "login-success",
       });
-      router.push("/commercive-partners");
+      if (state.role == "admin") {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/";
+      }
     }
   }, [state]);
 
