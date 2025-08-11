@@ -459,6 +459,7 @@ export type Database = {
       }
       referrals: {
         Row: {
+          affiliate_id: string
           commission_rate: number
           created_at: string
           customer_number: string
@@ -470,6 +471,7 @@ export type Database = {
           uuid: string
         }
         Insert: {
+          affiliate_id: string
           commission_rate: number
           created_at?: string
           customer_number: string
@@ -481,6 +483,7 @@ export type Database = {
           uuid: string
         }
         Update: {
+          affiliate_id?: string
           commission_rate?: number
           created_at?: string
           customer_number?: string
@@ -491,7 +494,15 @@ export type Database = {
           store_name?: string
           uuid?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["customer_id"]
+          },
+        ]
       }
       session: {
         Row: {
@@ -746,12 +757,20 @@ export type Database = {
       }
       referral_view: {
         Row: {
+          affiliate_id: string | null
           count: number | null
-          customer_number: string | null
           order_count: number | null
           total_amount: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["customer_id"]
+          },
+        ]
       }
       user_role_view: {
         Row: {

@@ -2,7 +2,7 @@ drop view if exists referral_view;
 
 create view public.referral_view with (security_invoker = on) as
 select
-  referred_store_url,
+  affiliate_id,
   sum(
     referrals.commission_rate * referrals.quantity_of_order
   ) as total_amount,
@@ -11,4 +11,4 @@ select
 from
   referrals
 group by
-  referrals.customer_number
+  referrals.affiliate_id

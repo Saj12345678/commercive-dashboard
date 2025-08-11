@@ -17,6 +17,7 @@ import { ReferralRow, StoreRow } from "@/app/utils/types";
 import { Database } from "@/app/utils/supabase/database.types";
 import { WalletTable } from "./WalletTable";
 import { excelToTimestampZ } from "@/app/utils/date";
+import { UploadModal } from "./UploadModal";
 
 const defaultHeaders = [
   "time",
@@ -52,6 +53,7 @@ export default function Partner() {
     order_number: "",
     uuid: "",
     order_time: "",
+    affiliate_id: "",
   };
 
   const [storeFilter, setStoreFilter] = useState<StoreRow | null>(allStores[0]);
@@ -68,7 +70,7 @@ export default function Partner() {
     useState<StoreRow | null>(allStores[0]);
   const [triggerKey, setTriggerKey] = useState(0);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
-  const [uploadStore, setUploadStore] = useState(allStores[0]);
+  const [selectedAffiliateID, setSelectedAffiliateID] = useState<string>();
 
   const fileRef = useRef<HTMLInputElement>(null);
   // Handle input changes
@@ -156,6 +158,7 @@ export default function Partner() {
             order_number: formData.order_number,
             order_time: formData.order_time,
             uuid: `${formData.customer_number}-${formData.order_number}`,
+            affiliate_id: selectedAffiliateID!,
           }));
         }
 
@@ -240,6 +243,7 @@ export default function Partner() {
           quantity_of_order: Number(row["quantity_of_order"]) || 0,
           customer_number: row["customer_number"],
           uuid: `${idx}-${row["customer_number"]}-${row["order_number"]}`,
+          affiliate_id: selectedAffiliateID!,
         }));
 
         uploadToSupabase(sanitizedData);
@@ -302,6 +306,10 @@ export default function Partner() {
         customRender: (row: ReferralRow) => (
           <div>{row.order_time.split("T")[0]}</div>
         ),
+      },
+      {
+        field: "affiliate_id",
+        headerName: "Affiliate ID",
       },
       {
         field: "customer_number",
@@ -372,6 +380,10 @@ export default function Partner() {
     }
   };
 
+  const handleShowUploadModal = () => {
+    setUploadModalOpen(true);
+  };
+
   const handleUploadClick = () => {
     fileRef.current?.click();
   };
@@ -394,8 +406,8 @@ export default function Partner() {
           />
           <div className="flex gap-4 items-center">
             <label
-              htmlFor="selectedFile"
               className="flex cursor-pointer bg-[#4F11C9] text-[#F4F4F4] font-semibold py-2 px-4 rounded-[8px]"
+              onClick={handleShowUploadModal}
             >
               <span>
                 <MdOutlineFileUpload size={24} color="#F4F4F4" />
@@ -640,6 +652,15 @@ export default function Partner() {
               </div>
             </div>
           </CustomModal>
+        )}
+        {uploadModalOpen && (
+          <UploadModal
+            onClose={() => {
+              setUploadModalOpen(false);
+            }}
+            setSelectedAffiliateID={setSelectedAffiliateID}
+            handleUpload={handleUploadClick}
+          />
         )}
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">

@@ -74,7 +74,7 @@ export const AffiliateUpdateModal: FC<AffiliateUpdateModalProps> = ({
             placeholder="Enter customer id"
             type="text"
             className="mt-[8px]"
-            label="Customer ID"
+            label="Affiliate ID"
             value={customerID || ""}
             onChange={(e: any) => setCustomerID(e.target.value)}
           />

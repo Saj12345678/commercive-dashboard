@@ -285,7 +285,7 @@ export default function Affiliate() {
       },
       {
         field: "customer_id",
-        headerName: "Customer ID",
+        headerName: "Affiliate ID",
         customRender: (row: AffiliateRow) => {
           return (
             <div className="flex gap-2">

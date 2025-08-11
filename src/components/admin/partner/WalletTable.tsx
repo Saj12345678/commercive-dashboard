@@ -40,15 +40,13 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
       {
         field: "customer_number",
         headerName: "Customer",
-        customRender: (row: WalletRow) => <p>{row.customer_number}</p>,
+        customRender: (row: WalletRow) => <p>{row.affiliate_id}</p>,
       },
       {
         filed: "user",
         headerName: "User",
         customRender: (row: WalletRow) => (
-          <p>
-            {affiliateMap.get(row.customer_number || "")?.user.email || "---"}
-          </p>
+          <p>{affiliateMap.get(row.affiliate_id || "")?.user.email || "---"}</p>
         ),
       },
       {
