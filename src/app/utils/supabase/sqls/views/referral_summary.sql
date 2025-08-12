@@ -9,14 +9,12 @@ select
   sum(total_commission) as total_amount,
   count(id) as count,
   sum(quantity_of_order) as order_count,
-  coalesce(array_agg(customer_number) filter (where customer_number is not null), '{}') as customer_ids
+  coalesce(array_agg(distinct customer_number) filter (where customer_number is not null), '{}') as customer_ids
 from
   referral_view r
 group by
   affiliate_id,
-  user_id,
-  customer_number
-  ;
+  user_id  ;
 
 grant
 select

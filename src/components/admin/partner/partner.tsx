@@ -18,6 +18,7 @@ import { Database } from "@/app/utils/supabase/database.types";
 import { WalletTable } from "./WalletTable";
 import { excelToTimestampZ } from "@/app/utils/date";
 import { UploadModal } from "./UploadModal";
+import { methodOptions } from "@/app/utils/constants";
 
 const defaultHeaders = [
   "time",
@@ -158,6 +159,7 @@ export default function Partner() {
               customer_number: formData.customer_number,
               uuid: `${formData.customer_number}-${formData.order_number}`,
               order_time: formData.order_time,
+              invoice_total: formData.invoice_total,
             } as ReferralInsert)
             .eq("id", formData.id));
         } else {
@@ -171,8 +173,20 @@ export default function Partner() {
             uuid: `${formData.customer_number}-${formData.order_number}`,
             agent_name: agentID!,
             affiliate_id: formData.affiliate_id,
-          }));
+            invoice_total: formData.invoice_total,
+          } as ReferralInsert));
         }
+
+        const newSetting: Database["public"]["Tables"]["affiliate_customer_setting"]["Insert"] =
+          {
+            uid: `${formData.affiliate_id}:${formData.customer_number}`,
+            affiliate: formData.affiliate_id,
+            customer_id: formData.customer_number,
+            commission_method: formData.commission_method,
+            commission_rate: formData.commission_rate,
+          };
+
+        await supabase.from("affiliate_customer_setting").upsert(newSetting);
 
         if (error) {
           toast.error(error.message);
@@ -299,12 +313,18 @@ export default function Partner() {
   };
 
   const handleDelete = (row: ReferralViewRow) => {
-    setFormData(row as typeof formData);
+    setFormData({
+      ...(row as typeof formData),
+      commission_rate: row.commission_rate || 0,
+    });
     setDeleteModalOpen(true);
   };
 
   const handleSelectEdit = async (row: ReferralViewRow) => {
-    setFormData(row as typeof formData);
+    setFormData({
+      ...(row as typeof formData),
+      commission_rate: row.commission_rate || 0,
+    });
     setAddNewModalOpen(true);
   };
 
@@ -351,7 +371,15 @@ export default function Partner() {
         field: "commission_rate",
         headerName: "Commission Rate",
         customRender: (row: ReferralViewRow) => (
-          <p>{row.commission_rate || "-"}</p>
+          <p>
+            {row.commission_method == undefined || row.commission_method == null
+              ? "-"
+              : row.commission_method == 1
+              ? `$${row.commission_rate}`
+              : row.commission_method == 2
+              ? `${row.commission_rate || 0}`
+              : "-"}
+          </p>
         ),
       },
       {
@@ -604,13 +632,47 @@ export default function Partner() {
                       placeholder="Enter commission rate"
                       type="number"
                       className="mt-[8px]"
-                      label={`Commission Rate`}
-                      // value={formData.commission_rate.toString()}
-                      onChange={
-                        (e: any) => {}
-                        // handleOnChange({ commission_rate: e.target.value })
+                      label={`Commission Rate (${
+                        formData.commission_method == 2
+                          ? `${formData.commission_rate * 100}%`
+                          : `$${formData.commission_rate}`
+                      })`}
+                      value={formData.commission_rate?.toString()}
+                      onChange={(e: any) =>
+                        handleOnChange({ commission_rate: e.target.value })
                       }
                     />
+                    {errors.commission_rate && (
+                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                        {errors?.commission_rate}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <div className="flex flex-col relative w-1/2">
+                    <label htmlFor="">Commission Method</label>
+                    <select
+                      name="Role"
+                      id=""
+                      className="border border-color-[#D4D77D] border-opacity-5 p-[9px] mt-2.5 rounded-md focus-within:outline-none"
+                      value={formData.commission_method || 0}
+                      onChange={(e) =>
+                        handleOnChange({
+                          commission_method: Number(e.target.value),
+                        })
+                      }
+                    >
+                      {methodOptions.map((option) => (
+                        <option
+                          key={option.value}
+                          value={option.value}
+                          className="focus-within:outline-none"
+                        >
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                     {errors.commission_rate && (
                       <p className="text-red-500 absolute text-sm -bottom-[20px] message">
                         {errors?.commission_rate}
