@@ -127,7 +127,7 @@ export default function CustomTable<T>({
                   {column.headerName === "Action" ? "" : column.headerName}
                 </TableCell>
               ))} */}
-              {updatedColumns.map((column: any) => {
+              {updatedColumns.map((column: any, idx) => {
                 const shouldHideActionColumn =
                   column.headerName === "Action" &&
                   (isLoading || rows.length === 0);
@@ -135,7 +135,7 @@ export default function CustomTable<T>({
                 return (
                   !shouldHideActionColumn && (
                     <TableCell
-                      key={column.field}
+                      key={column.field + idx}
                       sx={{
                         color: "#7067aa",
                         fontSize: "13px",

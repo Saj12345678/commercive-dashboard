@@ -83,18 +83,27 @@ export type Database = {
           },
         ]
       }
-      affiliate_to_customer: {
+      affiliate_customer_setting: {
         Row: {
-          created_at: string
-          id: number
+          affiliate: string
+          commission_method: number
+          commission_rate: number
+          customer_id: string
+          uid: string
         }
         Insert: {
-          created_at?: string
-          id?: number
+          affiliate: string
+          commission_method: number
+          commission_rate: number
+          customer_id: string
+          uid: string
         }
         Update: {
-          created_at?: string
-          id?: number
+          affiliate?: string
+          commission_method?: number
+          commission_rate?: number
+          customer_id?: string
+          uid?: string
         }
         Relationships: []
       }
@@ -474,11 +483,12 @@ export type Database = {
       }
       referrals: {
         Row: {
-          affiliate_id: string | null
-          commission_rate: number
+          affiliate_id: string
+          agent_name: string
           created_at: string
           customer_number: string
           id: number
+          invoice_total: number | null
           order_number: string
           order_time: string
           quantity_of_order: number
@@ -486,11 +496,12 @@ export type Database = {
           uuid: string
         }
         Insert: {
-          affiliate_id?: string | null
-          commission_rate: number
+          affiliate_id: string
+          agent_name: string
           created_at?: string
           customer_number: string
           id?: number
+          invoice_total?: number | null
           order_number: string
           order_time: string
           quantity_of_order: number
@@ -498,26 +509,19 @@ export type Database = {
           uuid: string
         }
         Update: {
-          affiliate_id?: string | null
-          commission_rate?: number
+          affiliate_id?: string
+          agent_name?: string
           created_at?: string
           customer_number?: string
           id?: number
+          invoice_total?: number | null
           order_number?: string
           order_time?: string
           quantity_of_order?: number
           store_name?: string
           uuid?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "referrals_affiliate_id_fkey"
-            columns: ["affiliate_id"]
-            isOneToOne: false
-            referencedRelation: "affiliates"
-            referencedColumns: ["affiliate_id"]
-          },
-        ]
+        Relationships: []
       }
       session: {
         Row: {
@@ -746,6 +750,12 @@ export type Database = {
       }
     }
     Views: {
+      customer_ids_view: {
+        Row: {
+          customer_number: string | null
+        }
+        Relationships: []
+      }
       payout_view: {
         Row: {
           status: Database["public"]["Enums"]["AFFILIATE_STATUS"] | null
@@ -770,20 +780,67 @@ export type Database = {
           },
         ]
       }
-      referral_view: {
+      referral_summary: {
         Row: {
           affiliate_id: string | null
           count: number | null
+          customer_ids: string[] | null
           order_count: number | null
           total_amount: number | null
+          user_id: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "referrals_affiliate_id_fkey"
-            columns: ["affiliate_id"]
-            isOneToOne: false
-            referencedRelation: "affiliates"
-            referencedColumns: ["affiliate_id"]
+            foreignKeyName: "affiliates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_role_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_view: {
+        Row: {
+          affiliate: string | null
+          affiliate_id: string | null
+          agent_name: string | null
+          commission_method: number | null
+          commission_rate: number | null
+          created_at: string | null
+          customer_id: string | null
+          customer_number: string | null
+          id: number | null
+          invoice_total: number | null
+          order_number: string | null
+          order_time: string | null
+          quantity_of_order: number | null
+          store_name: string | null
+          total_commission: number | null
+          uid: string | null
+          user_id: string | null
+          uuid: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_role_view"
+            referencedColumns: ["id"]
           },
         ]
       }

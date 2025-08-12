@@ -30,7 +30,7 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import { AffiliateRequest } from "./AffiliateRequest";
 import { useStoreContext } from "@/context/StoreContext";
-import { PayoutViewRow, ReferralRow } from "@/app/utils/types";
+import { PayoutViewRow, ReferralViewRow } from "@/app/utils/types";
 
 const getSundayOfWeek = (date: Date) => {
   const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)
@@ -129,7 +129,7 @@ export default function CommercivePartners() {
       series: [25, 30, 22, 40, 55],
     },
   ]);
-  const [tableData, setTableData] = useState<ReferralRow[]>([]);
+  const [tableData, setTableData] = useState<ReferralViewRow[]>([]);
   const [isModalOpen, setModalOpen] = useState(false);
   const [loadingCard, setLoadingCard] = useState(true);
 
@@ -338,7 +338,7 @@ export default function CommercivePartners() {
           }
         });
 
-        const totalEarnings = walletRow?.total_amount || 0;
+        const totalEarnings = walletRow?.total_commission || 0;
         const pendingEarnings = calculateEarnings(orderData, 0, "pending");
         const totalEarningsPastWeek = calculateEarnings(
           pastWeekOrders,
@@ -497,7 +497,7 @@ export default function CommercivePartners() {
     if (affiliate?.affiliate_id) {
       setLoading(true);
       const { data, count } = await supabase
-        .from("referrals")
+        .from("referral_view")
         .select("*", { count: "exact" })
         .eq("affiliate_id", affiliate?.affiliate_id)
         .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
@@ -844,6 +844,19 @@ export default function CommercivePartners() {
                           variant="body1"
                           sx={{ color: "black", fontWeight: "bold" }}
                         >
+                          Date
+                        </Typography>
+                      </TableCell>
+                      <TableCell
+                        style={{
+                          color: "#454545",
+                          fontWeight: "600",
+                        }}
+                      >
+                        <Typography
+                          variant="body1"
+                          sx={{ color: "black", fontWeight: "bold" }}
+                        >
                           Store Name
                         </Typography>
                       </TableCell>
@@ -883,7 +896,20 @@ export default function CommercivePartners() {
                           variant="body1"
                           sx={{ color: "black", fontWeight: "bold" }}
                         >
-                          Commision Rate
+                          Invoice Total
+                        </Typography>
+                      </TableCell>
+                      <TableCell
+                        style={{
+                          color: "#454545",
+                          fontWeight: "600",
+                        }}
+                      >
+                        <Typography
+                          variant="body1"
+                          sx={{ color: "black", fontWeight: "bold" }}
+                        >
+                          Commission Rate
                         </Typography>
                       </TableCell>
                       <TableCell>
@@ -900,20 +926,21 @@ export default function CommercivePartners() {
                           key={index}
                           style={{ border: "2px solid #F4F4F7" }}
                         >
+                          <TableCell>
+                            {item.order_time?.split("T")[0]}
+                          </TableCell>
                           <TableCell>{item.store_name}</TableCell>
                           <TableCell>{item.customer_number}</TableCell>
                           <TableCell>{item.quantity_of_order}</TableCell>
-                          <TableCell>${item.commission_rate}</TableCell>
+                          <TableCell>${item.invoice_total}</TableCell>
+                          <TableCell>{item.commission_rate || "N/A"}</TableCell>
                           <TableCell
                             style={{
                               color: "#47A83C",
                               fontWeight: "600",
                             }}
                           >
-                            $
-                            {(
-                              item.commission_rate * item.quantity_of_order
-                            ).toFixed(2)}
+                            ${item.total_commission?.toFixed(2)}
                           </TableCell>
                         </TableRow>
                       ))

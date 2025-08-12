@@ -1,17 +1,17 @@
 import { createClient } from "@/app/utils/supabase/client";
-import { AffiliateRow, WalletRow } from "@/app/utils/types";
+import { ReferralSummaryRow, WalletRow } from "@/app/utils/types";
 import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
 import { useEffect, useState } from "react";
 
 let limit = 5;
 
-const affiliateMap = new Map<string, AffiliateRow>();
+const affiliateMap = new Map<string, ReferralSummaryRow>();
 
 export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
   const supabase = createClient();
-  const [referralsData, setReferralsData] = useState<WalletRow[]>([]);
-  const [affiliates, setAffiliates] = useState<AffiliateRow[]>([]);
+  const [referralsData, setReferralsData] = useState<ReferralSummaryRow[]>([]);
+  const [affiliates, setAffiliates] = useState<ReferralSummaryRow[]>([]);
   const [page, setPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,24 +40,38 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
       {
         field: "customer_number",
         headerName: "Customer",
-        customRender: (row: WalletRow) => <p>{row.affiliate_id}</p>,
+        customRender: (row: ReferralSummaryRow) => <p>{row.affiliate_id}</p>,
       },
       {
-        filed: "user",
+        field: "user",
         headerName: "User",
-        customRender: (row: WalletRow) => (
-          <p>{affiliateMap.get(row.affiliate_id || "")?.user.email || "---"}</p>
+        customRender: (row: ReferralSummaryRow) => (
+          <p>{row.user?.email || "---"}</p>
         ),
+      },
+      {
+        filed: "customer_ids",
+        headerName: "Customer Ids",
+        customRender: (row: ReferralSummaryRow) => (
+          <p>{row.customer_ids?.join(", ") || "---"}</p>
+        ),
+      },
+      {
+        field: "commission_count",
+        headerName: "Commission Count",
+        customRender: (row: ReferralSummaryRow) => <p>{row.count || 0}</p>,
       },
       {
         field: "order_qty",
         headerName: "Order QTY",
-        customRender: (row: WalletRow) => <p>{row.order_count || 0}</p>,
+        customRender: (row: ReferralSummaryRow) => (
+          <p>{row.order_count || 0}</p>
+        ),
       },
       {
         field: "total",
         headerName: "Total Commission",
-        customRender: (row: WalletRow) => {
+        customRender: (row: ReferralSummaryRow) => {
           return (
             <p className="text-[#4aaa40]">
               ${(row.total_amount || 0).toFixed(2)}
@@ -74,8 +88,8 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
     try {
       const start = (currentPage - 1) * limit;
       const { data, count, error } = await supabase
-        .from("referral_view")
-        .select("*", { count: "exact" }) // Fetch data with exact count
+        .from("referral_summary")
+        .select("*, user(*)", { count: "exact" }) // Fetch data with exact count
         .range(start, start + limit - 1)
         .order("total_amount", { ascending: false });
       if (error) {
@@ -92,16 +106,18 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
   };
 
   useEffect(() => {
-    const fetchAffiliates = async () => {
-      const { data } = await supabase.from("affiliates").select("*, user(*)");
-      (data || []).forEach((affiliate) => {
-        if (affiliate.affiliate_id) {
-          affiliateMap.set(affiliate.affiliate_id, affiliate);
-        }
-      });
-      setAffiliates(data || []);
-    };
-    fetchAffiliates();
+    // const fetchAffiliates = async () => {
+    //   const { data } = await supabase
+    //     .from("affiliate_with_customerid_list")
+    //     .select("*, user(*)");
+    //   (data || []).forEach((affiliate) => {
+    //     if (affiliate.affiliate_id) {
+    //       affiliateMap.set(affiliate.affiliate_id, affiliate);
+    //     }
+    //   });
+    //   setAffiliates(data || []);
+    // };
+    // fetchAffiliates();
   }, []);
 
   useEffect(() => {
@@ -109,7 +125,7 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
   }, [page, triggerKey]);
 
   return (
-    <div>
+    <div className="mt-4">
       <div className="flex mb-4 justify-between">
         <h1 className="text-2xl text-white">Partner Summary</h1>
         <div className="flex items-center gap-3">

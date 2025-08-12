@@ -251,7 +251,7 @@ export default function Affiliate() {
           return (
             <div className="flex gap-2">
               <div>
-                <p className="text-white">{row.user.email}</p>
+                <p className="text-white">{row.user?.email}</p>
               </div>
             </div>
           );
@@ -264,7 +264,7 @@ export default function Affiliate() {
           return (
             <div className="flex gap-2">
               <div>
-                <p className="text-white">{row.user.user_name}</p>
+                <p className="text-white">{row.user?.user_name}</p>
               </div>
             </div>
           );
@@ -296,6 +296,7 @@ export default function Affiliate() {
           );
         },
       },
+
       {
         field: "status",
         headerName: "Status",
@@ -303,7 +304,7 @@ export default function Affiliate() {
           return (
             <div className="flex gap-2">
               <div>
-                <p className={`${getStatusColor(row.status)}`}>{row.status}</p>
+                <p className={`${getStatusColor(row.status!)}`}>{row.status}</p>
               </div>
             </div>
           );

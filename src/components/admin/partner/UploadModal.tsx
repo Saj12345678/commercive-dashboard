@@ -1,8 +1,9 @@
 import { roleOptions } from "@/app/utils/constants";
 import { createClient } from "@/app/utils/supabase/client";
 import { Database } from "@/app/utils/supabase/database.types";
-import { AffiliateRow, StoreRow, UserRow } from "@/app/utils/types";
+import { ReferralSummaryRow, StoreRow, UserRow } from "@/app/utils/types";
 import CustomButton from "@/components/ui/custom-button";
+import InputField from "@/components/ui/custom-inputfild";
 import CustomModal from "@/components/ui/modal";
 import { useStoreContext } from "@/context/StoreContext";
 import {
@@ -17,31 +18,24 @@ import { toast } from "react-toastify";
 
 type UserModalProps = {
   onClose: () => void;
-  setSelectedAffiliateID: (id: string | undefined) => void;
+  setAgentID: (id: string | undefined) => void;
   handleUpload: () => void;
 };
 
 export const UploadModal: FC<UserModalProps> = ({
   onClose,
-  setSelectedAffiliateID,
+  setAgentID,
   handleUpload,
 }) => {
   const supabase = createClient();
 
-  const [allAffiliates, setAllAffiliates] = useState<AffiliateRow[]>([]);
-  const [affiliateFilter, setAffiliateFilter] = useState<AffiliateRow>();
+  const [allAffiliates, setAllAffiliates] = useState<ReferralSummaryRow[]>([]);
+  const [affiliateFilter, setAffiliateFilter] = useState<string>();
   const [saving, setSaving] = useState(false);
 
-  const handleStoreChange = (_: any, newValue: AffiliateRow | null) => {
-    if (newValue) {
-      setAffiliateFilter(newValue);
-    }
-  };
-
   const handleUpdate = async () => {
-    console.log("affiliateFilter :>> ", affiliateFilter);
     if (affiliateFilter) {
-      setSelectedAffiliateID(affiliateFilter.affiliate_id!);
+      setAgentID(affiliateFilter);
       handleUpload();
     } else {
       toast.error("Please Select an Affiliate.");
@@ -49,45 +43,34 @@ export const UploadModal: FC<UserModalProps> = ({
   };
 
   useEffect(() => {
-    const getAllAffiliates = async () => {
-      const { data } = await supabase
-        .from("affiliates")
-        .select("*, user(*)")
-        .eq("status", "Approved")
-        .not("customer_id", "is", null);
-      setAllAffiliates(data || []);
-    };
-    getAllAffiliates();
-    setSelectedAffiliateID(undefined);
+    // const getAllAffiliates = async () => {
+    //   const { data } = await supabase
+    //     .from("affiliate_with_customerid_list")
+    //     .select("*, user(*)")
+    //     .eq("status", "Approved")
+    //     .not("customer_id", "is", null);
+    //   setAllAffiliates(data || []);
+    // };
+    // getAllAffiliates();
+    setAgentID(undefined);
   }, []);
 
   return (
     <CustomModal maxWidth={"max-w-[400px]"} onClose={onClose}>
       <div className="flex flex-col gap-6">
-        <h2 className="text-lg font-semibold">Select Partner</h2>
+        <h2 className="text-lg font-semibold">Select Agent</h2>
 
         <div>
-          <Autocomplete
-            options={allAffiliates}
-            getOptionLabel={(option) => option.affiliate_id!}
-            value={affiliateFilter}
-            onChange={handleStoreChange}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            clearOnEscape
-            renderOption={(props, option, { selected }) => (
-              <MenuItem {...props} key={option.id}>
-                <Checkbox key={option.id} checked={selected} />
-                {option.affiliate_id}
-              </MenuItem>
-            )}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Select Affiliate"
-                variant="outlined"
-                fullWidth
-              />
-            )}
+          <InputField
+            name="customer_id"
+            placeholder="Enter Agent Name"
+            type="text"
+            className="mt-[8px]"
+            label="Agent Name"
+            onChange={(e: any) => {
+              setAgentID(e.target.value);
+              setAffiliateFilter(e.target.value);
+            }}
           />
         </div>
         <div className="flex justify-end w-full">
@@ -96,7 +79,7 @@ export const UploadModal: FC<UserModalProps> = ({
             callback={handleUpdate}
             className="bg-[#342d5f] text-[#5e568f]"
             interactingAPI={saving}
-            disabled={saving || affiliateFilter == undefined}
+            disabled={saving || !affiliateFilter}
           />
         </div>
       </div>

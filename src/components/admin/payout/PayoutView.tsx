@@ -1,5 +1,5 @@
 import { createClient } from "@/app/utils/supabase/client";
-import { AffiliateRow, PayoutViewRow } from "@/app/utils/types";
+import { ReferralSummaryRow, PayoutViewRow } from "@/app/utils/types";
 import { getStatusColor } from "@/app/utils/utils";
 import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 let limit = 5;
 
-const affiliateMap = new Map<string, AffiliateRow>();
+const affiliateMap = new Map<string, ReferralSummaryRow>();
 
 export const PayoutView = ({ triggerKey }: { triggerKey: number }) => {
   const supabase = createClient();

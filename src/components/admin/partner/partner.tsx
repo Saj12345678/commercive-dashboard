@@ -13,7 +13,7 @@ import InputField from "../../ui/custom-inputfild";
 import { toast } from "react-toastify";
 import { Autocomplete, TextField } from "@mui/material";
 import { useStoreContext } from "@/context/StoreContext";
-import { ReferralRow, StoreRow } from "@/app/utils/types";
+import { ReferralViewRow, StoreRow } from "@/app/utils/types";
 import { Database } from "@/app/utils/supabase/database.types";
 import { WalletTable } from "./WalletTable";
 import { excelToTimestampZ } from "@/app/utils/date";
@@ -21,11 +21,15 @@ import { UploadModal } from "./UploadModal";
 
 const defaultHeaders = [
   "time",
+  "affiliate_commission",
   "customer_number",
   "store_name",
   "commission_rate",
+  "affiliate_id",
   "order_number",
-  "quantity_of_order",
+  "quantity_of_orders",
+  "quantity_of_products",
+  "invoice_total",
   "total_commission",
 ];
 
@@ -38,6 +42,7 @@ const initialError = {
   order_number: "",
   customer_number: "",
   order_time: "",
+  affiliate_id: "",
 };
 
 export default function Partner() {
@@ -45,19 +50,25 @@ export default function Partner() {
   const { allStores } = useStoreContext();
 
   let limit = 5;
-  const initialFormData: ReferralInsert = {
-    store_name: allStores[0].store_name,
-    commission_rate: 0.2,
+  const initialFormData: ReferralInsert & {
+    commission_method: number;
+    commission_rate: number;
+  } = {
+    store_name: "",
     quantity_of_order: 0,
     customer_number: "",
     order_number: "",
     uuid: "",
     order_time: "",
+    agent_name: "",
     affiliate_id: "",
+    invoice_total: 0,
+    commission_rate: 0,
+    commission_method: 0,
   };
 
   const [storeFilter, setStoreFilter] = useState<StoreRow | null>(allStores[0]);
-  const [referralsData, setReferralsData] = useState<ReferralRow[]>([]);
+  const [referralsData, setReferralsData] = useState<ReferralViewRow[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -70,7 +81,7 @@ export default function Partner() {
     useState<StoreRow | null>(allStores[0]);
   const [triggerKey, setTriggerKey] = useState(0);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
-  const [selectedAffiliateID, setSelectedAffiliateID] = useState<string>();
+  const [agentID, setAgentID] = useState<string>();
 
   const fileRef = useRef<HTMLInputElement>(null);
   // Handle input changes
@@ -111,11 +122,11 @@ export default function Partner() {
     //   !formData.referred_store_url.trim() ||
     //   formData.store_name == formData.referred_store_url
     // )
-    if (formData.commission_rate == 0) {
-      newErrors.commission_rate = "Commission rate is required.";
-    } else if (isNaN(Number(formData.commission_rate))) {
-      newErrors.commission_rate = "Commission rate must be a number.";
-    }
+    // if (formData.commission_rate == 0) {
+    //   newErrors.commission_rate = "Commission rate is required.";
+    // } else if (isNaN(Number(formData.commission_rate))) {
+    //   newErrors.commission_rate = "Commission rate must be a number.";
+    // }
     if (formData.quantity_of_order == 0) {
       newErrors.quantity_of_order = "Order QTY is required.";
     } else if (isNaN(Number(formData.quantity_of_order))) {
@@ -141,24 +152,25 @@ export default function Partner() {
             .from("referrals")
             .update({
               store_name: formData.store_name,
-              commission_rate: formData.commission_rate,
+              // commission_rate: formData.commission_rate,
               quantity_of_order: formData.quantity_of_order,
               order_number: formData.order_number,
               customer_number: formData.customer_number,
               uuid: `${formData.customer_number}-${formData.order_number}`,
               order_time: formData.order_time,
-            } as ReferralRow)
+            } as ReferralInsert)
             .eq("id", formData.id));
         } else {
           ({ data, error } = await supabase.from("referrals").insert({
             store_name: formData.store_name,
-            commission_rate: Number(formData.commission_rate),
+            // commission_rate: Number(formData.commission_rate),
             quantity_of_order: Number(formData.quantity_of_order),
             customer_number: formData.customer_number,
             order_number: formData.order_number,
             order_time: formData.order_time,
             uuid: `${formData.customer_number}-${formData.order_number}`,
-            affiliate_id: selectedAffiliateID!,
+            agent_name: agentID!,
+            affiliate_id: formData.affiliate_id,
           }));
         }
 
@@ -238,12 +250,14 @@ export default function Partner() {
           order_time: excelToTimestampZ(parseInt(row["time"])),
           store_name: row["store_name"] || "",
           // referred_store_url: referredStoreFilter!.store_url,
-          commission_rate: Number(row["commission_rate"]) || 0,
+          commission_rate: 0,
           order_number: row["order_number"] || "",
-          quantity_of_order: Number(row["quantity_of_order"]) || 0,
+          quantity_of_order: Number(row["quantity_of_orders"]) || 0,
           customer_number: row["customer_number"],
           uuid: `${idx}-${row["customer_number"]}-${row["order_number"]}`,
-          affiliate_id: selectedAffiliateID!,
+          agent_name: agentID!,
+          affiliate_id: row["affiliate_id"],
+          invoice_total: Number(row["invoice_total"] || 0),
         }));
 
         uploadToSupabase(sanitizedData);
@@ -284,13 +298,13 @@ export default function Partner() {
     setIsLoading(false);
   };
 
-  const handleDelete = (row: ReferralRow) => {
-    setFormData(row);
+  const handleDelete = (row: ReferralViewRow) => {
+    setFormData(row as typeof formData);
     setDeleteModalOpen(true);
   };
 
-  const handleSelectEdit = async (row: ReferralRow) => {
-    setFormData(row);
+  const handleSelectEdit = async (row: ReferralViewRow) => {
+    setFormData(row as typeof formData);
     setAddNewModalOpen(true);
   };
 
@@ -303,8 +317,8 @@ export default function Partner() {
       {
         field: "order_time",
         headerName: "Order Time",
-        customRender: (row: ReferralRow) => (
-          <div>{row.order_time.split("T")[0]}</div>
+        customRender: (row: ReferralViewRow) => (
+          <div>{row.order_time?.split("T")[0]}</div>
         ),
       },
       {
@@ -318,24 +332,43 @@ export default function Partner() {
       {
         field: "store_url",
         headerName: "Store Name",
-        customRender: (row: ReferralRow) => <p>{row.store_name}</p>,
+        customRender: (row: ReferralViewRow) => <p>{row.store_name}</p>,
+      },
+      {
+        field: "commission_method",
+        headerName: "Commission Method",
+        customRender: (row: ReferralViewRow) => (
+          <p>
+            {row.commission_method == 1
+              ? "Per Order"
+              : row.commission_method == 2
+              ? "% of Total"
+              : "-"}
+          </p>
+        ),
       },
       {
         field: "commission_rate",
         headerName: "Commission Rate",
-        customRender: (row: any) => <p>{row.commission_rate || 0}$</p>,
+        customRender: (row: ReferralViewRow) => (
+          <p>{row.commission_rate || "-"}</p>
+        ),
       },
       {
         field: "quantity_of_order",
         headerName: "Order QTY",
       },
       {
+        field: "invoice_total",
+        headerName: "Invoice Total",
+      },
+      {
         field: "commission",
         headerName: "Commission",
-        customRender: (row: ReferralRow) => {
+        customRender: (row: ReferralViewRow) => {
           return (
             <p className="text-[#4aaa40]">
-              ${(row.commission_rate * row.quantity_of_order).toFixed(2)}
+              ${row.total_commission?.toFixed(2)}
             </p>
           );
         },
@@ -349,7 +382,7 @@ export default function Partner() {
     try {
       const start = (currentPage - 1) * limit;
       const { data, count, error } = await supabase
-        .from("referrals")
+        .from("referral_view")
         .select("*", { count: "exact" }) // Fetch data with exact count
         .range(start, start + limit - 1)
         .order("id");
@@ -495,59 +528,26 @@ export default function Partner() {
                       )}
                     </div>
                   </div>
-                  {/* <div className="flex flex-col relative w-full gap-2">
-                    <label htmlFor="">Referred Store URL</label>
-                    <div className="flex w-full">
-                      <Autocomplete
-                        options={allStores}
-                        getOptionLabel={(option) => option.store_url}
-                        value={referredStoreFilter}
-                        onChange={(event, newValue) => {
-                          setReferredStoreFilter(newValue);
-                          handleOnChange({
-                            referred_store_url: newValue?.store_url,
-                          });
-                        }}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            // label="Select store"
-                            variant="outlined"
-                            fullWidth
-                            sx={{
-                              "& .MuiOutlinedInput-root": {
-                                // color: "white",
-                                padding: "0px 10px !important",
-                                "& fieldset": { borderColor: "#403a6b" },
-                                "&:hover fieldset": { borderColor: "#403a6b" },
-                                "&.Mui-focused fieldset": {
-                                  borderColor: "#403a6b",
-                                },
-                              },
-                              "& .MuiInputLabel-root": { color: "white" },
-                              "& .MuiInputLabel-root.Mui-focused": {
-                                color: "white",
-                              },
-                              width: "100%",
-                            }}
-                            className="tests"
-                          />
-                        )}
-                        isOptionEqualToValue={(option, value) =>
-                          option.id === value.id
+                  <div className="flex flex-col relative w-full gap-2">
+                    <div className="flex flex-col relative w-full">
+                      <InputField
+                        name="affiliate_id"
+                        placeholder="Enter Affiliate ID"
+                        type="text"
+                        className="mt-[8px]"
+                        label={`Affiliate ID`}
+                        value={formData.affiliate_id}
+                        onChange={(e: any) =>
+                          handleOnChange({ store_name: e.target.value })
                         }
-                        clearOnEscape
-                        sx={{
-                          width: "100%",
-                        }}
                       />
+                      {errors?.affiliate_id && (
+                        <p className="text-red-500 absolute text-sm -bottom-[20px] message">
+                          {errors?.affiliate_id}
+                        </p>
+                      )}
                     </div>
-                    {errors?.referred_store_url && (
-                      <p className="text-red-500 absolute text-sm -bottom-[20px] message">
-                        {errors?.referred_store_url}
-                      </p>
-                    )}
-                  </div> */}
+                  </div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full">
@@ -590,14 +590,25 @@ export default function Partner() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full">
                     <InputField
+                      name="invoice_total"
+                      placeholder="Enter Invoice Total"
+                      type="number"
+                      className="mt-[8px]"
+                      label={`Invoice Total`}
+                      value={formData.invoice_total?.toString() || "0"}
+                    />
+                  </div>
+                  <div className="flex flex-col relative w-full">
+                    <InputField
                       name="commission_rate"
                       placeholder="Enter commission rate"
                       type="number"
                       className="mt-[8px]"
                       label={`Commission Rate`}
-                      value={formData.commission_rate.toString()}
-                      onChange={(e: any) =>
-                        handleOnChange({ commission_rate: e.target.value })
+                      // value={formData.commission_rate.toString()}
+                      onChange={
+                        (e: any) => {}
+                        // handleOnChange({ commission_rate: e.target.value })
                       }
                     />
                     {errors.commission_rate && (
@@ -605,18 +616,6 @@ export default function Partner() {
                         {errors?.commission_rate}
                       </p>
                     )}
-                  </div>
-                  <div className="flex flex-col relative w-full">
-                    <InputField
-                      name="commission"
-                      placeholder="Enter commission"
-                      type="text"
-                      className="mt-[8px]"
-                      label={`Commission`}
-                      value={(
-                        formData.commission_rate * formData.quantity_of_order
-                      ).toFixed(2)}
-                    />
                   </div>
                 </div>
               </div>
@@ -658,7 +657,7 @@ export default function Partner() {
             onClose={() => {
               setUploadModalOpen(false);
             }}
-            setSelectedAffiliateID={setSelectedAffiliateID}
+            setAgentID={setAgentID}
             handleUpload={handleUploadClick}
           />
         )}
