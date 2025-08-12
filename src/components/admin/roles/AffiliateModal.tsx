@@ -30,7 +30,7 @@ export const AffiliateUpdateModal: FC<AffiliateUpdateModalProps> = ({
 
   const [selectedRole, setSelectedRole] = useState(selectedUser.status);
   const [saving, setSaving] = useState(false);
-  const [customerID, setCustomerID] = useState(selectedUser.customer_id);
+  const [customerID, setCustomerID] = useState(selectedUser.affiliate_id);
   const [formURL, setFormURL] = useState(selectedUser.form_url);
 
   const handleUpdate = async () => {

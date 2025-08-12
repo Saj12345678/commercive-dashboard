@@ -977,7 +977,9 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               <p className="text-xl font-semibold">Share</p>
               <MdOutlineClose size={24} onClick={closeModal} />
             </div>
-            <p className="-mt-1">Your Affiliate ID: {affiliate?.customer_id}</p>
+            <p className="-mt-1">
+              Your Affiliate ID: {affiliate?.affiliate_id}
+            </p>
             <p className="text-sm">
               Copy the link and send it to your friends.
             </p>

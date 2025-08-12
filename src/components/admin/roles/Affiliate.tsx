@@ -290,7 +290,7 @@ export default function Affiliate() {
           return (
             <div className="flex gap-2">
               <div>
-                <p className="text-white">{row.customer_id}</p>
+                <p className="text-white">{row.affiliate_id}</p>
               </div>
             </div>
           );

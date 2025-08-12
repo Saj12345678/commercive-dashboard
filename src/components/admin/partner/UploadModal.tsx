@@ -41,7 +41,7 @@ export const UploadModal: FC<UserModalProps> = ({
   const handleUpdate = async () => {
     console.log("affiliateFilter :>> ", affiliateFilter);
     if (affiliateFilter) {
-      setSelectedAffiliateID(affiliateFilter.customer_id!);
+      setSelectedAffiliateID(affiliateFilter.affiliate_id!);
       handleUpload();
     } else {
       toast.error("Please Select an Affiliate.");
@@ -69,7 +69,7 @@ export const UploadModal: FC<UserModalProps> = ({
         <div>
           <Autocomplete
             options={allAffiliates}
-            getOptionLabel={(option) => option.customer_id!}
+            getOptionLabel={(option) => option.affiliate_id!}
             value={affiliateFilter}
             onChange={handleStoreChange}
             isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -77,7 +77,7 @@ export const UploadModal: FC<UserModalProps> = ({
             renderOption={(props, option, { selected }) => (
               <MenuItem {...props} key={option.id}>
                 <Checkbox key={option.id} checked={selected} />
-                {option.customer_id}
+                {option.affiliate_id}
               </MenuItem>
             )}
             renderInput={(params) => (

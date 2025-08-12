@@ -83,10 +83,25 @@ export type Database = {
           },
         ]
       }
-      affiliates: {
+      affiliate_to_customer: {
         Row: {
           created_at: string
-          customer_id: string | null
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+        }
+        Relationships: []
+      }
+      affiliates: {
+        Row: {
+          affiliate_id: string | null
+          created_at: string
           form_url: string | null
           id: number
           status: Database["public"]["Enums"]["AFFILIATE_STATUS"]
@@ -94,8 +109,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          affiliate_id?: string | null
           created_at?: string
-          customer_id?: string | null
           form_url?: string | null
           id?: number
           status: Database["public"]["Enums"]["AFFILIATE_STATUS"]
@@ -103,8 +118,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          affiliate_id?: string | null
           created_at?: string
-          customer_id?: string | null
           form_url?: string | null
           id?: number
           status?: Database["public"]["Enums"]["AFFILIATE_STATUS"]
@@ -459,7 +474,7 @@ export type Database = {
       }
       referrals: {
         Row: {
-          affiliate_id: string
+          affiliate_id: string | null
           commission_rate: number
           created_at: string
           customer_number: string
@@ -471,7 +486,7 @@ export type Database = {
           uuid: string
         }
         Insert: {
-          affiliate_id: string
+          affiliate_id?: string | null
           commission_rate: number
           created_at?: string
           customer_number: string
@@ -483,7 +498,7 @@ export type Database = {
           uuid: string
         }
         Update: {
-          affiliate_id?: string
+          affiliate_id?: string | null
           commission_rate?: number
           created_at?: string
           customer_number?: string
@@ -500,7 +515,7 @@ export type Database = {
             columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
-            referencedColumns: ["customer_id"]
+            referencedColumns: ["affiliate_id"]
           },
         ]
       }
@@ -768,7 +783,7 @@ export type Database = {
             columns: ["affiliate_id"]
             isOneToOne: false
             referencedRelation: "affiliates"
-            referencedColumns: ["customer_id"]
+            referencedColumns: ["affiliate_id"]
           },
         ]
       }

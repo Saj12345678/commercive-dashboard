@@ -275,7 +275,7 @@ export default function CommercivePartners() {
   };
 
   const fetchOrders = async (currentDateRange: any, compareDateRange: any) => {
-    if (!affiliate?.customer_id) return;
+    if (!affiliate?.affiliate_id) return;
     const formatDateForQuery = (date: Date) => {
       const isoString = date.toISOString();
       return isoString.split("Z")[0];
@@ -311,13 +311,13 @@ export default function CommercivePartners() {
       const { data: referral, error: referralsError } = await supabase
         .from("referrals")
         .select("*")
-        .match({ customer_number: affiliate.customer_id })
+        .match({ customer_number: affiliate.affiliate_id })
         .gte("created_at", formattedStartDate)
         .lte("created_at", formattedEndDate);
       const { data: walletRow } = await supabase
         .from("referral_view")
         .select()
-        .eq("affiliate_id", affiliate.customer_id)
+        .eq("affiliate_id", affiliate.affiliate_id)
         .single();
 
       const { data: pastWeekReferral, error: pastWeekReferralsError } =
@@ -494,12 +494,12 @@ export default function CommercivePartners() {
   };
 
   const fetchReferrals = async () => {
-    if (affiliate?.customer_id) {
+    if (affiliate?.affiliate_id) {
       setLoading(true);
       const { data, count } = await supabase
         .from("referrals")
         .select("*", { count: "exact" })
-        .eq("affiliate_id", affiliate?.customer_id)
+        .eq("affiliate_id", affiliate?.affiliate_id)
         .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
         .order("quantity_of_order", { ascending: false });
       setTotalItems(count || 0);
@@ -821,7 +821,7 @@ export default function CommercivePartners() {
             },
           }}
         >
-          Affiliate History ({affiliate?.customer_id || ""})
+          Affiliate History ({affiliate?.affiliate_id || ""})
         </Typography>
         <div className="flex w-full flex-col gap-3 py-2">
           <div className="w-full overflow-auto custom-scrollbar">
@@ -991,7 +991,7 @@ export default function CommercivePartners() {
                 <MdOutlineClose size={24} onClick={closeModal} />
               </div>
               <p className="-mt-1 text-[#4F11C9]">
-                Your Affiliate ID: {affiliate?.customer_id}
+                Your Affiliate ID: {affiliate?.affiliate_id}
               </p>
 
               <p className="text-sm">

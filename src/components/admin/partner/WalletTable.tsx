@@ -95,8 +95,8 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
     const fetchAffiliates = async () => {
       const { data } = await supabase.from("affiliates").select("*, user(*)");
       (data || []).forEach((affiliate) => {
-        if (affiliate.customer_id) {
-          affiliateMap.set(affiliate.customer_id, affiliate);
+        if (affiliate.affiliate_id) {
+          affiliateMap.set(affiliate.affiliate_id, affiliate);
         }
       });
       setAffiliates(data || []);
