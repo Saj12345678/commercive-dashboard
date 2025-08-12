@@ -317,7 +317,7 @@ export default function CommercivePartners() {
       const { data: walletRow } = await supabase
         .from("referral_view")
         .select()
-        .eq("customer_number", affiliate.customer_id)
+        .eq("affiliate_id", affiliate.customer_id)
         .single();
 
       const { data: pastWeekReferral, error: pastWeekReferralsError } =
@@ -499,7 +499,7 @@ export default function CommercivePartners() {
       const { data, count } = await supabase
         .from("referrals")
         .select("*", { count: "exact" })
-        .eq("customer_number", affiliate?.customer_id)
+        .eq("affiliate_id", affiliate?.customer_id)
         .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
         .order("quantity_of_order", { ascending: false });
       setTotalItems(count || 0);
@@ -887,7 +887,10 @@ export default function CommercivePartners() {
                               fontWeight: "600",
                             }}
                           >
-                            ${item.commission_rate * item.quantity_of_order}
+                            $
+                            {(
+                              item.commission_rate * item.quantity_of_order
+                            ).toFixed(2)}
                           </TableCell>
                         </TableRow>
                       ))
