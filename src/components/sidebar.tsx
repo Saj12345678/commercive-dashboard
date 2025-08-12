@@ -972,11 +972,12 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
       )}
       {isModalOpen && (
         <CustomModal maxWidth={"w-max"}>
-          <div className="flex flex-col rounded p-2 gap-4">
+          <div className="flex flex-col rounded p-2 gap-3">
             <div className="flex justify-between">
               <p className="text-xl font-semibold">Share</p>
               <MdOutlineClose size={24} onClick={closeModal} />
             </div>
+            <p className="-mt-1">Your Affiliate ID: {affiliate?.customer_id}</p>
             <p className="text-sm">
               Copy the link and send it to your friends.
             </p>

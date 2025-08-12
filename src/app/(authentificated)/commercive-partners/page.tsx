@@ -658,7 +658,6 @@ export default function CommercivePartners() {
             Affiliate Link
           </Button>
         </div>
-
         <div className="flex flex-col sm:flex-row justify-between">
           <div className="flex flex-col md:flex-row gap-2">
             <div style={{ position: "relative" }}>
@@ -799,7 +798,6 @@ export default function CommercivePartners() {
             </div>
           </div>
         </div>
-
         <div className="flex flex-row gap-4 overflow-auto whitespace-nowrap custom-scrollbar min-h-[180px]">
           {loadingCard ? (
             <FeatureCardSkeleton page="commercive" />
@@ -813,7 +811,18 @@ export default function CommercivePartners() {
             />
           )}
         </div>
-
+        <Typography
+          variant="h5"
+          sx={{
+            fontSize: {
+              xs: "1rem",
+              sm: "1.2rem",
+              md: "1.5rem",
+            },
+          }}
+        >
+          Affiliate History ({affiliate?.customer_id || ""})
+        </Typography>
         <div className="flex w-full flex-col gap-3 py-2">
           <div className="w-full overflow-auto custom-scrollbar">
             <div style={{ minWidth: 600 }}>
@@ -836,6 +845,19 @@ export default function CommercivePartners() {
                           sx={{ color: "black", fontWeight: "bold" }}
                         >
                           Store Name
+                        </Typography>
+                      </TableCell>
+                      <TableCell
+                        style={{
+                          color: "#454545",
+                          fontWeight: "600",
+                        }}
+                      >
+                        <Typography
+                          variant="body1"
+                          sx={{ color: "black", fontWeight: "bold" }}
+                        >
+                          Customer Number
                         </Typography>
                       </TableCell>
                       <TableCell
@@ -879,6 +901,7 @@ export default function CommercivePartners() {
                           style={{ border: "2px solid #F4F4F7" }}
                         >
                           <TableCell>{item.store_name}</TableCell>
+                          <TableCell>{item.customer_number}</TableCell>
                           <TableCell>{item.quantity_of_order}</TableCell>
                           <TableCell>${item.commission_rate}</TableCell>
                           <TableCell
@@ -962,11 +985,15 @@ export default function CommercivePartners() {
         </div>
         {isModalOpen && (
           <CustomModal maxWidth={"w-max"}>
-            <div className="flex flex-col rounded p-2 gap-4">
+            <div className="flex flex-col rounded p-2 gap-3">
               <div className="flex justify-between cursor-pointer">
                 <p className="text-xl font-semibold">Share</p>
                 <MdOutlineClose size={24} onClick={closeModal} />
               </div>
+              <p className="-mt-1 text-[#4F11C9]">
+                Your Affiliate ID: {affiliate?.customer_id}
+              </p>
+
               <p className="text-sm">
                 Copy the link and send it to your friends.
               </p>
