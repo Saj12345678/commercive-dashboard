@@ -222,6 +222,7 @@ export default function Partner() {
   };
 
   const uploadToSupabase = async (data: ReferralInsert[]) => {
+    setIsLoading(true);
     try {
       const { error } = await supabase
         .from("referrals")
@@ -240,7 +241,6 @@ export default function Partner() {
   };
 
   const handleFileUpload = (file: File) => {
-    setIsLoading(true);
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
     if (
       fileExtension === "xls" ||
@@ -273,6 +273,20 @@ export default function Partner() {
           affiliate_id: row["affiliate_id"],
           invoice_total: Number(row["invoice_total"] || 0),
         }));
+        const uuidMap = new Map<string, number>();
+        let order_id: string | undefined = undefined;
+        sanitizedData.forEach((item) => {
+          const prev = uuidMap.get(item.uuid) || 0;
+          uuidMap.set(item.uuid, prev + 1);
+          if (prev == 1) {
+            console.log("sanitizedData", item);
+            order_id = item.order_number;
+          }
+        });
+        if (order_id) {
+          toast.error(`Order Number "${order_id}" is duplicated!`);
+          return;
+        }
 
         uploadToSupabase(sanitizedData);
       };
