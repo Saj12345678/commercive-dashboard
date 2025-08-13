@@ -750,6 +750,34 @@ export type Database = {
       }
     }
     Views: {
+      affiliate_setting_view: {
+        Row: {
+          affiliate_id: string | null
+          commission_method: number | null
+          commission_rate: number | null
+          count: number | null
+          customer_number: string | null
+          order_count: number | null
+          total_amount: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "affiliates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_role_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_ids_view: {
         Row: {
           customer_number: string | null

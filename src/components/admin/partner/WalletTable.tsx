@@ -3,15 +3,22 @@ import { ReferralSummaryRow, WalletRow } from "@/app/utils/types";
 import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
 import { useEffect, useState } from "react";
+import { AffiliateSettingModal } from "./AffiliateSettingModal";
 
 let limit = 5;
 
 const affiliateMap = new Map<string, ReferralSummaryRow>();
 
-export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
+export const WalletTable = ({
+  triggerKey,
+  updateTables,
+}: {
+  triggerKey: number;
+  updateTables: () => void;
+}) => {
   const supabase = createClient();
   const [referralsData, setReferralsData] = useState<ReferralSummaryRow[]>([]);
-  const [affiliates, setAffiliates] = useState<ReferralSummaryRow[]>([]);
+  const [affiliate, setAffiliate] = useState<ReferralSummaryRow>();
   const [page, setPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -105,6 +112,10 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
     }
   };
 
+  const onSelectRow = (row: ReferralSummaryRow) => {
+    setAffiliate(row);
+  };
+
   useEffect(() => {
     // const fetchAffiliates = async () => {
     //   const { data } = await supabase
@@ -153,7 +164,18 @@ export const WalletTable = ({ triggerKey }: { triggerKey: number }) => {
         tableConfig={tableConfig}
         isLoading={isLoading}
         limit={limit}
+        showCheckbox
+        onCheckboxClick={onSelectRow}
       />
+      {affiliate && (
+        <AffiliateSettingModal
+          affiliate={affiliate}
+          onClose={() => {
+            setAffiliate(undefined);
+          }}
+          updateTables={updateTables}
+        />
+      )}
     </div>
   );
 };

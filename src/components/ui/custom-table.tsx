@@ -211,6 +211,7 @@ export default function CustomTable<T>({
                                 column.field === "action" && isLoading
                                   ? "none"
                                   : "table-cell",
+                              padding: "7px 15px",
                             }}
                           >
                             {showEdit && (
@@ -272,6 +273,7 @@ export default function CustomTable<T>({
                               fontSize: "14px",
                               borderBottom: "2px solid #403a6b",
                               color: "#ffffff",
+                              padding: "7px 15px",
                             }}
                           >
                             {column.customRender(row)}
@@ -286,6 +288,7 @@ export default function CustomTable<T>({
                               fontSize: "14px",
                               borderBottom: "2px solid #403a6b",
                               color: "#ffffff",
+                              padding: "7px 15px",
                             }}
                           >
                             {row[column.field] ? row[column.field] : "-"}

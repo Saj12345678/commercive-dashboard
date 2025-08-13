@@ -753,7 +753,13 @@ export default function Partner() {
         onCheckboxClick={handleSelectEdit}
         onDelete={handleDelete}
       />
-      <WalletTable triggerKey={triggerKey} />
+      <WalletTable
+        triggerKey={triggerKey}
+        updateTables={() => {
+          setTriggerKey(triggerKey + 1);
+          fetchReferralsData(page);
+        }}
+      />
     </div>
   );
 }

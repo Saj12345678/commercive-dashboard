@@ -25,3 +25,6 @@ export type PayoutViewRow =
   Database["public"]["Views"]["payout_view"]["Row"] & {
     user: UserRow | null;
   };
+
+export type AffiliateSettingViewRow =
+  Database["public"]["Views"]["affiliate_setting_view"]["Row"];
