@@ -268,7 +268,7 @@ export default function Partner() {
           order_number: row["order_number"] || "",
           quantity_of_order: Number(row["quantity_of_orders"]) || 0,
           customer_number: row["customer_number"],
-          uuid: `${idx}-${row["customer_number"]}-${row["order_number"]}`,
+          uuid: `${row["customer_number"]}-${row["order_number"]}`,
           agent_name: agentID!,
           affiliate_id: row["affiliate_id"],
           invoice_total: Number(row["invoice_total"] || 0),
