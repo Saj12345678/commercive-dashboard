@@ -484,7 +484,7 @@ export type Database = {
       referrals: {
         Row: {
           affiliate_id: string
-          agent_name: string
+          agent_name: string | null
           created_at: string
           customer_number: string
           id: number
@@ -497,7 +497,7 @@ export type Database = {
         }
         Insert: {
           affiliate_id: string
-          agent_name: string
+          agent_name?: string | null
           created_at?: string
           customer_number: string
           id?: number
@@ -510,7 +510,7 @@ export type Database = {
         }
         Update: {
           affiliate_id?: string
-          agent_name?: string
+          agent_name?: string | null
           created_at?: string
           customer_number?: string
           id?: number

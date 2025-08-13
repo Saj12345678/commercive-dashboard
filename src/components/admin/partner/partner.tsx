@@ -264,7 +264,7 @@ export default function Partner() {
           order_time: excelToTimestampZ(parseInt(row["time"])),
           store_name: row["store_name"] || "",
           // referred_store_url: referredStoreFilter!.store_url,
-          commission_rate: 0,
+          // commission_rate: 0,
           order_number: row["order_number"] || "",
           quantity_of_order: Number(row["quantity_of_orders"]) || 0,
           customer_number: row["customer_number"],
@@ -442,7 +442,8 @@ export default function Partner() {
   };
 
   const handleShowUploadModal = () => {
-    setUploadModalOpen(true);
+    fileRef.current?.click();
+    // setUploadModalOpen(true);
   };
 
   const handleUploadClick = () => {
