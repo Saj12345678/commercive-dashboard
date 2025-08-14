@@ -203,11 +203,12 @@ export default function OrderDetails() {
             typeof orderData.line_items === "string"
               ? JSON.parse(orderData.line_items)
               : orderData.line_items;
+          console.log("lineItems :>> ", lineItems);
           if (Array.isArray(lineItems)) {
             const products = lineItems.map((item) => ({
-              quantity: item.quantity,
-              sku: item.sku || "00000",
-              title: item.title,
+              quantity: (item.node || item)?.quantity,
+              sku: (item.node || item)?.sku || "NO SKU",
+              title: (item.node || item)?.title,
             }));
             setProductDetails(products);
           } else {

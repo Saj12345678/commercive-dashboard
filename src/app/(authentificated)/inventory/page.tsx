@@ -78,8 +78,8 @@ export default function Inventory() {
 
           return {
             image: item?.product_image,
-            color: item.product_name || "",
-            name: `Product [${item.sku || "NOSKU"}]`,
+            color: `${item.variant_name} [${item.sku || "NOSKU"}]`,
+            name: item.product_name || "",
             stockMeter: available + committed,
             stockStatus,
             backorders: backOrders,
@@ -247,7 +247,7 @@ export default function Inventory() {
                 Photo
               </TableCell>
               <TableCell
-                sx={{ fontWeight: "bold", color: "black", width: "300px" }}
+                sx={{ fontWeight: "bold", color: "black", width: "400px" }}
               >
                 Name/SKU
               </TableCell>

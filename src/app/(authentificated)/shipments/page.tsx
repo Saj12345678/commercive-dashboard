@@ -141,7 +141,7 @@ export default function Shipment() {
       .gte("created_at", formattedStartDate)
       .lt("created_at", formattedEndDate)
       .eq("store_url", storeUrl);
-
+    console.log("trackingsData :>> ", trackingsData);
     if (trackingsError) {
       console.error("Error fetching trackings:", trackingsError.message);
     } else {
