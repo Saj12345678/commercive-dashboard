@@ -3,7 +3,7 @@
 import { Suspense, useActionState, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CustomButton from "@/components/ui/custom-button";
-import { signup } from "./actions";
+import { requestSignup, signup } from "./actions";
 import { toast } from "react-toastify";
 import { ActionResponse } from "@/components/type-identifiers";
 import LogoIcon from "@/components/images/full-logo";
@@ -13,7 +13,7 @@ function SignupForm() {
   const searchParams = useSearchParams();
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [state, formAction] = useActionState<ActionResponse<void>, FormData>(
-    signup,
+    requestSignup,
     null
   );
 
@@ -41,10 +41,13 @@ function SignupForm() {
       });
     }
     if (state.success) {
-      toast.success("SignUp successfully!", {
-        toastId: "signup-success",
-      });
-      router.push("/login");
+      toast.success(
+        "You requested a new account. Please wait until your account is approved!",
+        {
+          toastId: "signup-success",
+        }
+      );
+      // router.push("/login");
     }
   }, [state]);
 
@@ -131,7 +134,7 @@ function SignupForm() {
                 className="w-full border-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div>
+            {/* <div>
               <label htmlFor="password" className="block text-gray-600 mb-2">
                 Password
               </label>
@@ -143,13 +146,13 @@ function SignupForm() {
                 required
                 className="w-full border-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            </div>
+            </div> */}
             {referralCode && (
               <input type="hidden" name="referral" value={referralCode} />
             )}
             <CustomButton
               type="submit"
-              label={"Create Account"}
+              label={"Request Account"}
               className="w-full whitespace-nowrap px-6 text-md lg:h-full"
             />
           </div>

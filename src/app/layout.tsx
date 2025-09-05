@@ -41,12 +41,12 @@ export default async function RootLayout({
       .eq("id", user.id)
       .single();
     userinfo = data!;
-    const { data: affilate } = await supabase
+    const { data: affiliate } = await supabase
       .from("affiliates")
       .select()
       .eq("user_id", user.id)
       .single();
-    affiliateRow = affilate;
+    affiliateRow = affiliate;
     const { data: allStoreData } = await supabase.from("stores").select();
     initialAllStore = allStoreData || [];
   }
@@ -60,7 +60,7 @@ export default async function RootLayout({
         <NextTopLoader />
         <StoreProvider
           initialUserinfo={userinfo}
-          iniitialAffilateRow={affiliateRow}
+          initialAffiliateRow={affiliateRow}
           initialAllStore={initialAllStore}
         >
           {children}

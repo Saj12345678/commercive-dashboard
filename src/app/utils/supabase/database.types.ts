@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -170,6 +170,7 @@ export type Database = {
           product_name: string | null
           sku: string | null
           store_url: string
+          variant_id: number | null
           variant_name: string | null
         }
         Insert: {
@@ -182,6 +183,7 @@ export type Database = {
           product_name?: string | null
           sku?: string | null
           store_url: string
+          variant_id?: number | null
           variant_name?: string | null
         }
         Update: {
@@ -194,6 +196,7 @@ export type Database = {
           product_name?: string | null
           sku?: string | null
           store_url?: string
+          variant_id?: number | null
           variant_name?: string | null
         }
         Relationships: []
@@ -577,6 +580,39 @@ export type Database = {
         }
         Relationships: []
       }
+      signup_request: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string
+          id: number
+          last_name: string
+          phone_number: string | null
+          status: boolean
+          user_name: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name: string
+          id?: number
+          last_name: string
+          phone_number?: string | null
+          status?: boolean
+          user_name: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: number
+          last_name?: string
+          phone_number?: string | null
+          status?: boolean
+          user_name?: string
+        }
+        Relationships: []
+      }
       store_to_user: {
         Row: {
           created_at: string
@@ -745,6 +781,30 @@ export type Database = {
           user_name?: string | null
           visible_pages?: string[] | null
           visible_store?: string[] | null
+        }
+        Relationships: []
+      }
+      webhooks: {
+        Row: {
+          created_at: string
+          id: number
+          payload: Json
+          store_url: string
+          topic: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          payload: Json
+          store_url: string
+          topic: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          payload?: Json
+          store_url?: string
+          topic?: string
         }
         Relationships: []
       }

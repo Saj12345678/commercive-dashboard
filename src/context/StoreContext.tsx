@@ -28,10 +28,15 @@ const StoreContext = createContext<StoreContextProps | undefined>(undefined);
 
 export const StoreProvider: React.FC<{
   initialUserinfo?: UserRow;
-  iniitialAffilateRow: AffiliateRequestRow | null;
+  initialAffiliateRow: AffiliateRequestRow | null;
   initialAllStore: StoreRow[];
   children: React.ReactNode;
-}> = ({ initialUserinfo, iniitialAffilateRow, initialAllStore, children }) => {
+}> = ({
+  initialUserinfo,
+  initialAffiliateRow: iniitialAffilateRow,
+  initialAllStore,
+  children,
+}) => {
   const supabase = createClient();
   const pathName = usePathname();
 

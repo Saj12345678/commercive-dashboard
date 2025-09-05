@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { ActionResponse } from "@/components/type-identifiers";
-import { createServerSideClient } from "../utils/supabase/server";
+import {
+  createAdminClient,
+  createServerSideClient,
+  createSuperAdminClient,
+} from "../utils/supabase/server";
 
 export const signup = async (
   prevState: any,
@@ -96,4 +100,51 @@ export const signup = async (
 
   revalidatePath("/", "layout");
   return redirect("/login");
+};
+
+export const requestSignup = async (
+  prevState: any,
+  formData: FormData
+): Promise<ActionResponse<void>> => {
+  const supabase = await createSuperAdminClient();
+  const email = formData.get("email") as string;
+  const firstName = formData.get("firstName") as string;
+  const lastName = formData.get("lastName") as string;
+  const userName = formData.get("userName") as string;
+  const phoneNumber = formData.get("phoneNumber") as string;
+
+  const { data: existing } = await supabase
+    .from("signup_request")
+    .select()
+    .eq("email", email)
+    .single();
+  if (existing) {
+    return {
+      success: false,
+      errors: "Already Requested",
+    };
+  }
+
+  const { data: existingUser } = await supabase
+    .from("user")
+    .select()
+    .eq("email", email)
+    .single();
+
+  if (existingUser) {
+    return {
+      success: false,
+      errors: "Already Signed Up",
+    };
+  }
+
+  const { error } = await supabase.from("signup_request").insert({
+    first_name: firstName,
+    last_name: lastName,
+    user_name: userName,
+    phone_number: phoneNumber,
+    email: email,
+  });
+  console.log("error :>> ", error);
+  return { success: true };
 };

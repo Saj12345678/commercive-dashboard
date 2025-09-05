@@ -1,14 +1,20 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createServerSideClient } from "../utils/supabase/server";
+import {
+  createServerSideClient,
+  createSuperAdminClient,
+} from "../utils/supabase/server";
 import { ActionResponse } from "@/components/type-identifiers";
 
-export const login = async (prevState: any, formData: FormData) => {
+export const login = async ({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) => {
   const supabase = await createServerSideClient();
-
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
 
   if (!email || !password) {
     console.error("Email or password is missing");
@@ -44,4 +50,32 @@ export const login = async (prevState: any, formData: FormData) => {
   }
 
   // fallback just in case
+};
+
+export const checkEmail = async (email: string) => {
+  const supabase = await createSuperAdminClient();
+  const { data: userRow } = await supabase
+    .from("user")
+    .select()
+    .eq("email", email)
+    .single();
+  const { data: request } = await supabase
+    .from("signup_request")
+    .select()
+    .eq("email", email)
+    .single();
+  if (userRow) {
+    return { status: true, request };
+  }
+  if (request) {
+    return {
+      status: false,
+      request: request,
+    };
+  } else {
+    return {
+      status: false,
+      request: undefined,
+    };
+  }
 };
