@@ -151,7 +151,7 @@ export default function LoginPage() {
                 onChange={(e) => {
                   setEmail(e.target.value);
                 }}
-                disabled={showPass}
+                disabled={showPass || isSignup}
               />
             </div>
             {(showPass || isSignup) && (
