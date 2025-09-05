@@ -91,7 +91,6 @@ export default function Profile() {
         .eq("id", user.id);
 
       if (error) {
-        console.log(error, "vdvdv");
         toast.error("Failed to update user data.");
         return;
       }
