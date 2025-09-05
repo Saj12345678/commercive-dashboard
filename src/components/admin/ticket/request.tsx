@@ -6,12 +6,11 @@ import CustomButton from "@/components/ui/custom-button";
 import CustomTable from "@/components/ui/custom-table";
 import { toast } from "react-toastify";
 import { Button } from "@mui/material";
-import { IssueRow } from "@/app/utils/types";
-import { Request } from "./ticket/request";
+import { IssueRow, RequestRow } from "@/app/utils/types";
 
-export default function Ticket() {
+export function Request() {
   const supabase = createClient();
-  const [ticketsData, setTicketsData] = useState<IssueRow[]>([]);
+  const [ticketsData, setTicketsData] = useState<RequestRow[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,11 +27,6 @@ export default function Ticket() {
     actionPresent: true,
     actionList: ["checkbox"],
     columns: [
-      {
-        field: "name",
-        headerName: "User Name",
-        customRender: (row: any) => <span>{row.name}</span>,
-      },
       {
         field: "created_at",
         headerName: "Time Created",
@@ -51,30 +45,14 @@ export default function Ticket() {
       {
         field: "email",
         headerName: "Email",
-        customRender: (row: any) => <span>{row.email}</span>,
       },
       {
-        field: "store_url",
-        headerName: "Store URL",
-        customRender: (row: any) => <span>{row.store_url}</span>,
+        field: "first_name",
+        headerName: "First Name",
       },
       {
-        field: "issue",
-        headerName: "Issue",
-        customRender: (row: any) => <span>{row.issue}</span>,
-      },
-      {
-        field: "reply",
-        headerName: "Reply",
-        customRender: (row: any) => (
-          <a
-            className="bg-transparent text-[#FFFFFF] border py-1 px-2 rounded-md"
-            href={`https://wa.me/${row.phone_number}`}
-            target="_blank"
-          >
-            Reply
-          </a>
-        ),
+        field: "last_name",
+        headerName: "Last Name",
       },
       {
         field: "phone_number",
@@ -92,13 +70,11 @@ export default function Ticket() {
       {
         field: "confirmed",
         headerName: "Confirmed",
-        customRender: (row: any) => (
+        customRender: (row: RequestRow) => (
           <span
-            className={`${
-              row.confirmed ? "text-green-500" : "text-yellow-400"
-            }`}
+            className={`${row.status ? "text-green-500" : "text-yellow-400"}`}
           >
-            {row.confirmed ? "Solved" : "Pending"}
+            {row.status ? "Approved" : "Pending"}
           </span>
         ),
       },
@@ -111,10 +87,11 @@ export default function Ticket() {
     try {
       const start = (currentPage - 1) * limit;
       const { data, count, error } = await supabase
-        .from("issues")
+        .from("signup_request")
         .select("*", { count: "exact" }) // Fetch data with exact count
         .range(start, start + limit - 1)
-        .order("created_at", { ascending: false });
+        .order("status")
+        .order("id", { ascending: false });
       if (error) {
         console.error("Error fetching issues data:", error);
       } else {
@@ -144,11 +121,11 @@ export default function Ticket() {
     fetchTicketsData(page);
   }, [page]);
 
-  const handleCheckboxClick = async (row: IssueRow) => {
+  const handleCheckboxClick = async (row: RequestRow) => {
     // Update Supabase
     const { data, error }: any = await supabase
-      .from("issues")
-      .update({ confirmed: !row.confirmed })
+      .from("signup_request")
+      .update({ status: !row.status })
       .eq("id", row.id)
       .select()
       .single();
@@ -167,9 +144,9 @@ export default function Ticket() {
 
   return (
     <>
-      <div className="flex flex-col w-full gap-5">
-        <div className="flex flex-col sm:flex-row w-full justify-end gap-3 justify-between">
-          <h1 className="text-2xl text-white">Tickets</h1>
+      <div className="flex flex-col w-full gap-5 mt-3">
+        <div className="flex flex-col sm:flex-row w-full gap-3 justify-between">
+          <h1 className="text-2xl text-white">SignUp Requests</h1>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <p className="text-[#5e568f]">
               Showing {(page - 1) * limit + 1}-
@@ -200,7 +177,6 @@ export default function Ticket() {
           onCheckboxClick={handleCheckboxClick}
         />
       </div>
-      <Request />
     </>
   );
 }
