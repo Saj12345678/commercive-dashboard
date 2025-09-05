@@ -123,14 +123,14 @@ export function Request() {
 
   const handleCheckboxClick = async (row: RequestRow) => {
     // Update Supabase
-    const { data, error }: any = await supabase
+    const { data, error } = await supabase
       .from("signup_request")
       .update({ status: !row.status })
       .eq("id", row.id)
       .select()
       .single();
 
-    if (data?.confirmed) {
+    if (data?.status) {
       toast("Confirm successfully.");
     } else {
       toast("Disapprove successfully.");
