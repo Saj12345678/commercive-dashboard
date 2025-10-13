@@ -1,55 +1,50 @@
 "use client";
 
-import { Suspense, useActionState, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter } from "next/navigation";
 import CustomButton from "@/components/ui/custom-button";
-import { requestSignup, signup } from "./actions";
 import { toast } from "react-toastify";
-import { ActionResponse } from "@/components/type-identifiers";
 import LogoIcon from "@/components/images/full-logo";
+import { createClient } from "../utils/supabase/client";
 
 function SignupForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [referralCode, setReferralCode] = useState<string | null>(null);
-  const [state, formAction] = useActionState<ActionResponse<void>, FormData>(
-    requestSignup,
-    null
-  );
+  const supabase = createClient();
 
-  useEffect(() => {
-    const referral = searchParams.get("referral");
-    if (referral) {
-      setReferralCode(referral);
-    }
-  }, [searchParams]);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const firstName = formData.get("firstName") as string;
+    const lastName = formData.get("lastName") as string;
+    const userName = formData.get("userName") as string;
+    const phoneNumber = formData.get("phoneNumber") as string;
+    const referralCode = "";
 
-  useEffect(() => {
-    if (!state) {
-      return;
-    }
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          firstName,
+          lastName,
+          userName,
+          phoneNumber,
+          referralCode,
+          visible_store: [],
+          role: "user",
+        },
+      },
+    });
 
-    if (!state.success && state.errors) {
-      const errors = Array.isArray(state.errors)
-        ? state.errors
-        : [state.errors];
-
-      errors.forEach((error) => {
-        toast.error(error, {
-          toastId: error,
-        });
-      });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Account created successfully");
     }
-    if (state.success) {
-      toast.success(
-        "You requested a new account. Please wait until your account is approved!",
-        {
-          toastId: "signup-success",
-        }
-      );
-      // router.push("/login");
-    }
-  }, [state]);
+  };
 
   return (
     <div className="flex items-center justify-center w-full h-screen">
@@ -58,7 +53,7 @@ function SignupForm() {
           <p className="text-2xl font-semibold mr-2">Get started with</p>
           <LogoIcon width={150} height={40} color={"#4F11C9"} />
         </div>
-        <form action={formAction}>
+        <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div className="flex gap-4 flex-col md:flex-row">
               <div>
@@ -134,7 +129,7 @@ function SignupForm() {
                 className="w-full border-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            {/* <div>
+            <div>
               <label htmlFor="password" className="block text-gray-600 mb-2">
                 Password
               </label>
@@ -146,7 +141,7 @@ function SignupForm() {
                 required
                 className="w-full border-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            </div> */}
+            </div>
             {referralCode && (
               <input type="hidden" name="referral" value={referralCode} />
             )}
