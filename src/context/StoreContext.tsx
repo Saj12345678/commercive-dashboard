@@ -82,9 +82,15 @@ export const StoreProvider: React.FC<{
       console.error("Error fetching stores:", error.message);
       return;
     }
-    if (storeData?.length > 0) {
-      setStores(storeData.map((row) => row.stores));
-      setSelectedStore(storeData[0].stores);
+
+    const userStores =
+      userinfo?.role == "user"
+        ? storeData.map((row) => row.stores)
+        : allStoreData;
+
+    if (userStores && userStores?.length > 0) {
+      setStores(userStores);
+      setSelectedStore(userStores[0]);
     } else {
       setStores([]);
       redirect("/support");

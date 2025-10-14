@@ -29,10 +29,12 @@ export default function Home() {
   const supabase = createClient();
   const currentPickerRef = useRef<HTMLDivElement | null>(null);
   const comparePickerRef = useRef<HTMLDivElement | null>(null);
-  const { selectedStore, setSelectedStore, stores } = useStoreContext();
+  const { selectedStore, stores, userinfo, allStores } = useStoreContext();
   const storeUrl = selectedStore ? selectedStore.store_url : null;
 
-  if (stores && stores.length == 0) {
+  const userStores = userinfo?.role == "user" ? stores : allStores;
+
+  if (userStores && userStores.length == 0) {
     redirect("/support");
   }
 
@@ -524,8 +526,14 @@ export default function Home() {
           let stockStatus = "Enough Stock";
           if (available === 0) stockStatus = "No Stock";
           else if (available < 50) stockStatus = "Low Stock";
+          let urlObj: any = {};
+          try {
+            urlObj = JSON.parse(item.product_image || "{}");
+          } catch (e) {
+            urlObj = {};
+          }
           return {
-            image: item.product_image,
+            image: urlObj.url || item?.product_image,
             color: item.product_name || "", //"#" + Math.floor(Math.random() * 16777215).toString(16),
             name: item.sku || "NO SKU",
             product_id: item.product_id,

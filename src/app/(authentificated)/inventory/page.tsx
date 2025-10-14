@@ -39,7 +39,7 @@ export default function Inventory() {
   const [inventoryData, setInventoryData] = useState<InventoryItem[]>([]);
   const { selectedStore } = useStoreContext();
   const storeUrl = selectedStore ? selectedStore.store_url : null;
-
+  console.log("storeUrl :>> ", storeUrl);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20); // Default 20 items per page
 
@@ -47,7 +47,6 @@ export default function Inventory() {
     if (!storeUrl) {
       return;
     }
-
     setLoading(true);
     try {
       const { data: fetchedData, error: inventoryError } = await supabase
@@ -76,8 +75,15 @@ export default function Inventory() {
           if (available === 0) stockStatus = "No Stock";
           else if (available < 50) stockStatus = "Low Stock";
 
+          let urlObj: any = {};
+          try {
+            urlObj = JSON.parse(item.product_image || "{}");
+          } catch (e) {
+            urlObj = {};
+          }
+
           return {
-            image: item?.product_image,
+            image: urlObj.url || item?.product_image,
             color: `${item.variant_name} [${item.sku || "NOSKU"}]`,
             name: item.product_name || "",
             stockMeter: available + committed,
@@ -347,7 +353,7 @@ export default function Inventory() {
       </TableContainer>
 
       {/* Pagination UI */}
-      <div className="flex justify-between items-center mt-4">
+      {/* <div className="flex justify-between items-center mt-4">
         <select
           value={itemsPerPage}
           onChange={handleItemsPerPageChange}
@@ -389,7 +395,7 @@ export default function Inventory() {
             Last
           </Button>
         </div>
-      </div>
+      </div> */}
     </main>
   );
 }
