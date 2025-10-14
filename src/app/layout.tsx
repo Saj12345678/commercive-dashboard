@@ -1,9 +1,4 @@
-import { Flip, ToastContainer } from "react-toastify";
 import { Geist, Geist_Mono } from "next/font/google";
-import Header from "@/components/header";
-import Sidebar from "@/components/sidebar";
-import LabelBottomNavigation from "@/components/bottom-navigation";
-import Chat from "@/components/chat";
 import { StoreProvider } from "@/context/StoreContext";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";

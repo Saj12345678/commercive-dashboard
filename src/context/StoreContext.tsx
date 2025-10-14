@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { createClient } from "@/app/utils/supabase/client";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import Header from "@/components/header";
 import Sidebar from "@/components/sidebar";
 import LabelBottomNavigation from "@/components/bottom-navigation";
@@ -17,7 +17,7 @@ interface StoreContextProps {
   fetchStoreData: () => Promise<void>;
   selectedStore: StoreRow | null;
   setSelectedStore: React.Dispatch<React.SetStateAction<StoreRow | null>>;
-  stores: StoreRow[];
+  stores: StoreRow[] | null;
   allStores: StoreRow[];
   chatOpen: boolean;
   setChatOpen: (data: boolean) => void;
@@ -40,7 +40,7 @@ export const StoreProvider: React.FC<{
   const supabase = createClient();
   const pathName = usePathname();
 
-  const [stores, setStores] = useState<StoreRow[]>([]);
+  const [stores, setStores] = useState<StoreRow[] | null>(null);
   const [allStores, setAllStores] = useState<StoreRow[]>(initialAllStore);
   const [selectedStore, setSelectedStore] = useState<StoreRow | null>(null);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
@@ -85,6 +85,9 @@ export const StoreProvider: React.FC<{
     if (storeData?.length > 0) {
       setStores(storeData.map((row) => row.stores));
       setSelectedStore(storeData[0].stores);
+    } else {
+      setStores([]);
+      redirect("/support");
     }
   };
 

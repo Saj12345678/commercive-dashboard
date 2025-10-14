@@ -14,6 +14,7 @@ import { createClient } from "../../utils/supabase/client";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "./home.css";
+import { redirect } from "next/navigation";
 
 export interface InventoryItem {
   image: string | null;
@@ -30,6 +31,10 @@ export default function Home() {
   const comparePickerRef = useRef<HTMLDivElement | null>(null);
   const { selectedStore, setSelectedStore, stores } = useStoreContext();
   const storeUrl = selectedStore ? selectedStore.store_url : null;
+
+  if (stores && stores.length == 0) {
+    redirect("/support");
+  }
 
   const getSundayOfWeek = (date: Date) => {
     const day = date.getDay(); // 0 (Sunday) to 6 (Saturday)

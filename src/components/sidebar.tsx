@@ -11,7 +11,6 @@ import ShipmentIcon from "./images/shipment";
 import SettingIcon from "./images/setting";
 import Image from "next/image";
 import LogoIcon from "./images/full-logo";
-import { toast } from "react-toastify";
 import CustomModal from "./ui/modal";
 import { MdOutlineClose } from "react-icons/md";
 import InputField from "./ui/custom-inputfild";
@@ -125,8 +124,6 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   const stores = userinfo?.role == "user" ? userStores : allStores;
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [userData, setUserData] = useState<any>({});
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [loading, setLoading] = useState(false);
   const [referralLink, setReferralLink] = useState(affiliate?.store_url || "");
   const [isModalOpen, setModalOpen] = useState(false);
   const [tooltipInfoMessage, setTooltipInfoMessage] = useState("");
@@ -148,7 +145,6 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
             .replace("/admin/", "")
             .trim()
             .toLowerCase();
-          // console.log("userData.visible_pages :>> ", userData.visible_pages);
           return (userData.visible_pages ?? [])
             .map((page: string) => page?.trim().toLowerCase())
             .includes(pageName);
@@ -170,9 +166,9 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
   //   setAnchorEl(null);
   // };
 
-  const toggleSidebar = () => {
+  const toggleSidebar = (e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
     setSidebarOpen(!sidebarOpen);
-
     setIsCollapsed(!isCollapsed);
   };
 
@@ -184,10 +180,10 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
@@ -387,12 +383,6 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
 
   return (
     <>
-      {/* Sidebar for larger screens */}
-      {/* {loading && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="loader"></div>
-        </div>
-      )} */}
       <div
         className={`hidden md:flex flex-col ${
           isCollapsed ? "w-24" : "w-[360px]"
@@ -410,7 +400,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
               isCollapsed ? "gap-5" : "gap-5"
             } h-full`}
           >
-            <div className="flex flex-col gap-2 relative">
+            <div className="flex flex-col gap-2 relative" ref={dropdownRef}>
               {!pathName?.includes("/admin") && (
                 <div
                   className={`w-full flex justify-between border-2 border-[#F4F4F7] rounded-md py-2 px-4 ${
@@ -420,7 +410,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   <div className={`flex w-full ${isCollapsed && "hidden"}`}>
                     <div
                       className="flex w-full gap-2 items-center cursor-pointer"
-                      onClick={toggleSidebar}
+                      onClick={handleClick}
                     >
                       <Avatar
                         alt="User Avatar"
@@ -430,11 +420,10 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                           backgroundColor: "#D7C9F7",
                           color: "#4F12CA",
                         }}
+                        onClick={toggleSidebar}
                       />
                       <div className="flex flex-col">
-                        <h2>
-                          {storeName == "satish-dev" ? "Golf Pro" : storeName}
-                        </h2>
+                        <h2>{storeName}</h2>
                         <p className="text-[#B1B0B0]">Connected</p>
                       </div>
                     </div>
@@ -451,20 +440,13 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                           // className={`transition-transform duration-300 ${showStoreData ? 'rotate-180' : ''}`}
                         />
                       </div>
-                      {/* <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                  >
-                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
-                  </Menu> */}
                     </div>
                   </div>
                   <div
                     className={`${
                       !isCollapsed && "hidden"
                     } flex w-full cursor-pointer justify-center`}
-                    onClick={toggleSidebar}
+                    // onClick={toggleSidebar}
                   >
                     <Avatar
                       alt="User Avatar"
@@ -474,15 +456,13 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                         backgroundColor: "#D7C9F7",
                         color: "#4F12CA",
                       }}
+                      onClick={toggleSidebar}
                     />
                   </div>
                 </div>
               )}
               {showStoreData && !isCollapsed && (
-                <div
-                  ref={dropdownRef}
-                  className="w-full border-2 rounded shadow-lg absolute top-[78px] "
-                >
+                <div className="w-full border-2 rounded shadow-lg absolute top-[78px] ">
                   <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar cursor-pointer">
                     {stores && stores.length > 0 ? (
                       stores.map((store, index) => (
@@ -521,7 +501,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                         </div>
                       ))
                     ) : (
-                      <p className="p-4 bg-white">No stores available.</p>
+                      <p className="p-4 bg-white">No stores availables.</p>
                     )}
                   </div>
                   <div
@@ -534,7 +514,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                     >
                       <span>
                         <FiPlus size={20} />
-                      </span>{" "}
+                      </span>
                       Connect new store
                     </p>
                   </div>
@@ -547,38 +527,37 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                         <h3 className="font-semibold text-lg">
                           Available Stores
                         </h3>
-                        {loading ? (
-                          <p>Loading...</p>
-                        ) : stores.length === 0 ? (
+                        {stores && stores.length === 0 ? (
                           <p>No stores available to connect.</p>
                         ) : (
                           <div>
-                            {stores.map((store) => (
-                              <div
-                                className="flex flex-row justify-between items-center gap-4 py-2"
-                                key={store.id}
-                              >
-                                <p className="flex-1">{store.store_name}</p>
-                                <p
-                                  className={`w-3 h-3 rounded-full ${
-                                    store.is_store_listed
-                                      ? "bg-green-500"
-                                      : "bg-red-500"
-                                  }`}
-                                ></p>
-                                <button
-                                  onClick={() => connectStore(store.id)}
-                                  className={`px-3 py-1 ml-4 rounded-lg ${
-                                    store.is_store_listed
-                                      ? "bg-gray-200 text-white cursor-not-allowed"
-                                      : "bg-[#4710B5] text-white"
-                                  }`}
-                                  disabled={store.is_store_listed}
+                            {stores &&
+                              stores.map((store) => (
+                                <div
+                                  className="flex flex-row justify-between items-center gap-4 py-2"
+                                  key={store.id}
                                 >
-                                  Connect store
-                                </button>
-                              </div>
-                            ))}
+                                  <p className="flex-1">{store.store_name}</p>
+                                  <p
+                                    className={`w-3 h-3 rounded-full ${
+                                      store.is_store_listed
+                                        ? "bg-green-500"
+                                        : "bg-red-500"
+                                    }`}
+                                  ></p>
+                                  <button
+                                    onClick={() => connectStore(store.id)}
+                                    className={`px-3 py-1 ml-4 rounded-lg ${
+                                      store.is_store_listed
+                                        ? "bg-gray-200 text-white cursor-not-allowed"
+                                        : "bg-[#4710B5] text-white"
+                                    }`}
+                                    disabled={store.is_store_listed}
+                                  >
+                                    Connect store
+                                  </button>
+                                </div>
+                              ))}
                           </div>
                         )}
                       </div>
@@ -730,7 +709,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   <div
                     className={`flex w-full`}
                     onClick={() => {
-                      setIsCollapsed(false);
+                      // setIsCollapsed(false);
                     }}
                   >
                     <div className="flex w-full gap-2">
@@ -743,6 +722,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                             backgroundColor: "#D7C9F7",
                             color: "#4F12CA",
                           }}
+                          onClick={toggleSidebar}
                         />
                       </div>
                       <div className="flex flex-col">
@@ -774,10 +754,7 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                 </div>
               )}
               {showStoreData && !isCollapsed && (
-                <div
-                  ref={dropdownRef}
-                  className="w-[275px] border-2 rounded shadow-lg absolute top-24 left-3 z-[100] bg-white"
-                >
+                <div className="w-[275px] border-2 rounded shadow-lg absolute top-24 left-3 z-[100] bg-white">
                   <div className="h-full max-h-[147px] overflow-y-auto custom-scrollbar cursor-pointer">
                     {stores && stores.length > 0 ? (
                       stores.map((store, index) => (
@@ -821,54 +798,53 @@ export default function Sidebar({ isOpen, handleToggleSidebar }: SidebarProps) {
                   >
                     <p
                       className="flex items-center gap-1 text-[#4F12CA]"
-                      onClick={() => setShowList(!showList)}
+                      // onClick={() => setShowList(!showList)}
                     >
                       <span>
                         <FiPlus size={20} />
-                      </span>{" "}
+                      </span>
                       Connect new store
                     </p>
                     {showList && (
                       <CustomModal
-                        onClose={() => setShowList(false)}
+                        // onClose={() => setShowList(false)}
                         maxWidth={"max-w-[350px]"}
                       >
                         <div className="bg-white mt-1 rounded-lg">
                           <h3 className="font-semibold text-lg">
                             Available Stores
                           </h3>
-                          {loading ? (
-                            <p>Loading...</p>
-                          ) : stores.length === 0 ? (
+                          {stores && stores.length === 0 ? (
                             <p>No stores available to connect.</p>
                           ) : (
                             <div>
-                              {stores.map((store) => (
-                                <div
-                                  className="flex flex-row justify-between items-center gap-4 py-2"
-                                  key={store.id}
-                                >
-                                  <p className="flex-1">{store.store_name}</p>
-                                  <p
-                                    className={`w-3 h-3 rounded-full ${
-                                      store.is_store_listed
-                                        ? "bg-green-500"
-                                        : "bg-red-500"
-                                    }`}
-                                  ></p>
-                                  <button
-                                    onClick={() => connectStore(store.id)}
-                                    className={`px-3 py-1 rounded-lg ${
-                                      store.is_store_listed
-                                        ? "bg-gray-200 text-white cursor-not-allowed"
-                                        : "bg-[#4710B5] text-white"
-                                    }`}
-                                    disabled={store.is_store_listed}
+                              {stores &&
+                                stores.map((store) => (
+                                  <div
+                                    className="flex flex-row justify-between items-center gap-4 py-2"
+                                    key={store.id}
                                   >
-                                    Connect store
-                                  </button>
-                                </div>
-                              ))}
+                                    <p className="flex-1">{store.store_name}</p>
+                                    <p
+                                      className={`w-3 h-3 rounded-full ${
+                                        store.is_store_listed
+                                          ? "bg-green-500"
+                                          : "bg-red-500"
+                                      }`}
+                                    ></p>
+                                    <button
+                                      onClick={() => connectStore(store.id)}
+                                      className={`px-3 py-1 rounded-lg ${
+                                        store.is_store_listed
+                                          ? "bg-gray-200 text-white cursor-not-allowed"
+                                          : "bg-[#4710B5] text-white"
+                                      }`}
+                                      disabled={store.is_store_listed}
+                                    >
+                                      Connect store
+                                    </button>
+                                  </div>
+                                ))}
                             </div>
                           )}
                         </div>
