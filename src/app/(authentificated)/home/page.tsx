@@ -355,20 +355,32 @@ export default function Home() {
           "paid"
         );
 
-        const paidRecords = orderData.filter(
+        // FIX 1: Ensure unique orders by removing duplicates based on order_id
+        const uniqueOrderData = Array.from(
+          new Map(orderData.map((order) => [order.order_id, order])).values()
+        );
+
+        const uniquePastWeekOrders = Array.from(
+          new Map(pastWeekOrders?.map((order) => [order.order_id, order]) || []).values()
+        );
+
+        const paidRecords = uniqueOrderData.filter(
           (data) => data.financial_status?.trim().toLowerCase() === "paid"
         );
 
-        const pastWeekPaidRecords = pastWeekOrders?.filter(
+        const pastWeekPaidRecords = uniquePastWeekOrders.filter(
           (data) => data.financial_status?.trim().toLowerCase() === "paid"
         );
 
-        const fulfillRecords = orderData.filter(
-          (data) => data.fulfillment_status === "fulfilled"
+        // FIX 2: Better fulfilled/unfulfilled filtering with null handling
+        const fulfillRecords = uniqueOrderData.filter(
+          (data) =>
+            data.fulfillment_status?.trim().toLowerCase() === "fulfilled"
         );
 
-        const pastWeekFulfillRecords = pastWeekOrders?.filter(
-          (data) => data.fulfillment_status === "fulfilled"
+        const pastWeekFulfillRecords = uniquePastWeekOrders.filter(
+          (data) =>
+            data.fulfillment_status?.trim().toLowerCase() === "fulfilled"
         );
 
         const totalEarningsChart = groupAndSumByDate(paidRecords);
@@ -516,6 +528,10 @@ export default function Home() {
           const inventory_level = item.inventory_level as any;
           const inventoryQuantities =
             inventory_level?.[0]?.node?.quantities || [];
+
+          // FIX 3: Check if inventory is tracked (Shopify inventoryManagement field)
+          const isTracked = inventory_level?.[0]?.node?.item?.inventoryManagement !== null;
+
           const available =
             inventoryQuantities.find((q: any) => q.name === "available")
               ?.quantity || 0;
@@ -523,23 +539,33 @@ export default function Home() {
             inventoryQuantities.find((q: any) => q.name === "committed")
               ?.quantity || 0;
           const backOrders = item.back_orders || 0;
+
+          // Handle "Not Tracked" inventory items
           let stockStatus = "Enough Stock";
-          if (available === 0) stockStatus = "No Stock";
-          else if (available < 50) stockStatus = "Low Stock";
+          if (!isTracked || available === null || available === undefined) {
+            stockStatus = "Not Tracked";
+          } else if (available === 0) {
+            stockStatus = "No Stock";
+          } else if (available < 50) {
+            stockStatus = "Low Stock";
+          }
+
           let urlObj: any = {};
           try {
             urlObj = JSON.parse(item.product_image || "{}");
           } catch (e) {
             urlObj = {};
           }
+
           return {
             image: urlObj.url || item?.product_image,
-            color: item.product_name || "", //"#" + Math.floor(Math.random() * 16777215).toString(16),
+            color: item.product_name || "",
             name: item.sku || "NO SKU",
             product_id: item.product_id,
-            stockMeter: available + committed,
+            stockMeter: isTracked ? available + committed : null,
             stockStatus,
             backorders: backOrders,
+            isTracked, // Add flag for UI rendering
           };
         });
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+// FIX 9: Improved forecast with mathematical calculations and better AI prompts
 export async function POST(req: Request) {
   try {
     const { inventoryData } = await req.json();
@@ -11,46 +12,91 @@ export async function POST(req: Request) {
       );
     }
 
-    // Updated prompt to ensure JSON format
-    const prompt = `Given this inventory data, predict demand for the next 30 days and provide reorder suggestions.
-    Respond ONLY in valid JSON format with an array of objects like this: 
-    [{"product_name": "Item A", "current_stocks": 50, "forecasted_demand": 150, "reorder_suggestion": "Reorder 100 units"}]
-    You can get the current_stocks from availble data in inventorydata. And product name should be name of inventory data.
+    // Calculate basic metrics for each inventory item
+    const enhancedInventory = inventoryData.map((item: any) => {
+      const currentStock = item.stockMeter || 0;
+      const backorders = item.backorders || 0;
 
-    Inventory Data: ${JSON.stringify(inventoryData)}`;
-
-    const openaiRes = await fetch(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.2,
-          // max_tokens: 300,
-        }),
+      // Simple heuristic: estimate daily sales based on stock status
+      // Low stock items likely sell faster
+      let estimatedDailySales = 0;
+      if (item.stockStatus === "No Stock") {
+        estimatedDailySales = backorders > 0 ? Math.ceil(backorders / 7) : 5;
+      } else if (item.stockStatus === "Low Stock") {
+        estimatedDailySales = Math.max(1, Math.ceil((50 - currentStock) / 7));
+      } else {
+        estimatedDailySales = Math.max(1, Math.ceil(currentStock / 30));
       }
-    );
 
-    const data = await openaiRes.json();
-    console.log("data :>> ", data.choices[0].message.content);
-    // Ensure response is valid JSON
-    let forecast;
+      // Calculate 30-day forecast
+      const forecastedDemand = estimatedDailySales * 30;
+      const reorderAmount = Math.max(0, forecastedDemand - currentStock);
+
+      return {
+        product_name: item.name || item.color || "Unknown",
+        current_stocks: currentStock,
+        daily_sales_rate: estimatedDailySales,
+        forecasted_demand: forecastedDemand,
+        reorder_suggestion: reorderAmount > 0
+          ? `Reorder ${reorderAmount} units`
+          : "Stock is sufficient",
+        stock_status: item.stockStatus,
+      };
+    });
+
+    // Try AI enhancement (with fallback to mathematical calculation)
     try {
-      forecast = JSON.parse(data.choices[0].message.content);
-    } catch (error) {
-      console.error("ChatGPT response is not valid JSON:", error);
-      return NextResponse.json(
-        { error: "Invalid JSON response from AI" },
-        { status: 500 }
-      );
-    }
+      const prompt = `Analyze this inventory and refine the demand forecasts.
+      Respond ONLY in valid JSON format with an array matching this structure:
+      [{"product_name": string, "current_stocks": number, "daily_sales_rate": number, "forecasted_demand": number, "reorder_suggestion": string, "stock_status": string}]
 
-    return NextResponse.json({ forecast });
+      Current calculations (improve if needed):
+      ${JSON.stringify(enhancedInventory, null, 2)}
+
+      Rules:
+      1. Keep product_name and current_stocks exact
+      2. Adjust daily_sales_rate based on stock_status (Low/No stock = higher sales)
+      3. forecasted_demand = daily_sales_rate * 30
+      4. Suggest realistic reorder amounts
+      5. Return valid JSON only, no markdown`;
+
+      const openaiRes = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.3,
+            max_tokens: 1500,
+          }),
+        }
+      );
+
+      const data = await openaiRes.json();
+
+      // Parse AI response
+      let aiForecast;
+      try {
+        const content = data.choices[0].message.content.trim();
+        // Remove markdown code blocks if present
+        const cleanedContent = content.replace(/```json\n?|```\n?/g, '');
+        aiForecast = JSON.parse(cleanedContent);
+      } catch (parseError) {
+        console.warn("AI response not valid JSON, using mathematical forecast");
+        aiForecast = enhancedInventory;
+      }
+
+      return NextResponse.json({ forecast: aiForecast });
+    } catch (aiError) {
+      console.warn("AI forecast failed, using mathematical forecast:", aiError);
+      // Fallback to mathematical calculation
+      return NextResponse.json({ forecast: enhancedInventory });
+    }
   } catch (error) {
     console.error("Error fetching forecast:", error);
     return NextResponse.json(

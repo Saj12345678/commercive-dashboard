@@ -107,7 +107,9 @@ export default function Forecast({ inventoryData }: InventoryProps) {
                     ({item.current_stocks} in stock)
                   </span>
                   <EastIcon className="text-xl" />
-                  <span className="font-bold">Selling 4/day.</span>
+                  <span className="font-bold">
+                    Selling {item.daily_sales_rate || 0}/day.
+                  </span>
                 </p>
                 <p className="flex flex-wrap items-center gap-1">
                   Predicted Demand:

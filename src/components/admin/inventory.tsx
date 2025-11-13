@@ -118,6 +118,7 @@ export default function Inventory() {
   const [isFileName, setIsFileName] = useState("");
   const [fileUrl, setFileUrl] = useState("");
 
+  // FIX 6: Corrected validation error field name
   const validateForm = () => {
     const newErrors: any = {};
 
@@ -127,7 +128,7 @@ export default function Inventory() {
       newErrors.product_id = "Product ID is required";
 
     if (!formData.store_url.trim())
-      newErrors.store_name = "Store Name is required";
+      newErrors.store_url = "Store URL is required";
 
     if (
       !formData.inventory_level?.[0]?.node?.quantities?.length ||
@@ -151,13 +152,17 @@ export default function Inventory() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // FIX 5: Fetch inventory with store names via JOIN
   const fetchInventoryData = async () => {
     setIsLoading(true);
     try {
-      // Fetch all data to extract unique stores
+      // JOIN with stores table to get store names
       const { data: allData, error: storeError } = await supabase
         .from("inventory")
-        .select("*");
+        .select(`
+          *,
+          stores!inner(store_name, store_url)
+        `);
       console.log("allData :>> ", allData);
       if (storeError) {
         console.error("Error fetching inventory data:", storeError);
@@ -244,25 +249,31 @@ export default function Inventory() {
     }
   };
 
+  // FIX 7: Add try-catch error handling for inventory updates
   const handleUpdateInventory = async () => {
-    const isValid = validateForm();
-    if (!isValid) {
-      return;
-    }
-    const { data, error } = await supabase
-      .from("inventory")
-      .update(formData)
-      .eq("id", formData.id!)
-      .select();
-    if (error) {
-      toast.error("Error updating inventory data: " + error.message);
-    } else {
-      toast.success("Inventory data updated successfully");
-      setAddNewModalOpen(false);
-      setFormData(initialFormData);
-      fetchInventoryData();
-      setIsFileName("");
-      setFileUrl("");
+    try {
+      const isValid = validateForm();
+      if (!isValid) {
+        return;
+      }
+      const { data, error } = await supabase
+        .from("inventory")
+        .update(formData)
+        .eq("id", formData.id!)
+        .select();
+      if (error) {
+        toast.error("Error updating inventory data: " + error.message);
+      } else {
+        toast.success("Inventory data updated successfully");
+        setAddNewModalOpen(false);
+        setFormData(initialFormData);
+        fetchInventoryData();
+        setIsFileName("");
+        setFileUrl("");
+      }
+    } catch (error: any) {
+      toast.error("Unexpected error: " + (error?.message || "Please try again"));
+      console.error("Update inventory error:", error);
     }
   };
 
@@ -377,7 +388,9 @@ export default function Inventory() {
       {
         field: "store_name",
         headerName: "Store Name",
-        customRender: (row: any) => <span>{row?.store_url}</span>,
+        customRender: (row: any) => (
+          <span>{row?.stores?.store_name || row?.store_url}</span>
+        ),
       },
       {
         field: "inventory_level[0].node.quantities[0].quantity",
@@ -497,14 +510,14 @@ export default function Inventory() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex flex-col relative w-full">
                     <InputField
-                      name="store_name"
-                      placeholder="Enter store name"
+                      name="store_url"
+                      placeholder="Enter store URL"
                       type="text"
                       className="mt-[8px]"
-                      label={`Store Name`}
+                      label={`Store URL`}
                       value={formData.store_url || ""}
                       onChange={(e: any) =>
-                        handleInventoryChange(e, "store_name")
+                        handleInventoryChange(e, "store_url")
                       }
                     />
                     {errors?.store_url && (

@@ -90,12 +90,34 @@ export default function FeatureCard({
           <div
             className={`flex flex-col w-full bg-[#ffffff] ${
               index === 3 ? "mr-0" : "mr-0"
-            } pl-6 py-4 pr-4 flex-0 overflow-hidden custom-box-shadow`}
+            } pl-6 py-5 pr-4 flex-0 overflow-hidden rounded-2xl relative`}
+            style={{
+              background: 'linear-gradient(135deg, #ffffff 0%, #fafafa 100%)',
+              boxShadow: '0 4px 6px -1px rgba(68, 34, 144, 0.1), 0 2px 4px -1px rgba(68, 34, 144, 0.06)',
+              border: '1px solid rgba(68, 34, 144, 0.08)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(68, 34, 144, 0.15), 0 4px 6px -2px rgba(68, 34, 144, 0.08)';
+              e.currentTarget.style.transform = 'translateY(-4px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(68, 34, 144, 0.1), 0 2px 4px -1px rgba(68, 34, 144, 0.06)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
-            <div className="flex w-full flex-col gap-2">
+            {/* Subtle gradient overlay bar */}
+            <div
+              className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl"
+              style={{
+                background: `linear-gradient(90deg, ${data.color}99 0%, ${data.color}33 100%)`,
+              }}
+            />
+
+            <div className="flex w-full flex-col gap-3">
               <div className="flex w-full flex-wrap justify-between items-center">
                 <h2
-                  className={`text-[#454545] font-semibold ${
+                  className={`text-[#454545] font-semibold text-[15px] ${
                     page === "home"
                       ? index === 3
                         ? "mt-1"
@@ -110,7 +132,7 @@ export default function FeatureCard({
                 {data.name === "Wallet" && (
                   <div
                     onClick={handleWithdrawalClick}
-                    className="flex border-2 bg-[#F4F4F7] text-[#3D3C3C] font-semibold rounded-md p-2 cursor-pointer"
+                    className="flex border-2 bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200 text-[#4F11C9] font-semibold rounded-lg px-3 py-1.5 cursor-pointer hover:from-purple-100 hover:to-purple-200 transition-all"
                   >
                     Withdraw
                   </div>
@@ -119,7 +141,7 @@ export default function FeatureCard({
               <div className="flex w-full gap-2 items-end">
                 <div className="flex flex-1 flex-col gap-2">
                   <div className="flex gap-2 items-center">
-                    <p className="font-semibold text-[#454545] text-[18px]">
+                    <p className="font-bold text-[#1a1a1a] text-[28px] leading-none">
                       {page === "home"
                         ? index === 2
                           ? "$" + data.amount
@@ -127,30 +149,38 @@ export default function FeatureCard({
                         : page === "commercive" && index === 0
                         ? data.amount
                         : "$" + data.amount}
+                      <span className="text-[#9ca3af] text-[20px] font-normal ml-0.5">.00</span>
                     </p>
                     <div
-                      className={`rounded-full w-[26px] h-[26px] flex justify-center items-center ${
-                        parseFloat(data.percentage) === 0 ? "hidden" : "" // Hide the entire div if percentage is 0
+                      className={`rounded-full w-[28px] h-[28px] flex justify-center items-center ${
+                        parseFloat(data.percentage) === 0 ? "hidden" : ""
                       }`}
                       style={{
                         backgroundColor:
                           parseFloat(data.percentage) === 0
                             ? "transparent"
                             : data.bgColor,
+                        border: `1.5px solid ${data.color}33`,
                       }}
                     >
                       {index === 3 || parseFloat(data.percentage) < 0 ? (
-                        <FaArrowDown color={data.color} fontWeight="bold" />
+                        <FaArrowDown color={data.color} fontWeight="bold" size={12} />
                       ) : parseFloat(data.percentage) > 0 ? (
-                        <FaArrowUp color={data.color} fontWeight="bold" />
-                      ) : null}{" "}
+                        <FaArrowUp color={data.color} fontWeight="bold" size={12} />
+                      ) : null}
                     </div>
-                    <p className="font-semibold" style={{ color: data.color }}>
+                    <p
+                      className="font-bold text-[14px] px-2 py-0.5 rounded-md"
+                      style={{
+                        color: data.color,
+                        backgroundColor: `${data.bgColor}`,
+                      }}
+                    >
                       {data.percentage}
                     </p>
                   </div>
-                  <p className="text-sm">Compared to </p>
-                  <p className="text-[#B1B0B0] text-sm">
+                  <p className="text-[13px] text-[#6b7280] font-medium">Compared to</p>
+                  <p className="text-[#9ca3af] text-[12px] font-medium">
                     {dateRange[0]?.startDate && dateRange[0]?.endDate
                       ? `${dateRange[0].startDate.toLocaleDateString("en-GB", {
                           day: "2-digit",

@@ -207,6 +207,7 @@ export default function Shipment() {
     }
   };
 
+  // FIX 4: Improved days calculation - handle same-day and in-transit shipments
   const calculateDaysGap = (data: {
     created_at: string;
     updated_at: string;
@@ -222,15 +223,29 @@ export default function Shipment() {
 
     let daysGap = 0;
 
-    if (createdDate.getTime() === updatedDate.getTime()) {
-      daysGap = 0;
+    // Check if shipment is still in transit (not delivered yet)
+    const isInTransit = data.status?.toUpperCase() === "PENDING" ||
+                       data.status?.toUpperCase() === "OPEN" ||
+                       data.status?.toUpperCase() === "IN_TRANSIT";
+
+    if (isInTransit) {
+      // For in-transit shipments, calculate days from creation to now
+      daysGap = Math.ceil(
+        (currentDate.getTime() - createdDate.getTime()) / (1000 * 3600 * 24)
+      );
     } else {
-      daysGap = Math.floor(
+      // For delivered/completed shipments
+      daysGap = Math.ceil(
         (updatedDate.getTime() - createdDate.getTime()) / (1000 * 3600 * 24)
       );
     }
 
-    return `${Math.max(0, daysGap)} days`;
+    // Always show at least 1 day for same-day shipments (instead of 0)
+    const displayDays = Math.max(1, daysGap);
+
+    return isInTransit
+      ? `${displayDays} day${displayDays !== 1 ? 's' : ''} (In Transit)`
+      : `${displayDays} day${displayDays !== 1 ? 's' : ''}`;
   };
   const isLargeScreen = useMediaQuery("(min-width: 640px)");
   const chunkSize = 10;

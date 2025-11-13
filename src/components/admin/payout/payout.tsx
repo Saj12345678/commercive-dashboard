@@ -61,6 +61,45 @@ export default function Payout() {
     setPage(curPage);
   };
 
+  // FIX 8: Add Approve and Complete action handlers
+  const handleApprovePayout = async (row: PayoutUserRow) => {
+    try {
+      const { error } = await supabase
+        .from("payouts")
+        .update({ status: "Approved" })
+        .eq("id", row.id);
+
+      if (error) {
+        toast.error("Failed to approve payout: " + error.message);
+      } else {
+        toast.success("Payout approved successfully!");
+        await fetchPayoutsData(page);
+      }
+    } catch (error: any) {
+      toast.error("Error approving payout: " + (error?.message || "Unknown error"));
+      console.error("Approve payout error:", error);
+    }
+  };
+
+  const handleCompletePayout = async (row: PayoutUserRow) => {
+    try {
+      const { error } = await supabase
+        .from("payouts")
+        .update({ status: "Completed" })
+        .eq("id", row.id);
+
+      if (error) {
+        toast.error("Failed to complete payout: " + error.message);
+      } else {
+        toast.success("Payout completed successfully!");
+        await fetchPayoutsData(page);
+      }
+    } catch (error: any) {
+      toast.error("Error completing payout: " + (error?.message || "Unknown error"));
+      console.error("Complete payout error:", error);
+    }
+  };
+
   const tableConfig = {
     handlePagination: handlePagination,
     notFoundData: "No Data found",
@@ -92,6 +131,31 @@ export default function Payout() {
         headerName: "Status",
         customRender: (row: any) => (
           <span className={getStatusColor(row.status)}>{row.status}</span>
+        ),
+      },
+      {
+        field: "actions",
+        headerName: "Actions",
+        customRender: (row: any) => (
+          <div className="flex gap-2">
+            {row.status === "Pending" && (
+              <CustomButton
+                label="Approve"
+                className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1"
+                callback={() => handleApprovePayout(row)}
+              />
+            )}
+            {row.status === "Approved" && (
+              <CustomButton
+                label="Complete"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1"
+                callback={() => handleCompletePayout(row)}
+              />
+            )}
+            {row.status === "Completed" && (
+              <span className="text-sm text-green-600 font-semibold">✓ Done</span>
+            )}
+          </div>
         ),
       },
     ],
